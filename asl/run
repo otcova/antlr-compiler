@@ -1,0 +1,1 @@
+make antlr && make && echo "--- OUT ---" && ./asl "${1}.asl" || echo "--- DIFF ---" && diff "${1}.err" <(./asl "${1}.asl")
