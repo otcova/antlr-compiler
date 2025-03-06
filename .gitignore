@@ -3,3 +3,8 @@ asl/asl
 asl/Asl.interp
 asl/Asl.tokens
 asl/_antlr
+asl/Asl*.h
+asl/Asl*.cpp
+asl/AslLexer.interp
+asl/AslLexer.tokens
+tvm
