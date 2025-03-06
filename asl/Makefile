@@ -78,7 +78,11 @@ ANTLR4FLAGS += -o $(GENDIR)
 endif
 
 # The root directory of your antlr4 runtime is ...
-ANTLR_ROOT := /assig/$(USER)/cl/runtime
+ANTLR_ROOT := $(HOME)/.otcova-setup/.local/antlr4_cpp_runtime/install
+ifeq "$(wildcard $(ANTLR_ROOT))" ""
+  # if directory ANTLR_ROOT does not exists:
+	ANTLR_ROOT := /assig/$(USER)/cl/runtime
+endif
 #ANTLR_ROOT := $(HOME)/assig/cl/runtime
 #ANTLR_ROOT := /usr
 #ANTLR_ROOT := /usr/local

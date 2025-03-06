@@ -1,0 +1,5 @@
+*.o
+asl/asl
+asl/Asl.interp
+asl/Asl.tokens
+asl/_antlr
