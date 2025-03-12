@@ -4,3 +4,6 @@ CompileFlags:
     - "-I/assig/otger.comas/cl/runtime/include/antlr4-runtime"
     - "-I."
     - "-I../common"
+    - "-I/assig/xiangfeng.yepan/cl/runtime/include/antlr4-runtime"
+    - "-I/home/otger/.otcova-setup/.local/antlr4_cpp_runtime/install/include/antlr4-runtime"
+    - "-I/home/xf/.otcova-setup/.local/antlr4_cpp_runtime/install/include/antlr4-runtime"
