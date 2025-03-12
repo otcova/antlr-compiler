@@ -261,8 +261,9 @@ std::any TypeCheckVisitor::visitUnary(AslParser::UnaryContext *ctx) {
             Errors.incompatibleOperator(ctx->op);
     }
 
-    TypesMgr::TypeId t = Types.createIntegerTy();
-    putTypeDecor(ctx, t);
+    putTypeDecor(ctx, Types.createIntegerTy());
+    if (ctx->NOT())
+        putTypeDecor(ctx, Types.createBooleanTy());
     putIsLValueDecor(ctx, false);
     DEBUG_EXIT();
     return 0;
@@ -307,15 +308,16 @@ std::any TypeCheckVisitor::visitRelational(AslParser::RelationalContext *ctx) {
 std::any TypeCheckVisitor::visitLogical(AslParser::LogicalContext *ctx) {
     DEBUG_ENTER();
     visit(ctx->expr(0));
-    TypesMgr::TypeId t1 = getTypeDecor(ctx->expr(0));
     visit(ctx->expr(1));
-    TypesMgr::TypeId t2 = getTypeDecor(ctx->expr(1));
-    std::string oper = ctx->op->getText();
-    if ((not Types.isErrorTy(t1)) and (not Types.isErrorTy(t2)) and
-        (not Types.isBooleanTy(t1) and (not Types.isBooleanTy(t2))))
+
+    TypesMgr::TypeId lhs = getTypeDecor(ctx->expr(0));
+    TypesMgr::TypeId rhs = getTypeDecor(ctx->expr(1));
+    
+    if ((!Types.isErrorTy(lhs) and !Types.isBooleanTy(lhs)) or
+        (!Types.isErrorTy(rhs) and !Types.isBooleanTy(rhs)))
         Errors.incompatibleOperator(ctx->op);
-    TypesMgr::TypeId t = Types.createBooleanTy();
-    putTypeDecor(ctx, t);
+
+    putTypeDecor(ctx, Types.createBooleanTy());
     putIsLValueDecor(ctx, false);
     DEBUG_EXIT();
     return 0;
@@ -355,10 +357,42 @@ std::any TypeCheckVisitor::visitGetArray(AslParser::GetArrayContext *ctx) {
     if (not Types.isErrorTy(indexType) && not Types.isNumericTy(indexType))
         Errors.nonIntegerIndexInArrayAccess(ctx->expr());
 
-    putTypeDecor(ctx,
-                 arrayType); // TODO: Set element type instead of array type
+    if (Types.isArrayTy(arrayType))
+        putTypeDecor(ctx, Types.getArrayElemType(arrayType));
+    
     bool b = getIsLValueDecor(ctx->ident());
     putIsLValueDecor(ctx, b);
+    DEBUG_EXIT();
+    return 0;
+}
+
+std::any TypeCheckVisitor::visitFuncCall(AslParser::FuncCallContext *ctx) {
+    DEBUG_ENTER();
+
+    visit(ctx->ident());
+    for (auto arg : ctx->expr())
+        visit(arg);
+
+    TypesMgr::TypeId funcType = getTypeDecor(ctx->ident());
+
+    if (not Types.isErrorTy(funcType)) {
+        if (not Types.isFunctionTy(funcType))
+            Errors.isNotFunction(ctx->ident());
+     
+        auto& params = Types.getFuncParamsTypes(funcType);
+        if (params.size() != ctx->expr().size()) 
+            Errors.numberOfParameters(ctx->ident());
+     
+        for (size_t i = 0; i < std::min(params.size(), ctx->expr().size()); ++i) {
+            if (params[i] != getTypeDecor(ctx->expr(i)))
+                Errors.incompatibleParameter(ctx->expr(i), i + 1, ctx);
+        }
+    }
+
+    if (Types.isFunctionTy(funcType))
+        putTypeDecor(ctx, Types.getFuncReturnType(funcType));
+    putIsLValueDecor(ctx, false);
+
     DEBUG_EXIT();
     return 0;
 }

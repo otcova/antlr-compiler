@@ -103,6 +103,7 @@ expr    : op=(NOT|PLUS|MINUS) expr                      # unary
         | CHARVAL                                       # value
         | BOOLVAL                                       # value
         | ident '[' expr ']'                            # getArray
+        | ident '(' (expr (',' expr)* )? ')'            # funcCall
         | ident                                         # exprIdent
         | '(' expr ')'                                  # parent
         ;

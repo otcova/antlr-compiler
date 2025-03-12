@@ -79,6 +79,7 @@ class TypeCheckVisitor final : public AslBaseVisitor {
     std::any visitLogical(AslParser::LogicalContext *ctx);
     std::any visitValue(AslParser::ValueContext *ctx);
     std::any visitGetArray(AslParser::GetArrayContext *ctx);
+    std::any visitFuncCall(AslParser::FuncCallContext *ctx);
     std::any visitIdent(AslParser::IdentContext *ctx);
 
   private:
