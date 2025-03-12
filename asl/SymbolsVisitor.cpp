@@ -88,9 +88,11 @@ std::any SymbolsVisitor::visitFunction(AslParser::FunctionContext* ctx) {
     Errors.declaredIdent(ctx->ID());
   } else {
     std::vector<TypesMgr::TypeId> lParamsTy;
+
     TypesMgr::TypeId tRet = Types.createVoidTy();
     if (ctx->type())
       tRet = getTypeDecor(ctx->type());
+
     TypesMgr::TypeId tFunc = Types.createFunctionTy(lParamsTy, tRet);
     Symbols.addFunction(ident, tFunc);
   }

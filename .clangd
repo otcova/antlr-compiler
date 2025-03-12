@@ -2,5 +2,5 @@ CompileFlags:
   Add:
     - "-std=c++17"
     - "-I/assig/otger.comas/cl/runtime/include/antlr4-runtime"
-    - "-I."
-    - "-I../common"
+    - "-I./asl"
+    - "-I./common"
