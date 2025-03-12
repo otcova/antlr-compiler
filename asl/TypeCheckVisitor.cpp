@@ -66,13 +66,16 @@ void TypeCheckVisitor::setCurrentFunctionTy(TypesMgr::TypeId type) {
 //
 std::any TypeCheckVisitor::visitProgram(AslParser::ProgramContext *ctx) {
     DEBUG_ENTER();
+    
     SymTable::ScopeId sc = getScopeDecor(ctx);
     Symbols.pushThisScope(sc);
-    for (auto ctxFunc : ctx->function()) {
+
+    for (auto ctxFunc : ctx->function())
         visit(ctxFunc);
-    }
+    
     if (Symbols.noMainProperlyDeclared())
         Errors.noMainProperlyDeclared(ctx);
+
     Symbols.popScope();
     Errors.print();
     DEBUG_EXIT();
@@ -91,27 +94,26 @@ std::any TypeCheckVisitor::visitFunction(AslParser::FunctionContext *ctx) {
     setCurrentFunctionTy(tRet);
 
     visit(ctx->statements());
+
     Symbols.popScope();
     DEBUG_EXIT();
     return 0;
 }
 
-// std::any TypeCheckVisitor::visitDeclarations(AslParser::DeclarationsContext
-// *ctx) {
+// std::any TypeCheckVisitor::visitDeclarations(AslParser::DeclarationsContext *ctx) {
 //   DEBUG_ENTER();
 //   std::any r = visitChildren(ctx);
 //   DEBUG_EXIT();
 //   return r;
 // }
-
-// std::any TypeCheckVisitor::visitVariable_decl(AslParser::Variable_declContext
-// *ctx) {
+// 
+// std::any TypeCheckVisitor::visitVariable_decl(AslParser::Variable_declContext *ctx) {
 //   DEBUG_ENTER();
 //   std::any r = visitChildren(ctx);
 //   DEBUG_EXIT();
 //   return r;
 // }
-
+// 
 // std::any TypeCheckVisitor::visitType(AslParser::TypeContext *ctx) {
 //   DEBUG_ENTER();
 //   std::any r = visitChildren(ctx);

@@ -1,1 +1,11 @@
-make antlr && make && delta "${1}.err" <(./asl "${1}.asl" 2>&1) 
+#!/bin/bash
+set -e
+
+make antlr
+make
+
+for i in {1..9}; do
+    asl="../examples/jp_chkt_0$i.asl"
+    err="../examples/jp_chkt_0$i.err"
+    delta "$err" <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
+done

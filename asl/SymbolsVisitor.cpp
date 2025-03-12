@@ -77,23 +77,27 @@ std::any SymbolsVisitor::visitFunction(AslParser::FunctionContext* ctx) {
   std::string funcName = ctx->ID()->getText();
   SymTable::ScopeId sc = Symbols.pushNewScope(funcName);
   putScopeDecor(ctx, sc);
+
   visit(ctx->parameters());
   if (ctx->type())
     visit(ctx->type());
   visit(ctx->declarations());
-  // Symbols.print();
+
   Symbols.popScope();
   std::string ident = ctx->ID()->getText();
   if (Symbols.findInCurrentScope(ident)) {
     Errors.declaredIdent(ctx->ID());
   } else {
-    std::vector<TypesMgr::TypeId> lParamsTy;
+    std::vector<TypesMgr::TypeId> paramsTy;
+
+    for (auto param : ctx->parameters()->parameter())
+      paramsTy.push_back(getTypeDecor(param->type()));
 
     TypesMgr::TypeId tRet = Types.createVoidTy();
     if (ctx->type())
       tRet = getTypeDecor(ctx->type());
 
-    TypesMgr::TypeId tFunc = Types.createFunctionTy(lParamsTy, tRet);
+    TypesMgr::TypeId tFunc = Types.createFunctionTy(paramsTy, tRet);
     Symbols.addFunction(ident, tFunc);
   }
   DEBUG_EXIT();
