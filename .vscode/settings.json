@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.pl": "perl",
         "cctype": "cpp",
         "cmath": "cpp",
         "cstddef": "cpp",
@@ -56,6 +57,20 @@
         "stack": "cpp",
         "unordered_map": "cpp",
         "unordered_set": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "iostream": "cpp",
+        "__bit_reference": "cpp",
+        "__locale": "cpp",
+        "__node_handle": "cpp",
+        "clocale": "cpp",
+        "cstdarg": "cpp",
+        "execution": "cpp",
+        "fstream": "cpp",
+        "iomanip": "cpp",
+        "ios": "cpp",
+        "locale": "cpp",
+        "mutex": "cpp",
+        "print": "cpp",
+        "streambuf": "cpp"
     }
 }

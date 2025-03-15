@@ -44,6 +44,7 @@
 // uncomment the following line to enable debugging messages with DEBUG*
 // #define DEBUG_BUILD
 #include "../common/debug.h"
+#define LOG(x) std::cerr << " ---- " << x << std::endl;
 
 // using namespace std;
 

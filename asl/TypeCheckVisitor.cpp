@@ -39,7 +39,7 @@
 #include <string>
 
 // uncomment the following line to enable debugging messages with DEBUG*
-// #define DEBUG_BUILD
+//#define DEBUG_BUILD
 #include "../common/debug.h"
 
 #define LOG(x) std::cerr << " ---- " << x << std::endl;
@@ -91,8 +91,9 @@ std::any TypeCheckVisitor::visitFunction(AslParser::FunctionContext *ctx) {
     TypesMgr::TypeId tRet = Types.createVoidTy();
     if (ctx->type())
         tRet = getTypeDecor(ctx->type());
+    
     setCurrentFunctionTy(tRet);
-
+    
     visit(ctx->statements());
 
     Symbols.popScope();
@@ -137,6 +138,7 @@ std::any TypeCheckVisitor::visitAssignStmt(AslParser::AssignStmtContext *ctx) {
     if ((not Types.isErrorTy(t1)) and (not Types.isErrorTy(t2)) and
         (not Types.copyableTypes(t1, t2)))
         Errors.incompatibleAssignment(ctx->ASSIGN());
+
     if ((not Types.isErrorTy(t1)) and (not getIsLValueDecor(ctx->left_expr())))
         Errors.nonReferenceableLeftExpr(ctx->left_expr());
     DEBUG_EXIT();
@@ -291,11 +293,13 @@ std::any TypeCheckVisitor::visitArithmetic(AslParser::ArithmeticContext *ctx) {
 
 std::any TypeCheckVisitor::visitRelational(AslParser::RelationalContext *ctx) {
     DEBUG_ENTER();
+
     visit(ctx->expr(0));
     TypesMgr::TypeId t1 = getTypeDecor(ctx->expr(0));
     visit(ctx->expr(1));
     TypesMgr::TypeId t2 = getTypeDecor(ctx->expr(1));
     std::string oper = ctx->op->getText();
+
     if ((not Types.isErrorTy(t1)) and (not Types.isErrorTy(t2)) and
         (not Types.comparableTypes(t1, t2, oper)))
         Errors.incompatibleOperator(ctx->op);
@@ -376,23 +380,33 @@ std::any TypeCheckVisitor::visitFuncCall(AslParser::FuncCallContext *ctx) {
         visit(arg);
 
     TypesMgr::TypeId funcType = getTypeDecor(ctx->ident());
-
+    
     if (not Types.isErrorTy(funcType)) {
+        
         if (not Types.isFunctionTy(funcType))
-            Errors.isNotFunction(ctx->ident());
-     
-        auto& params = Types.getFuncParamsTypes(funcType);
-        if (params.size() != ctx->expr().size()) 
-            Errors.numberOfParameters(ctx->ident());
-     
-        for (size_t i = 0; i < std::min(params.size(), ctx->expr().size()); ++i) {
-            if (params[i] != getTypeDecor(ctx->expr(i)))
-                Errors.incompatibleParameter(ctx->expr(i), i + 1, ctx);
+            Errors.isNotCallable(ctx->ident());
+        else {
+
+            TypesMgr::TypeId funcReturnType = Types.getFuncReturnType(funcType);
+            putTypeDecor(ctx, funcReturnType);
+
+            if (Types.isVoidTy(funcReturnType))
+            {
+                Errors.isNotFunction(ctx->ident());
+                putTypeDecor(ctx, Types.createErrorTy());
+            }
+        
+            auto& params = Types.getFuncParamsTypes(funcType);
+            if (params.size() != ctx->expr().size()) 
+                Errors.numberOfParameters(ctx->ident());
+         
+            for (size_t i = 0; i < std::min(params.size(), ctx->expr().size()); ++i) {
+                if (params[i] != getTypeDecor(ctx->expr(i)))
+                    Errors.incompatibleParameter(ctx->expr(i), i + 1, ctx);
+            }
         }
     }
 
-    if (Types.isFunctionTy(funcType))
-        putTypeDecor(ctx, Types.getFuncReturnType(funcType));
     putIsLValueDecor(ctx, false);
 
     DEBUG_EXIT();
