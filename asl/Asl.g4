@@ -98,7 +98,7 @@ left_expr
 
 // Grammar for expressions with boolean, relational and aritmetic operators
 expr    : op=(NOT|PLUS|MINUS) expr                      # unary
-        | expr op=(MUL|DIV) expr                        # arithmetic
+        | expr op=(MUL|DIV|MOD) expr                    # arithmetic
         | expr op=(PLUS|MINUS) expr                     # arithmetic
         | expr op=(EQUAL|NE|LT|GT|LE|GE) expr           # relational
         | expr op=AND expr                              # logical
@@ -135,6 +135,7 @@ PLUS      : '+' ;
 MINUS     : '-';
 MUL       : '*';
 DIV       : '/';
+MOD       : '%';
 VAR       : 'var';
 INT       : 'int';
 FLOAT     : 'float';

@@ -321,7 +321,11 @@ std::any TypeCheckVisitor::visitArithmetic(AslParser::ArithmeticContext *ctx) {
 
     if (((not Types.isErrorTy(t1)) and (not Types.isNumericTy(t1))) or
         ((not Types.isErrorTy(t2)) and (not Types.isNumericTy(t2))))
-        Errors.incompatibleOperator(ctx->op);
+            Errors.incompatibleOperator(ctx->op);
+            
+    if ((not Types.isErrorTy(t1)) and (not Types.isIntegerTy(t1)) && 
+        (not Types.isErrorTy(t1)) and (not Types.isIntegerTy(t1)))
+            Errors.incompatibleOperator(ctx->op);
 
     TypesMgr::TypeId t = Types.createIntegerTy();
     putTypeDecor(ctx, t);
