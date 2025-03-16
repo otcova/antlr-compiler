@@ -414,7 +414,7 @@ std::any TypeCheckVisitor::visitFuncCall(AslParser::FuncCallContext *ctx) {
                 Errors.numberOfParameters(ctx->ident());
          
             for (size_t i = 0; i < std::min(params.size(), ctx->expr().size()); ++i) {
-                if (Types.to_string(params[i]) != Types.to_string(getTypeDecor(ctx->expr(i))))
+                if (!Types.equalTypes(params[i], getTypeDecor(ctx->expr(i))))
                     Errors.incompatibleParameter(ctx->expr(i), i + 1, ctx);
             }
 
