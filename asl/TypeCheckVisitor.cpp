@@ -173,14 +173,21 @@ std::any TypeCheckVisitor::visitWhileStmt(AslParser::WhileStmtContext *ctx) {
 
 std::any TypeCheckVisitor::visitReturn(AslParser::ReturnContext *ctx) {
     DEBUG_ENTER();
-    TypesMgr::TypeId t1 = Types.createVoidTy();
+
+    TypesMgr::TypeId returnType = Types.createVoidTy();
     if (ctx->expr()) {
         visit(ctx->expr());
-        t1 = getTypeDecor(ctx->expr());
+        returnType = getTypeDecor(ctx->expr());
     }
-    TypesMgr::TypeId t2 = getCurrentFunctionTy();
-    if ((not Types.isErrorTy(t1)) and (not Types.isErrorTy(t2)) and (t1 != t2))
-        Errors.incompatibleReturn(ctx->RETURN());
+    TypesMgr::TypeId funcType = getCurrentFunctionTy();
+    if ((not Types.isErrorTy(returnType)) and (not Types.isErrorTy(funcType)))
+    {
+        if (!Types.equalTypes(returnType, funcType)) {
+            if (!(Types.isFloatTy(funcType) and Types.isIntegerTy(returnType))) // assume that float func can return an integer
+                Errors.incompatibleReturn(ctx->RETURN());
+        }
+    }
+
     DEBUG_EXIT();
     return 0;
 }
