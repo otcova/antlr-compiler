@@ -38,7 +38,7 @@ program : function+ EOF
 
 // A function has a name, a list of parameters and a list of statements
 function
-        : FUNC ID '(' parameters ')' (':' type)? declarations statements ENDFUNC
+        : FUNC ID '(' parameters ')' (':' basic_type)? declarations statements ENDFUNC
         ;
 
 parameters
@@ -57,10 +57,15 @@ variable_decl
         : VAR ID (',' ID)* ':' type
         ;
 
-type    : INT
+basic_type    
+        : INT
         | FLOAT
         | BOOL 
         | CHAR
+        ;
+
+type    : basic_type
+        | ARRAY '[' INTVAL ']' 'of' basic_type
         ;
 
 statements
@@ -135,6 +140,7 @@ INT       : 'int';
 FLOAT     : 'float';
 BOOL      : 'bool';
 CHAR      : 'char';
+ARRAY     : 'array';
 IF        : 'if' ;
 THEN      : 'then' ;
 ELSE      : 'else' ;
