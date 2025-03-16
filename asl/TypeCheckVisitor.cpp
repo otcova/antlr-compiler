@@ -254,6 +254,7 @@ std::any TypeCheckVisitor::visitLeft_expr(AslParser::Left_exprContext *ctx) {
             Errors.nonIntegerIndexInArrayAccess(ctx->expr());
             putTypeDecor(ctx, Types.createErrorTy());
         }
+        putTypeDecor(ctx, indexType);
     }
     DEBUG_EXIT();
     return 0;
