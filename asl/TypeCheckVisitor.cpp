@@ -417,12 +417,16 @@ std::any TypeCheckVisitor::visitFuncCall(AslParser::FuncCallContext *ctx) {
             }
         
             auto& params = Types.getFuncParamsTypes(funcType);
-            if (params.size() != ctx->expr().size()) 
+            if (params.size() != ctx->expr().size())
                 Errors.numberOfParameters(ctx->ident());
          
             for (size_t i = 0; i < std::min(params.size(), ctx->expr().size()); ++i) {
-                if (!Types.equalTypes(params[i], getTypeDecor(ctx->expr(i))))
+                TypesMgr::TypeId exprType = getTypeDecor(ctx->expr(i));
+                TypesMgr::TypeId funcParamType = params[i];
+
+                if (!Types.isErrorTy(exprType) and !Types.equalTypes(funcParamType, exprType))
                     Errors.incompatibleParameter(ctx->expr(i), i + 1, ctx);
+                
             }
 
         }
@@ -439,6 +443,7 @@ std::any TypeCheckVisitor::visitExprIdent(AslParser::ExprIdentContext *ctx) {
     visit(ctx->ident());
     TypesMgr::TypeId t1 = getTypeDecor(ctx->ident());
     putTypeDecor(ctx, t1);
+
     bool b = getIsLValueDecor(ctx->ident());
     putIsLValueDecor(ctx, b);
     DEBUG_EXIT();
