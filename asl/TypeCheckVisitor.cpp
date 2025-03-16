@@ -135,6 +135,7 @@ std::any TypeCheckVisitor::visitAssignStmt(AslParser::AssignStmtContext *ctx) {
     visit(ctx->expr());
     TypesMgr::TypeId t1 = getTypeDecor(ctx->left_expr());
     TypesMgr::TypeId t2 = getTypeDecor(ctx->expr());
+
     if ((not Types.isErrorTy(t1)) and (not Types.isErrorTy(t2)) and
         (not Types.copyableTypes(t1, t2)))
         Errors.incompatibleAssignment(ctx->ASSIGN());
@@ -248,20 +249,25 @@ std::any TypeCheckVisitor::visitLeft_expr(AslParser::Left_exprContext *ctx) {
     // Array access
     if (ctx->expr()) {
         visit(ctx->expr());
-        TypesMgr::TypeId indexType = getTypeDecor(ctx->expr());
-        putTypeDecor(ctx, indexType);
         
-        if (not Types.isErrorTy(varType) && not Types.isArrayTy(varType))
-        {
-            Errors.nonArrayInArrayAccess(ctx->ident());
-            putTypeDecor(ctx, Types.createErrorTy());
-        }
-
+        TypesMgr::TypeId indexType = getTypeDecor(ctx->expr());
         if (not Types.isErrorTy(indexType) && not Types.isNumericTy(indexType))
         {
             Errors.nonIntegerIndexInArrayAccess(ctx->expr());
             putTypeDecor(ctx, Types.createErrorTy());
         }
+
+        if (not Types.isErrorTy(varType) && not Types.isArrayTy(varType))
+        {
+            Errors.nonArrayInArrayAccess(ctx->ident());
+            putTypeDecor(ctx, Types.createErrorTy());
+        } 
+        
+        if (Types.isArrayTy(varType)) {
+            TypesMgr::TypeId arrayType = Types.getArrayElemType(varType);
+            putTypeDecor(ctx, arrayType);
+        }
+
     }
     DEBUG_EXIT();
     return 0;
