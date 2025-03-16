@@ -196,11 +196,29 @@ std::any TypeCheckVisitor::visitReturn(AslParser::ReturnContext *ctx) {
 std::any TypeCheckVisitor::visitProcCall(AslParser::ProcCallContext *ctx) {
     DEBUG_ENTER();
     visit(ctx->ident());
-    TypesMgr::TypeId t1 = getTypeDecor(ctx->ident());
-    if (Types.isErrorTy(t1)) {
-        ;
-    } else if (not Types.isFunctionTy(t1)) {
-        Errors.isNotCallable(ctx->ident());
+    for (auto arg : ctx->expr())
+        visit(arg);
+
+    TypesMgr::TypeId funcType = getTypeDecor(ctx->ident());
+    
+    if (not Types.isErrorTy(funcType)) {
+        
+        if (not Types.isFunctionTy(funcType))
+            Errors.isNotCallable(ctx->ident());
+        else {
+
+            auto& params = Types.getFuncParamsTypes(funcType);
+            if (params.size() != ctx->expr().size())
+                Errors.numberOfParameters(ctx->ident());
+         
+            for (size_t i = 0; i < std::min(params.size(), ctx->expr().size()); ++i) {
+                TypesMgr::TypeId exprType = getTypeDecor(ctx->expr(i));
+                TypesMgr::TypeId funcParamType = params[i];
+
+                if (!Types.isErrorTy(exprType) and !Types.equalTypes(funcParamType, exprType))
+                    Errors.incompatibleParameter(ctx->expr(i), i + 1, ctx);
+            }
+        }
     }
     DEBUG_EXIT();
     return 0;
@@ -262,7 +280,7 @@ std::any TypeCheckVisitor::visitLeft_expr(AslParser::Left_exprContext *ctx) {
             Errors.nonArrayInArrayAccess(ctx->ident());
             putTypeDecor(ctx, Types.createErrorTy());
         } 
-        
+
         if (Types.isArrayTy(varType)) {
             TypesMgr::TypeId arrayType = Types.getArrayElemType(varType);
             putTypeDecor(ctx, arrayType);
