@@ -315,19 +315,22 @@ std::any TypeCheckVisitor::visitUnary(AslParser::UnaryContext *ctx) {
 std::any TypeCheckVisitor::visitArithmetic(AslParser::ArithmeticContext *ctx) {
     DEBUG_ENTER();
     visit(ctx->expr(0));
-    TypesMgr::TypeId t1 = getTypeDecor(ctx->expr(0));
+    TypesMgr::TypeId lhs = getTypeDecor(ctx->expr(0));
     visit(ctx->expr(1));
-    TypesMgr::TypeId t2 = getTypeDecor(ctx->expr(1));
+    TypesMgr::TypeId rhs = getTypeDecor(ctx->expr(1));
 
-    if (((not Types.isErrorTy(t1)) and (not Types.isNumericTy(t1))) or
-        ((not Types.isErrorTy(t2)) and (not Types.isNumericTy(t2))))
-            Errors.incompatibleOperator(ctx->op);
-            
-    if ((not Types.isErrorTy(t1)) and (not Types.isIntegerTy(t1)) && 
-        (not Types.isErrorTy(t1)) and (not Types.isIntegerTy(t1)))
-            Errors.incompatibleOperator(ctx->op);
+    if ((not Types.isErrorTy(lhs) and not Types.isNumericTy(lhs)) or
+        (not Types.isErrorTy(rhs) and not Types.isNumericTy(rhs)))
+        Errors.incompatibleOperator(ctx->op);
+    else if (ctx->op->getText() == "%" and
+        ((not Types.isErrorTy(lhs) and not Types.isIntegerTy(lhs)) or
+         (not Types.isErrorTy(rhs) and not Types.isIntegerTy(rhs))))
+        Errors.incompatibleOperator(ctx->op);
 
     TypesMgr::TypeId t = Types.createIntegerTy();
+    if (Types.isFloatTy(lhs) or Types.isFloatTy(rhs))    
+        t = Types.createFloatTy();
+        
     putTypeDecor(ctx, t);
     putIsLValueDecor(ctx, false);
     DEBUG_EXIT();
