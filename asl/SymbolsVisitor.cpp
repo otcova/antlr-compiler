@@ -80,8 +80,8 @@ std::any SymbolsVisitor::visitFunction(AslParser::FunctionContext* ctx) {
   putScopeDecor(ctx, sc);
 
   visit(ctx->parameters());
-  if (ctx->type())
-    visit(ctx->type());
+  if (ctx->basic_type())
+    visit(ctx->basic_type());
   visit(ctx->declarations());
 
   Symbols.popScope();

@@ -89,8 +89,8 @@ std::any TypeCheckVisitor::visitFunction(AslParser::FunctionContext *ctx) {
     Symbols.pushThisScope(sc);
 
     TypesMgr::TypeId tRet = Types.createVoidTy();
-    if (ctx->type())
-        tRet = getTypeDecor(ctx->type());
+    if (ctx->basic_type())
+        tRet = getTypeDecor(ctx->basic_type());
     
     setCurrentFunctionTy(tRet);
     
@@ -399,7 +399,6 @@ std::any TypeCheckVisitor::visitFuncCall(AslParser::FuncCallContext *ctx) {
         if (not Types.isFunctionTy(funcType))
             Errors.isNotCallable(ctx->ident());
         else {
-
             TypesMgr::TypeId funcReturnType = Types.getFuncReturnType(funcType);
             putTypeDecor(ctx, funcReturnType);
 
@@ -417,6 +416,7 @@ std::any TypeCheckVisitor::visitFuncCall(AslParser::FuncCallContext *ctx) {
                 if (Types.to_string(params[i]) != Types.to_string(getTypeDecor(ctx->expr(i))))
                     Errors.incompatibleParameter(ctx->expr(i), i + 1, ctx);
             }
+
         }
     }
 
