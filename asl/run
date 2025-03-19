@@ -15,3 +15,15 @@ for i in {10..20}; do
     err="../examples/jp_chkt_$i.err"
     delta "$err" <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
 done
+
+for i in {1..9}; do
+    asl="../examples/jp_genc_0$i.asl"
+    out="../examples/jp_genc_0$i.out"
+    delta "$out" <(./asl "$asl" 2>&1 | sed '/There are semantic output: no code generated./d')
+done
+
+for i in {10..20}; do
+    asl="../examples/jp_genc_$i.asl"
+    out="../examples/jp_genc_$i.out"
+    delta "$out" <(./asl "$asl" 2>&1 | sed '/There are semantic output: no code generated./d')
+done
