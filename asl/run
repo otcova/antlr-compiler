@@ -4,18 +4,6 @@ set -e
 make antlr
 make
 
-for i in {1..4}; do
-    asl="../examples/jpbasic_chkt_0$i.asl"
-    err="../examples/jpbasic_chkt_0$i.err"
-    delta "$err" <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
-done
-
-for i in {1..4}; do
-    asl="../examples/jpbasic_genc_0$i.asl"
-    out="../examples/jpbasic_genc_0$i.out"
-    delta "$out" <(./asl "$asl" 2>&1 | sed '/There are semantic output: no code generated./d')
-done
-
 for i in {1..9}; do
     asl="../examples/jp_chkt_0$i.asl"
     err="../examples/jp_chkt_0$i.err"

@@ -100,8 +100,8 @@ std::any CodeGenVisitor::visitDeclarations(
   DEBUG_ENTER();
   std::vector<var> lvars;
   for (auto& varDeclCtx : ctx->variable_decl()) {
-    var onevar = std::any_cast<var>(visit(varDeclCtx));
-    lvars.push_back(onevar);
+    std::vector<var> morevar = std::any_cast<std::vector<var>>(visit(varDeclCtx));
+    lvars.insert(lvars.end(), morevar.begin(), morevar.end());
   }
   DEBUG_EXIT();
   return lvars;
