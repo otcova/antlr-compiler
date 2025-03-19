@@ -254,6 +254,7 @@ bool TypesMgr::comparableTypes(TypeId tid1, TypeId tid2,
   return false;
 }
 
+// float tid1 = (int) tid2
 bool TypesMgr::copyableTypes(TypeId tid1, TypeId tid2) const {
   if (equalTypes(tid1, tid2))
     return true;

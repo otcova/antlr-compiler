@@ -53,11 +53,13 @@ TypeCheckVisitor::TypeCheckVisitor(TypesMgr &Types, SymTable &Symbols,
     : Types{Types}, Symbols{Symbols}, Decorations{Decorations}, Errors{Errors} {
 }
 
-// Accessor/Mutator to the attribute currFunctionType
+// Accessor/Mutator to the attribute currFunctionType.
+// Corresponds to the return type of the current function.
 TypesMgr::TypeId TypeCheckVisitor::getCurrentFunctionTy() const {
     return currFunctionType;
 }
 
+// Corresponds to the return type of the current function.
 void TypeCheckVisitor::setCurrentFunctionTy(TypesMgr::TypeId type) {
     currFunctionType = type;
 }
@@ -184,13 +186,9 @@ std::any TypeCheckVisitor::visitReturn(AslParser::ReturnContext *ctx) {
     }
 
     TypesMgr::TypeId funcType = getCurrentFunctionTy();
-    if ((not Types.isErrorTy(returnType)) and (not Types.isErrorTy(funcType))) {
-        if (!Types.equalTypes(returnType, funcType)) {
-            if (!(Types.isFloatTy(funcType) and
-                  Types.isIntegerTy(returnType))) // assume that float func can
-                                                  // return an integer
-                Errors.incompatibleReturn(ctx->RETURN());
-        }
+    if (!Types.isErrorTy(returnType) and !Types.isErrorTy(funcType)) {
+        if (!Types.copyableTypes(funcType, returnType))
+            Errors.incompatibleReturn(ctx->RETURN());
     }
 
     DEBUG_EXIT();
@@ -275,20 +273,22 @@ std::any TypeCheckVisitor::visitLeft_expr(AslParser::Left_exprContext *ctx) {
         visit(ctx->expr());
 
         TypesMgr::TypeId indexType = getTypeDecor(ctx->expr());
+
         if (not Types.isErrorTy(indexType) &&
-            not Types.isNumericTy(indexType)) {
+            not Types.isIntegerTy(indexType)) {
             Errors.nonIntegerIndexInArrayAccess(ctx->expr());
-            putTypeDecor(ctx, Types.createErrorTy());
         }
 
-        if (not Types.isErrorTy(varType) && not Types.isArrayTy(varType)) {
-            Errors.nonArrayInArrayAccess(ctx->ident());
+        if (Types.isErrorTy(varType)) {
             putTypeDecor(ctx, Types.createErrorTy());
-        }
-
-        if (Types.isArrayTy(varType)) {
-            TypesMgr::TypeId arrayType = Types.getArrayElemType(varType);
-            putTypeDecor(ctx, arrayType);
+        } else {
+            if (Types.isArrayTy(varType)) {
+                TypesMgr::TypeId elementType = Types.getArrayElemType(varType);
+                putTypeDecor(ctx, elementType);
+            } else {
+                Errors.nonArrayInArrayAccess(ctx->ident());
+                putTypeDecor(ctx, Types.createErrorTy());
+            }
         }
     }
     DEBUG_EXIT();
@@ -319,23 +319,27 @@ std::any TypeCheckVisitor::visitUnary(AslParser::UnaryContext *ctx) {
 std::any TypeCheckVisitor::visitArithmetic(AslParser::ArithmeticContext *ctx) {
     DEBUG_ENTER();
     visit(ctx->expr(0));
-    TypesMgr::TypeId lhs = getTypeDecor(ctx->expr(0));
     visit(ctx->expr(1));
+    TypesMgr::TypeId lhs = getTypeDecor(ctx->expr(0));
     TypesMgr::TypeId rhs = getTypeDecor(ctx->expr(1));
 
-    if ((not Types.isErrorTy(lhs) and not Types.isNumericTy(lhs)) or
-        (not Types.isErrorTy(rhs) and not Types.isNumericTy(rhs)))
-        Errors.incompatibleOperator(ctx->op);
-    else if (ctx->op->getText() == "%" and
-             ((not Types.isErrorTy(lhs) and not Types.isIntegerTy(lhs)) or
-              (not Types.isErrorTy(rhs) and not Types.isIntegerTy(rhs))))
+    bool error = false;
+    error = error || (!Types.isErrorTy(lhs) && !Types.isNumericTy(lhs));
+    error = error || (!Types.isErrorTy(rhs) && !Types.isNumericTy(rhs));
+
+    if (ctx->MOD()) {
+        error = error || (!Types.isErrorTy(lhs) && !Types.isIntegerTy(lhs));
+        error = error || (!Types.isErrorTy(rhs) && !Types.isIntegerTy(rhs));
+    }
+
+    if (error)
         Errors.incompatibleOperator(ctx->op);
 
-    TypesMgr::TypeId t = Types.createIntegerTy();
+    TypesMgr::TypeId resultTy = Types.createIntegerTy();
     if (Types.isFloatTy(lhs) or Types.isFloatTy(rhs))
-        t = Types.createFloatTy();
+        resultTy = Types.createFloatTy();
 
-    putTypeDecor(ctx, t);
+    putTypeDecor(ctx, resultTy);
     putIsLValueDecor(ctx, false);
     DEBUG_EXIT();
     return 0;
@@ -459,12 +463,8 @@ std::any TypeCheckVisitor::visitFuncCall(AslParser::FuncCallContext *ctx) {
                 TypesMgr::TypeId funcParamType = params[i];
 
                 if (!Types.isErrorTy(exprType) and
-                    !Types.equalTypes(funcParamType, exprType)) {
-                    if (!(Types.isFloatTy(funcParamType) and
-                          Types.isIntegerTy(
-                              exprType))) // assume that float parameter can be
-                                          // assig an integer
-                        Errors.incompatibleParameter(ctx->expr(i), i + 1, ctx);
+                    !Types.copyableTypes(funcParamType, exprType)) {
+                    Errors.incompatibleParameter(ctx->expr(i), i + 1, ctx);
                 }
             }
         }

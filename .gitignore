@@ -8,3 +8,4 @@ asl/Asl*.cpp
 asl/AslLexer.interp
 asl/AslLexer.tokens
 tvm
+*.swp
