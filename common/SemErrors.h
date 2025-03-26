@@ -105,6 +105,20 @@ public:
   //   ctx is the program node (grammar start symbol) 
   void noMainProperlyDeclared       (antlr4::ParserRuleContext *ctx);
 
+  // -------------- new methods for throw and try/catch cases ----------- //
+  //   ctx is the node corresponding to the throw instruction
+  void throwRequiresBasicType          (antlr4::ParserRuleContext *ctx);
+  //   node is the node corresponding to the CATCH token  <<< <<< <<< <<<
+  void catchCasesRequireBasicTypes     (antlr4::tree::TerminalNode *node);
+  //   node is the node corresponding to the CATCH token  <<< <<< <<< <<<
+  void catchCasesRequireCompatibleTypes(antlr4::tree::TerminalNode *node);
+
+  // -------------- new methods for array initialization ---------------- //
+  //   ctx is the node corresponding to the array initialization expression
+  void arrayInitRequireBasicTypes     (antlr4::ParserRuleContext *ctx);
+  //   ctx is the node corresponding to the array initialization expression
+  void arrayInitRequireCompatibleTypes(antlr4::ParserRuleContext *ctx);
+
 
 private:
 

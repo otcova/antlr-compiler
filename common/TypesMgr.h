@@ -117,6 +117,11 @@ public:
   // useful for GenCode add_var and add_param
   std::string to_string_basic (TypeId tidm) const;
 
+  // ---------------- new methods for this exam ---------------- //
+  bool allPrimitiveType(const std::vector<TypeId> & types) const;
+  bool allSameType     (const std::vector<TypeId> & types) const;
+  bool allNumericType  (const std::vector<TypeId> & types) const;
+
 private:
   // Forward declaration of class Type
   class Type;

@@ -1,0 +1,21 @@
+Line 6:5 error: Assignment with incompatible types.
+Line 7:5 error: Assignment with incompatible types.
+Line 10:5 error: Assignment with incompatible types.
+Line 11:5 error: Assignment with incompatible types.
+Line 11:18 error: Identifier 'z' is undeclared.
+Line 13:3 error: Return with incompatible type.
+Line 20:6 error: Identifier 'x' already declared.
+Line 25:2 error: Identifier 'z' is undeclared.
+Line 25:7 error: Operator '+' with incompatible types.
+Line 26:4 error: Identifier 'k' is undeclared.
+Line 31:11 error: Identifier 'a' is undeclared.
+Line 32:13 error: Identifier 'a' is undeclared.
+Line 35:2 error: Instruction 'if' requires a boolean condition.
+Line 36:7 error: Assignment with incompatible types.
+Line 36:10 error: Operator '+' with incompatible types.
+Line 37:5 error: Identifier 'a' is undeclared.
+Line 37:7 error: Array access with non integer index.
+Line 40:2 error: Identifier 'b' is undeclared.
+Line 40:12 error: Identifier 'a' is undeclared.
+Line 41:2 error: Identifier 'b' is undeclared.
+Line 41:6 error: Basic types required in 'array expression'.

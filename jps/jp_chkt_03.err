@@ -1,0 +1,16 @@
+Line 4:11 error: Assignment with incompatible types.
+Line 6:3 error: Basic types required in 'catch' cases.
+Line 11:3 error: Return with incompatible type.
+Line 21:6 error: Instruction 'if' requires a boolean condition.
+Line 22:9 error: Instruction 'if' requires a boolean condition.
+Line 23:12 error: Operator '+' with incompatible types.
+Line 23:14 error: Identifier 'b' is undeclared.
+Line 25:14 error: Array access with non integer index.
+Line 26:11 error: Identifier 'k' is undeclared.
+Line 30:20 error: Operator 'or' with incompatible types.
+Line 30:25 error: Operator '!=' with incompatible types.
+Line 32:12 error: Array access to a non array operand.
+Line 33:12 error: Basic type required in 'throw'.
+Line 36:3 error: Compatible types required in 'catch' cases.
+Line 37:24 error: Identifier 'k' is undeclared.
+Line 40:21 error: Identifier 'w' is undeclared.

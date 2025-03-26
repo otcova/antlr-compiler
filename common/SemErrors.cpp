@@ -146,6 +146,31 @@ void SemErrors::noMainProperlyDeclared(antlr4::ParserRuleContext *ctx) {
   ErrorList.push_back(error);
 }
 
+void SemErrors::throwRequiresBasicType(antlr4::ParserRuleContext *ctx) {
+  ErrorInfo error(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), "Basic type required in 'throw'.");
+  ErrorList.push_back(error);
+}
+
+void SemErrors::catchCasesRequireBasicTypes(antlr4::tree::TerminalNode *node) {
+  ErrorInfo error(node->getSymbol()->getLine(), node->getSymbol()->getCharPositionInLine(), "Basic types required in 'catch' cases.");
+  ErrorList.push_back(error);
+}
+
+void SemErrors::catchCasesRequireCompatibleTypes(antlr4::tree::TerminalNode *node) {
+  ErrorInfo error(node->getSymbol()->getLine(), node->getSymbol()->getCharPositionInLine(), "Compatible types required in 'catch' cases.");
+  ErrorList.push_back(error);
+}
+
+void SemErrors::arrayInitRequireBasicTypes(antlr4::ParserRuleContext *ctx) {
+  ErrorInfo error(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), "Basic types required in 'array expression'.");
+  ErrorList.push_back(error);
+}
+
+void SemErrors::arrayInitRequireCompatibleTypes(antlr4::ParserRuleContext *ctx) {
+  ErrorInfo error(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), "Compatible types required in 'array expression'.");
+  ErrorList.push_back(error);
+}
+
 SemErrors::ErrorInfo::ErrorInfo(std::size_t line, std::size_t coln, std::string message)
   : line{line}, coln{coln}, message{message} {
 }

@@ -1,4 +1,4 @@
-// Generated from /dades/otger.comas/CL/practica/asl/Asl.g4 by ANTLR 4.13.1
+// Generated from /dades/otger.comas/CL/antlr-compiler/asl/Asl.g4 by ANTLR 4.13.1
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
@@ -66,6 +66,16 @@ public interface AslListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitVariable_decl(AslParser.Variable_declContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link AslParser#basic_type}.
+	 * @param ctx the parse tree
+	 */
+	void enterBasic_type(AslParser.Basic_typeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AslParser#basic_type}.
+	 * @param ctx the parse tree
+	 */
+	void exitBasic_type(AslParser.Basic_typeContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link AslParser#type}.
 	 * @param ctx the parse tree
@@ -264,6 +274,18 @@ public interface AslListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitUnary(AslParser.UnaryContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code funcCall}
+	 * labeled alternative in {@link AslParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterFuncCall(AslParser.FuncCallContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code funcCall}
+	 * labeled alternative in {@link AslParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitFuncCall(AslParser.FuncCallContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code value}
 	 * labeled alternative in {@link AslParser#expr}.

@@ -1,0 +1,9 @@
+Line 8:21 error: Operator '!=' with incompatible types.
+Line 9:8 error: Instruction 'if' requires a boolean condition.
+Line 10:4 error: Basic type required in 'throw'.
+Line 12:13 error: Array access with non integer index.
+Line 18:11 error: Array access to a non array operand.
+Line 19:23 error: Array access with non integer index.
+Line 21:7 error: Identifier 'm' is undeclared.
+Line 24:21 error: Identifier 'k' is undeclared.
+Line 27:18 error: Identifier 'w' is undeclared.

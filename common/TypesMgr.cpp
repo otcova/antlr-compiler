@@ -254,7 +254,6 @@ bool TypesMgr::comparableTypes(TypeId tid1, TypeId tid2,
   return false;
 }
 
-// float tid1 = (int) tid2
 bool TypesMgr::copyableTypes(TypeId tid1, TypeId tid2) const {
   if (equalTypes(tid1, tid2))
     return true;
@@ -343,6 +342,44 @@ std::string TypesMgr::to_string_basic(TypeId tid) const {
     return "none";
   }
 }
+
+
+bool TypesMgr::allPrimitiveType(const std::vector<TypeId> & types) const {
+  for (unsigned int i = 0; i < types.size(); ++i) {
+    if (not isErrorTy(types[i]) and not isPrimitiveTy(types[i]))
+      return false;
+  }
+  return true;
+}
+
+
+bool TypesMgr::allSameType(const std::vector<TypeId> & types) const {
+  int firstNonErrorPos = -1;
+  for (unsigned int i = 0; i < types.size(); ++i) {
+    if (not isErrorTy(types[i])) {
+      firstNonErrorPos = i;
+      break;
+    }
+  }
+  if (firstNonErrorPos != -1) {
+    for (unsigned int i = firstNonErrorPos+1; i < types.size(); ++i) {
+      if (not isErrorTy(types[i]) and not equalTypes(types[firstNonErrorPos], types[i]))
+        return false;
+    }
+    return true;
+  }
+  return true;
+}
+
+
+bool TypesMgr::allNumericType(const std::vector<TypeId> & types) const {
+  for (unsigned int i = 0; i < types.size(); ++i) {
+    if (not isNumericTy(types[i]) and not isErrorTy(types[i]))
+      return false;
+  }
+  return true;
+}
+
 
 
 // ======================================================================

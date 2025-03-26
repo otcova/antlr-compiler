@@ -1,4 +1,4 @@
-// Generated from /dades/otger.comas/CL/practica/asl/Asl.g4 by ANTLR 4.13.1
+// Generated from /dades/otger.comas/CL/antlr-compiler/asl/Asl.g4 by ANTLR 4.13.1
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
@@ -83,6 +83,18 @@ public class AslBaseListener implements AslListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitVariable_decl(AslParser.Variable_declContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterBasic_type(AslParser.Basic_typeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBasic_type(AslParser.Basic_typeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -287,6 +299,18 @@ public class AslBaseListener implements AslListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitUnary(AslParser.UnaryContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFuncCall(AslParser.FuncCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFuncCall(AslParser.FuncCallContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
