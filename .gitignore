@@ -9,3 +9,4 @@ asl/AslLexer.interp
 asl/AslLexer.tokens
 tvm
 *.swp
+asl/.antlr
