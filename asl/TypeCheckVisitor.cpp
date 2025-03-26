@@ -416,7 +416,7 @@ std::any TypeCheckVisitor::visitGetArray(AslParser::GetArrayContext *ctx) {
         putTypeDecor(ctx, Types.createErrorTy());
     }
 
-    if (not Types.isErrorTy(indexType) && not Types.isNumericTy(indexType)) {
+    if (not Types.isErrorTy(indexType) && not Types.isIntegerTy(indexType)) {
         Errors.nonIntegerIndexInArrayAccess(ctx->expr());
         putTypeDecor(ctx, Types.createErrorTy());
     }
