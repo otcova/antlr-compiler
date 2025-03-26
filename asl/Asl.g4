@@ -89,6 +89,10 @@ statement
         | WRITE STRING ';'                    # writeString
         
         | RETURN expr? ';'                      # return
+
+        | TRY statements CATCH (expr ':' statements)+ ENDTRY   # tryCatch
+
+        | THROW expr ';' # throw
         ;
 
 // Grammar for left expressions (l-values in C++)
@@ -155,6 +159,10 @@ RETURN    : 'return' ;
 READ      : 'read' ;
 WRITE     : 'write' ;
 BOOLVAL   : ('true' | 'false') ;
+TRY       : 'try' ;
+ENDTRY    : 'endtry' ;
+CATCH     : 'catch' ;
+THROW     : 'throw' ;
 INTVAL    : ('0'..'9')+ ;
 FLOATVAL  : ('0'..'9')+ '.' ('0'..'9')+ ;
 CHARVAL   : '\'' ( ESC_SEQ | ~('\\'|'\'') ) '\'' ;

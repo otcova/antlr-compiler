@@ -133,6 +133,37 @@ std::any TypeCheckVisitor::visitStatements(AslParser::StatementsContext *ctx) {
     return 0;
 }
 
+std::any TypeCheckVisitor::visitTryCatch(AslParser::TryCatchContext *ctx) {
+    DEBUG_ENTER();
+    visitChildren(ctx);
+
+    for (size_t i = 0; i < ctx->expr().size(); i++) {
+        TypesMgr::TypeId type = getTypeDecor(ctx->expr(i));
+
+        if (!Types.isErrorTy(type) && !Types.isPrimitiveTy(type)) {
+            Errors.catchCasesRequireBasicTypes(ctx->CATCH());
+        }
+    }
+
+    DEBUG_EXIT();
+    return 0;
+}
+
+std::any TypeCheckVisitor::visitThrow(AslParser::ThrowContext *ctx) {
+    DEBUG_ENTER();
+    visit(ctx->expr());
+
+    TypesMgr::TypeId type = getTypeDecor(ctx->expr());
+
+    if (!Types.isErrorTy(type) && !Types.isPrimitiveTy(type)) {
+        Errors.throwRequiresBasicType(ctx);
+    }
+
+
+    DEBUG_EXIT();
+    return 0;
+}
+
 std::any TypeCheckVisitor::visitAssignStmt(AslParser::AssignStmtContext *ctx) {
     DEBUG_ENTER();
     visit(ctx->left_expr());
@@ -416,7 +447,7 @@ std::any TypeCheckVisitor::visitGetArray(AslParser::GetArrayContext *ctx) {
         putTypeDecor(ctx, Types.createErrorTy());
     }
 
-    if (not Types.isErrorTy(indexType) && not Types.isNumericTy(indexType)) {
+    if (not Types.isErrorTy(indexType) && not Types.isIntegerTy(indexType)) {
         Errors.nonIntegerIndexInArrayAccess(ctx->expr());
         putTypeDecor(ctx, Types.createErrorTy());
     }

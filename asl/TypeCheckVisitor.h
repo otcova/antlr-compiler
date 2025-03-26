@@ -69,6 +69,10 @@ class TypeCheckVisitor final : public AslBaseVisitor {
     std::any visitProcCall(AslParser::ProcCallContext *ctx);
     std::any visitReadStmt(AslParser::ReadStmtContext *ctx);
     std::any visitWriteExpr(AslParser::WriteExprContext *ctx);
+
+    std::any visitThrow(AslParser::ThrowContext *ctx);
+    std::any visitTryCatch(AslParser::TryCatchContext *ctx);
+
     // std::any visitWriteString(AslParser::WriteStringContext *ctx);
     std::any visitLeft_expr(AslParser::Left_exprContext *ctx);
     std::any visitExprIdent(AslParser::ExprIdentContext *ctx);
