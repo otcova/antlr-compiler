@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-# make antlr
-# make
+make antlr
+make
 
 for i in {1..4}; do
     asl="../examples/jpbasic_chkt_0$i.asl"
