@@ -35,6 +35,7 @@
 #include "../common/TreeDecoration.h"
 #include "../common/TypesMgr.h"
 
+#include <cstddef>
 #include <iostream>
 #include <string>
 
@@ -159,19 +160,64 @@ std::any TypeCheckVisitor::visitArrayExpr(AslParser::ArrayExprContext *ctx) {
 
     visitChildren(ctx);
 
-    unsigned int size = ctx->expr().size();
-    if (ctx->INTVAL())
-        size *= std::stoi(ctx->INTVAL()->getText()); 
-    TypesMgr::TypeId elementType = getTypeDecor(ctx->expr(0));
+    // unsigned int size = ctx->expr().size();
+    // if (ctx->INTVAL())
+    //     size *= std::stoi(ctx->INTVAL()->getText()); 
+    // TypesMgr::TypeId elementType = getTypeDecor(ctx->expr(0));
+    // TypesMgr::TypeId arrayType = Types.createArrayTy(size, elementType); 
+    // putTypeDecor(ctx, arrayType);
+
+    // std::vector<TypesMgr::TypeId> types;
+    // for (size_t i = 0; i < ctx->expr().size(); i++) {
+    //     TypesMgr::TypeId type = getTypeDecor(ctx->expr(i));
+    //     types.push_back(type);
+    // }
+    
+    // if (!Types.allPrimitiveType(types))
+    // {
+    //     Errors.arrayInitRequireBasicTypes(ctx);
+    //     putTypeDecor(ctx, Types.createErrorTy());
+    // }
+    // if (!Types.allSameType(types))
+    // {
+    //     Errors.arrayInitRequireCompatibleTypes(ctx);
+    //     putTypeDecor(ctx, Types.createErrorTy());
+    // }
+
+    // putIsLValueDecor(ctx, false);
+
+    DEBUG_EXIT();
+    return 0;
+}
+
+std::any TypeCheckVisitor::visitMultiArrayExpr(AslParser::MultiArrayExprContext *ctx)
+{
+    DEBUG_ENTER();
+    visitChildren(ctx);
+
+    std::vector<TypesMgr::TypeId> types;
+    unsigned int size = 0;
+    for (size_t fragI = 0; fragI < ctx->arrayExpr().size(); fragI++)
+    {
+        AslParser::ArrayExprContext * frag = ctx->arrayExpr(fragI);
+        
+        unsigned int fragSize = frag->expr().size();
+        if (frag->INTVAL())
+            fragSize *= std::stoi(frag->INTVAL()->getText()); 
+        size += fragSize;
+
+        for (size_t i = 0; i < frag->expr().size(); i++) {
+            TypesMgr::TypeId type = getTypeDecor(frag->expr(i));
+            types.push_back(type);
+        }
+
+    }
+
+    TypesMgr::TypeId elementType = types[0];
     TypesMgr::TypeId arrayType = Types.createArrayTy(size, elementType); 
     putTypeDecor(ctx, arrayType);
 
-    std::vector<TypesMgr::TypeId> types;
-    for (size_t i = 0; i < ctx->expr().size(); i++) {
-        TypesMgr::TypeId type = getTypeDecor(ctx->expr(i));
-        types.push_back(type);
-    }
-    
+
     if (!Types.allPrimitiveType(types))
     {
         Errors.arrayInitRequireBasicTypes(ctx);
@@ -184,30 +230,6 @@ std::any TypeCheckVisitor::visitArrayExpr(AslParser::ArrayExprContext *ctx) {
     }
 
     putIsLValueDecor(ctx, false);
-
-    DEBUG_EXIT();
-    return 0;
-}
-
-std::any TypeCheckVisitor::visitMultiArrayExpr(AslParser::MultiArrayExprContext *ctx)
-{
-    DEBUG_ENTER();
-    visitChildren(ctx);
-
-    putTypeDecor(ctx, getTypeDecor(ctx->arrayExpr()));
-
-    putIsLValueDecor(ctx, false);
-
-    // std::vector<TypesMgr::TypeId> types;
-    // for (size_t i = 0; i < ctx->expr().size(); i++) {
-    //     TypesMgr::TypeId type = getTypeDecor(ctx->expr(i));
-    //     types.push_back(type);
-    // }
-    
-    // if (!Types.allPrimitiveType(types))
-    //     Errors.catchCasesRequireBasicTypes(ctx->CATCH());
-    // else if (!Types.allSameType(types) && !Types.allNumericType(types))
-    //     Errors.catchCasesRequireCompatibleTypes(ctx->CATCH());
 
     DEBUG_EXIT();
     return 0;

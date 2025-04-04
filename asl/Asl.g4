@@ -119,7 +119,7 @@ expr    : op=(NOT|PLUS|MINUS) expr                      # unary
         | ident '(' (expr (',' expr)* )? ')'            # funcCall
         | ident                                         # exprIdent
         | '(' expr ')'                                  # parent
-        | arrayExpr                                     # multiArrayExpr
+        | arrayExpr (':' arrayExpr)*                    # multiArrayExpr
 
         ;
 
