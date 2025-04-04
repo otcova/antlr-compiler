@@ -103,6 +103,8 @@ std::any TypeCheckVisitor::visitFunction(AslParser::FunctionContext *ctx) {
     return 0;
 }
 
+
+
 // std::any TypeCheckVisitor::visitDeclarations(AslParser::DeclarationsContext
 // *ctx) {
 //   DEBUG_ENTER();
@@ -151,6 +153,66 @@ std::any TypeCheckVisitor::visitTryCatch(AslParser::TryCatchContext *ctx) {
     DEBUG_EXIT();
     return 0;
 }
+
+std::any TypeCheckVisitor::visitArrayExpr(AslParser::ArrayExprContext *ctx) {
+    DEBUG_ENTER();
+
+    visitChildren(ctx);
+
+    unsigned int size = ctx->expr().size();
+    if (ctx->INTVAL())
+        size *= std::stoi(ctx->INTVAL()->getText()); 
+    TypesMgr::TypeId elementType = getTypeDecor(ctx->expr(0));
+    TypesMgr::TypeId arrayType = Types.createArrayTy(size, elementType); 
+    putTypeDecor(ctx, arrayType);
+
+    std::vector<TypesMgr::TypeId> types;
+    for (size_t i = 0; i < ctx->expr().size(); i++) {
+        TypesMgr::TypeId type = getTypeDecor(ctx->expr(i));
+        types.push_back(type);
+    }
+    
+    if (!Types.allPrimitiveType(types))
+    {
+        Errors.arrayInitRequireBasicTypes(ctx);
+        putTypeDecor(ctx, Types.createErrorTy());
+    }
+    if (!Types.allSameType(types))
+    {
+        Errors.arrayInitRequireCompatibleTypes(ctx);
+        putTypeDecor(ctx, Types.createErrorTy());
+    }
+
+    putIsLValueDecor(ctx, false);
+
+    DEBUG_EXIT();
+    return 0;
+}
+
+std::any TypeCheckVisitor::visitMultiArrayExpr(AslParser::MultiArrayExprContext *ctx)
+{
+    DEBUG_ENTER();
+    visitChildren(ctx);
+
+    putTypeDecor(ctx, getTypeDecor(ctx->arrayExpr()));
+
+    putIsLValueDecor(ctx, false);
+
+    // std::vector<TypesMgr::TypeId> types;
+    // for (size_t i = 0; i < ctx->expr().size(); i++) {
+    //     TypesMgr::TypeId type = getTypeDecor(ctx->expr(i));
+    //     types.push_back(type);
+    // }
+    
+    // if (!Types.allPrimitiveType(types))
+    //     Errors.catchCasesRequireBasicTypes(ctx->CATCH());
+    // else if (!Types.allSameType(types) && !Types.allNumericType(types))
+    //     Errors.catchCasesRequireCompatibleTypes(ctx->CATCH());
+
+    DEBUG_EXIT();
+    return 0;
+}
+
 
 std::any TypeCheckVisitor::visitThrow(AslParser::ThrowContext *ctx) {
     DEBUG_ENTER();

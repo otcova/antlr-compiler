@@ -100,6 +100,10 @@ left_expr
         : ident ('[' expr ']')?
         ;
 
+arrayExpr 
+        : '{' expr (',' expr)* '}' ('^' INTVAL)?
+        ;
+
 // Grammar for expressions with boolean, relational and aritmetic operators
 expr    : op=(NOT|PLUS|MINUS) expr                      # unary
         | expr op=(MUL|DIV|MOD) expr                    # arithmetic
@@ -115,6 +119,8 @@ expr    : op=(NOT|PLUS|MINUS) expr                      # unary
         | ident '(' (expr (',' expr)* )? ')'            # funcCall
         | ident                                         # exprIdent
         | '(' expr ')'                                  # parent
+        | arrayExpr                                     # multiArrayExpr
+
         ;
 
 // Identifiers
