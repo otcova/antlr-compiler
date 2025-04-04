@@ -1,37 +1,42 @@
 #!/bin/bash
 set -e
 
-make antlr
-make
+# make antlr
+# make
 
 for i in {1..4}; do
     asl="../examples/jpbasic_chkt_0$i.asl"
     err="../examples/jpbasic_chkt_0$i.err"
-    delta "$err" <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
+    echo "$asl"
+    delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
 done
 
 for i in {1..9}; do
     asl="../examples/jp_chkt_0$i.asl"
     err="../examples/jp_chkt_0$i.err"
-    delta "$err" <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
+    echo "$asl"
+    delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
 done
 
 for i in {10..20}; do
     asl="../examples/jp_chkt_$i.asl"
     err="../examples/jp_chkt_$i.err"
-    delta "$err" <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
+    echo "$asl"
+    delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
 done
 
 for i in {1..9}; do
     asl="../jps/jp_chkt_0$i.asl"
     err="../jps/jp_chkt_0$i.err"
-    delta "$err" <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
+    echo "$asl"
+    delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
 done
 
 for i in {1..4}; do
     asl="../examples/jpbasic_genc_0$i.asl"
     err="../examples/jpbasic_genc_0$i.err"
-    delta "$err" <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
+    echo "$asl"
+    delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
 done
 
 echo "OK: 10/10"
