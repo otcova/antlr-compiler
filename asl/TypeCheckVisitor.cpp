@@ -137,13 +137,16 @@ std::any TypeCheckVisitor::visitTryCatch(AslParser::TryCatchContext *ctx) {
     DEBUG_ENTER();
     visitChildren(ctx);
 
+    std::vector<TypesMgr::TypeId> types;
     for (size_t i = 0; i < ctx->expr().size(); i++) {
         TypesMgr::TypeId type = getTypeDecor(ctx->expr(i));
-
-        if (!Types.isErrorTy(type) && !Types.isPrimitiveTy(type)) {
-            Errors.catchCasesRequireBasicTypes(ctx->CATCH());
-        }
+        types.push_back(type);
     }
+    
+    if (!Types.allPrimitiveType(types))
+        Errors.catchCasesRequireBasicTypes(ctx->CATCH());
+    else if (!Types.allSameType(types) && !Types.allNumericType(types))
+        Errors.catchCasesRequireCompatibleTypes(ctx->CATCH());
 
     DEBUG_EXIT();
     return 0;
