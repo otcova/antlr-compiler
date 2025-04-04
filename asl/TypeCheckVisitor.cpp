@@ -214,6 +214,8 @@ std::any TypeCheckVisitor::visitMultiArrayExpr(AslParser::MultiArrayExprContext 
     }
 
     TypesMgr::TypeId elementType = types[0];
+    if (!Types.allSameType(types))
+        elementType = Types.createFloatTy();
     TypesMgr::TypeId arrayType = Types.createArrayTy(size, elementType); 
     putTypeDecor(ctx, arrayType);
 
@@ -223,7 +225,8 @@ std::any TypeCheckVisitor::visitMultiArrayExpr(AslParser::MultiArrayExprContext 
         Errors.arrayInitRequireBasicTypes(ctx);
         putTypeDecor(ctx, Types.createErrorTy());
     }
-    if (!Types.allSameType(types))
+
+    if (!Types.allSameType(types) && !Types.allNumericType(types))
     {
         Errors.arrayInitRequireCompatibleTypes(ctx);
         putTypeDecor(ctx, Types.createErrorTy());
