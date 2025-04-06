@@ -84,6 +84,8 @@ class TypeCheckVisitor final : public AslBaseVisitor {
     std::any visitReference(AslParser::ReferenceContext *ctx);
 
     std::any visitCaseStmt(AslParser::CaseStmtContext *ctx);
+    std::any visitListExpr(AslParser::ListExprContext *ctx);
+
 
 
 

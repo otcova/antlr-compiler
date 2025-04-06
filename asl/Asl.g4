@@ -73,6 +73,10 @@ statements
         : (statement)*
         ;
 
+listExpr
+        : expr (',' expr)*
+        ; 
+
 // The different types of instructions
 statement
           // Assignment
@@ -89,7 +93,7 @@ statement
           // Write a string
         | WRITE STRING ';'                    # writeString
         
-        | CASE expr 'of' (expr ':' statement+)+  (DEFAULT ':' statement+)? ENDCASE # caseStmt
+        | CASE expr 'of' (listExpr ':' statement+)+  (DEFAULT ':' statement+)? ENDCASE # caseStmt
 
         | RETURN expr? ';'                      # return
         ;

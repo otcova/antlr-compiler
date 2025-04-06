@@ -471,12 +471,11 @@ TypeCheckVisitor::visitDereferention(AslParser::DereferentionContext *ctx) {
 std::any TypeCheckVisitor::visitReference(AslParser::ReferenceContext *ctx) {
     DEBUG_ENTER();
     visit(ctx->expr());
-    
+
     TypesMgr::TypeId pointedType = getTypeDecor(ctx->expr());
     TypesMgr::TypeId type = Types.createPointerTy(pointedType);
 
-    if (!getIsLValueDecor(ctx->expr()))
-    {
+    if (!getIsLValueDecor(ctx->expr())) {
         Errors.nonReferenceableExpression(ctx);
         if (!Types.isPointerTy(pointedType))
             type = Types.createErrorTy();
@@ -491,46 +490,69 @@ std::any TypeCheckVisitor::visitReference(AslParser::ReferenceContext *ctx) {
     return 0;
 }
 
-std::any TypeCheckVisitor::visitCaseStmt(AslParser::CaseStmtContext *ctx)
-{
+std::any TypeCheckVisitor::visitListExpr(AslParser::ListExprContext *ctx) {
     DEBUG_ENTER();
     visitChildren(ctx);
-    
-    TypesMgr::TypeId caseExpr = getTypeDecor(ctx->expr(0));
-    TypesMgr::TypeId type = Types.createErrorTy();
 
-        
-    bool incompExprInCase = false;
-    if (!Types.isIntegerTy(caseExpr) && !Types.isCharacterTy(caseExpr))
-    {
-        Errors.incompatibleExpressionInCase(ctx);
-        incompExprInCase = true;
-    }
+    // std::set<std::string> setCases;
+    // for (size_t i = 1; i < ctx->expr().size(); i++)
+    // {
+    //     std::string text = ctx->expr(i)->getText();
+    //     if (setCases.find(text) == setCases.end())
+    //         setCases.insert(text);
+    //     else 
+    //         Errors.repeatedValueInCase(ctx->expr(i));
 
-    std::set<std::string> setCases;
-    for (size_t i = 1; i < ctx->expr().size(); i++)
-    {
-        std::string text = ctx->expr(i)->getText();
-        if (setCases.find(text) == setCases.end())
-            setCases.insert(text);
-        else 
-            Errors.repeatedValueInCase(ctx->expr(i));
+    //     TypesMgr::TypeId cases = getTypeDecor(ctx->expr(i));
+    //     if (Types.isIntegerTy(cases) || Types.isCharacterTy(cases))
+    //         type = cases;
 
-        TypesMgr::TypeId cases = getTypeDecor(ctx->expr(i));
-        if (Types.isIntegerTy(cases) || Types.isCharacterTy(cases))
-            type = cases;
-
-        if ((!Types.isIntegerTy(cases) && !Types.isCharacterTy(cases)) || (!incompExprInCase && !Types.equalTypes(caseExpr, cases)))
-            Errors.incompatibleValueInCase(ctx->expr(i));
-    }
-
-    putTypeDecor(ctx, type);
-    putIsLValueDecor(ctx, false);
+    //     if ((!Types.isIntegerTy(cases) && !Types.isCharacterTy(cases)) || (!incompExprInCase && !Types.equalTypes(caseExpr, cases)))
+    //         Errors.incompatibleValueInCase(ctx->expr(i));
+    // }
 
     DEBUG_EXIT();
     return 0;
 }
 
+std::any TypeCheckVisitor::visitCaseStmt(AslParser::CaseStmtContext *ctx) {
+    DEBUG_ENTER();
+    visitChildren(ctx);
+
+    TypesMgr::TypeId caseExpr = getTypeDecor(ctx->expr());
+    if (!Types.isIntegerTy(caseExpr) && !Types.isCharacterTy(caseExpr))
+        Errors.incompatibleExpressionInCase(ctx);
+    
+    TypesMgr::TypeId caseType = Types.createErrorTy();
+    std::set<std::string> setCases;
+
+    for (size_t index = 0; index < ctx->listExpr().size(); ++index)
+    {
+        AslParser::ListExprContext * listCases = ctx->listExpr(index);
+
+        for (size_t i = 0; i < listCases->expr().size(); i++)
+        {
+            std::string text = listCases->expr(i)->getText();
+            if (setCases.find(text) == setCases.end())
+                setCases.insert(text);
+            else 
+                Errors.repeatedValueInCase(listCases->expr(i));
+    
+            TypesMgr::TypeId cases = getTypeDecor(listCases->expr(i));
+            if (Types.isErrorTy(caseType) && (Types.isIntegerTy(cases) || Types.isCharacterTy(cases)))
+                caseType = cases;
+    
+            if ((!Types.isIntegerTy(cases) && !Types.isCharacterTy(cases)) || (!Types.equalTypes(caseType, cases)))
+                Errors.incompatibleValueInCase(listCases->expr(i));
+        }
+    }
+    
+    putTypeDecor(ctx, caseType);
+    putIsLValueDecor(ctx, false);
+
+    DEBUG_EXIT();
+    return 0;
+}
 
 std::any TypeCheckVisitor::visitFuncCall(AslParser::FuncCallContext *ctx) {
     DEBUG_ENTER();
