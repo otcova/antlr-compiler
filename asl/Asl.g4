@@ -66,6 +66,7 @@ basic_type
 
 type    : basic_type
         | ARRAY '[' INTVAL ']' 'of' basic_type
+        | POINTTO type
         ;
 
 statements
@@ -94,6 +95,7 @@ statement
 // Grammar for left expressions (l-values in C++)
 left_expr
         : ident ('[' expr ']')?
+        | '*' left_expr
         ;
 
 // Grammar for expressions with boolean, relational and aritmetic operators
@@ -107,7 +109,10 @@ expr    : op=(NOT|PLUS|MINUS) expr                      # unary
         | FLOATVAL                                      # value
         | CHARVAL                                       # value
         | BOOLVAL                                       # value
+        | NULLP                                         # const
         | ident '[' expr ']'                            # getArray
+        | '*' left_expr                                 # dereferention
+        | '&' left_expr                                 # reference
         | ident '(' (expr (',' expr)* )? ')'            # funcCall
         | ident                                         # exprIdent
         | '(' expr ')'                                  # parent
@@ -142,6 +147,8 @@ FLOAT     : 'float';
 BOOL      : 'bool';
 CHAR      : 'char';
 ARRAY     : 'array';
+NULLP     : 'null';
+POINTTO   : 'pointer to';
 IF        : 'if' ;
 THEN      : 'then' ;
 ELSE      : 'else' ;
