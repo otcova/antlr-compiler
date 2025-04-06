@@ -395,6 +395,8 @@ std::any TypeCheckVisitor::visitValue(AslParser::ValueContext *ctx) {
         t = Types.createCharacterTy();
     else if (ctx->BOOLVAL())
         t = Types.createBooleanTy();
+    else if (ctx->NULLP())
+        t = Types.createPointerTy(Types.createVoidTy());
 
     putTypeDecor(ctx, t);
     putIsLValueDecor(ctx, false);
@@ -451,6 +453,21 @@ std::any TypeCheckVisitor::visitDereferention(AslParser::DereferentionContext *c
     DEBUG_EXIT();
     return 0;
 }
+
+std::any TypeCheckVisitor::visitReference(AslParser::ReferenceContext *ctx)
+{
+    DEBUG_ENTER();
+    visit(ctx->left_expr());
+
+    TypesMgr::TypeId pointerdType = getTypeDecor(ctx->left_expr());
+    TypesMgr::TypeId type = Types.createPointerTy(pointerdType);
+    putTypeDecor(ctx, type);
+    putIsLValueDecor(ctx, false);
+
+    DEBUG_EXIT();
+    return 0;
+}
+
 
 std::any TypeCheckVisitor::visitFuncCall(AslParser::FuncCallContext *ctx) {
     DEBUG_ENTER();

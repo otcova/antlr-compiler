@@ -115,7 +115,7 @@ expr
         | FLOATVAL                                      # value
         | CHARVAL                                       # value
         | BOOLVAL                                       # value
-        | NULLP                                         # const
+        | NULLP                                         # value
         | ident                                         # exprIdent
         ;
 

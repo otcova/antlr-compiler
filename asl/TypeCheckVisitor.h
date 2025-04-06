@@ -81,6 +81,8 @@ class TypeCheckVisitor final : public AslBaseVisitor {
     std::any visitGetArray(AslParser::GetArrayContext *ctx);
 
     std::any visitDereferention(AslParser::DereferentionContext *ctx);
+    std::any visitReference(AslParser::ReferenceContext *ctx);
+
 
     std::any visitFuncCall(AslParser::FuncCallContext *ctx);
     std::any visitIdent(AslParser::IdentContext *ctx);
