@@ -490,6 +490,27 @@ std::any TypeCheckVisitor::visitReference(AslParser::ReferenceContext *ctx) {
     return 0;
 }
 
+std::any TypeCheckVisitor::visitCaseStmt(AslParser::CaseStmtContext *ctx)
+{
+    DEBUG_ENTER();
+    visitChildren(ctx);
+    
+    TypesMgr::TypeId caseExpr = getTypeDecor(ctx->expr(0));
+    TypesMgr::TypeId type = Types.createErrorTy();
+
+    if (!Types.isIntegerTy(caseExpr) && !Types.isCharacterTy(caseExpr))
+    {
+        Errors.incompatibleExpressionInCase(ctx);
+    }
+
+    putTypeDecor(ctx, type);
+    putIsLValueDecor(ctx, false);
+
+    DEBUG_EXIT();
+    return 0;
+}
+
+
 std::any TypeCheckVisitor::visitFuncCall(AslParser::FuncCallContext *ctx) {
     DEBUG_ENTER();
 
