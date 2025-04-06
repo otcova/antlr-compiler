@@ -506,9 +506,16 @@ std::any TypeCheckVisitor::visitCaseStmt(AslParser::CaseStmtContext *ctx)
         Errors.incompatibleExpressionInCase(ctx);
         incompExprInCase = true;
     }
-    
+
+    std::set<std::string> setCases;
     for (size_t i = 1; i < ctx->expr().size(); i++)
     {
+        std::string text = ctx->expr(i)->getText();
+        if (setCases.find(text) == setCases.end())
+            setCases.insert(text);
+        else 
+            Errors.repeatedValueInCase(ctx->expr(i));
+
         TypesMgr::TypeId cases = getTypeDecor(ctx->expr(i));
         if (Types.isIntegerTy(cases) || Types.isCharacterTy(cases))
             type = cases;
