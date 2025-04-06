@@ -111,7 +111,7 @@ expr    : op=(NOT|PLUS|MINUS) expr                      # unary
         | BOOLVAL                                       # value
         | NULLP                                         # const
         | ident '[' expr ']'                            # getArray
-        | '*' left_expr                                 # dereferention
+        | '*' expr                                      # dereferention
         | '&' left_expr                                 # reference
         | ident '(' (expr (',' expr)* )? ')'            # funcCall
         | ident                                         # exprIdent
