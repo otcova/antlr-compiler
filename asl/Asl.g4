@@ -89,6 +89,8 @@ statement
           // Write a string
         | WRITE STRING ';'                    # writeString
         
+        | CASE expr 'of' (expr ':' statement+)+  (DEFAULT ':' statement+)? ENDCASE # caseStmt
+
         | RETURN expr? ';'                      # return
         ;
 
@@ -163,6 +165,9 @@ RETURN    : 'return' ;
 READ      : 'read' ;
 WRITE     : 'write' ;
 BOOLVAL   : ('true' | 'false') ;
+CASE      : 'case';
+DEFAULT   : 'default';
+ENDCASE   : 'endcase';
 INTVAL    : ('0'..'9')+ ;
 FLOATVAL  : ('0'..'9')+ '.' ('0'..'9')+ ;
 CHARVAL   : '\'' ( ESC_SEQ | ~('\\'|'\'') ) '\'' ;
