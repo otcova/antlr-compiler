@@ -451,7 +451,7 @@ std::any TypeCheckVisitor::visitGetArray(AslParser::GetArrayContext *ctx) {
 std::any
 TypeCheckVisitor::visitDereferention(AslParser::DereferentionContext *ctx) {
     DEBUG_ENTER();
-    visit(ctx->expr());
+    visitChildren(ctx);
 
     TypesMgr::TypeId t = getTypeDecor(ctx->expr());
     TypesMgr::TypeId pointedType = Types.createErrorTy();
@@ -470,16 +470,17 @@ TypeCheckVisitor::visitDereferention(AslParser::DereferentionContext *ctx) {
 
 std::any TypeCheckVisitor::visitReference(AslParser::ReferenceContext *ctx) {
     DEBUG_ENTER();
-    visit(ctx->expr());
+    visitChildren(ctx);
+
 
     TypesMgr::TypeId pointedType = getTypeDecor(ctx->expr());
     TypesMgr::TypeId type = Types.createPointerTy(pointedType);
 
-    if (!getIsLValueDecor(ctx->expr())) {
+    if (!getIsLValueDecor(ctx->expr()))
         Errors.nonReferenceableExpression(ctx);
-        if (!Types.isPointerTy(pointedType))
-            type = Types.createErrorTy();
-    }
+    
+    if (!getIsLValueDecor(ctx->expr()) && !Types.isPointerTy(pointedType))
+        type = Types.createErrorTy();
 
     // LOG (Types.to_string(pointedType))
     // LOG (Types.to_string(type))
