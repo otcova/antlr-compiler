@@ -100,10 +100,10 @@ left_expr
 
 // Grammar for expressions with boolean, relational and aritmetic operators
 expr    
-        :'(' expr ')'                                  # parent
+        :'(' expr ')'                                   # parent
         | ident '[' expr ']'                            # getArray
         | ident '(' (expr (',' expr)* )? ')'            # funcCall
-        | '&' left_expr                                 # reference
+        | '&' expr                                      # reference
         | '*' expr                                      # dereferention
         | op=(NOT|PLUS|MINUS) expr                      # unary
         | expr op=(MUL|DIV|MOD) expr                    # arithmetic

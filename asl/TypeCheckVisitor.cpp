@@ -39,7 +39,7 @@
 #include <string>
 
 // uncomment the following line to enable debugging messages with DEBUG*
-//  #define DEBUG_BUILD
+// #define DEBUG_BUILD
 #include "../common/debug.h"
 
 #define LOG(x) std::cerr << " ---- " << x << std::endl;
@@ -262,35 +262,50 @@ std::any TypeCheckVisitor::visitWriteExpr(AslParser::WriteExprContext *ctx) {
 std::any TypeCheckVisitor::visitLeft_expr(AslParser::Left_exprContext *ctx) {
     DEBUG_ENTER();
 
-    visit(ctx->ident());
-    TypesMgr::TypeId varType = getTypeDecor(ctx->ident());
-    putTypeDecor(ctx, varType);
-    bool b = getIsLValueDecor(ctx->ident());
-    putIsLValueDecor(ctx, b);
+    if (ctx->left_expr()) {
 
-    // Array access
-    if (ctx->expr()) {
-        visit(ctx->expr());
+        visit(ctx->left_expr());
+        TypesMgr::TypeId varType = getTypeDecor(ctx->left_expr());
+        TypesMgr::TypeId pointedType = Types.getPointedType(varType);
+        putTypeDecor(ctx, pointedType);
+        bool b = getIsLValueDecor(ctx->left_expr());
+        putIsLValueDecor(ctx, b);
 
-        TypesMgr::TypeId indexType = getTypeDecor(ctx->expr());
+    } else {
 
-        if (not Types.isErrorTy(indexType) &&
-            not Types.isIntegerTy(indexType)) {
-            Errors.nonIntegerIndexInArrayAccess(ctx->expr());
-        }
+        visit(ctx->ident());
 
-        if (Types.isErrorTy(varType)) {
-            putTypeDecor(ctx, Types.createErrorTy());
-        } else {
-            if (Types.isArrayTy(varType)) {
-                TypesMgr::TypeId elementType = Types.getArrayElemType(varType);
-                putTypeDecor(ctx, elementType);
-            } else {
-                Errors.nonArrayInArrayAccess(ctx->ident());
+        TypesMgr::TypeId varType = getTypeDecor(ctx->ident());
+        putTypeDecor(ctx, varType);
+        bool b = getIsLValueDecor(ctx->ident());
+        putIsLValueDecor(ctx, b);
+
+        // Array access
+        if (ctx->expr()) {
+            visit(ctx->expr());
+
+            TypesMgr::TypeId indexType = getTypeDecor(ctx->expr());
+
+            if (not Types.isErrorTy(indexType) &&
+                not Types.isIntegerTy(indexType)) {
+                Errors.nonIntegerIndexInArrayAccess(ctx->expr());
+            }
+
+            if (Types.isErrorTy(varType)) {
                 putTypeDecor(ctx, Types.createErrorTy());
+            } else {
+                if (Types.isArrayTy(varType)) {
+                    TypesMgr::TypeId elementType =
+                        Types.getArrayElemType(varType);
+                    putTypeDecor(ctx, elementType);
+                } else {
+                    Errors.nonArrayInArrayAccess(ctx->ident());
+                    putTypeDecor(ctx, Types.createErrorTy());
+                }
             }
         }
     }
+
     DEBUG_EXIT();
     return 0;
 }
@@ -432,17 +447,15 @@ std::any TypeCheckVisitor::visitGetArray(AslParser::GetArrayContext *ctx) {
     return 0;
 }
 
-std::any TypeCheckVisitor::visitDereferention(AslParser::DereferentionContext *ctx)
-{
+std::any
+TypeCheckVisitor::visitDereferention(AslParser::DereferentionContext *ctx) {
     DEBUG_ENTER();
     visit(ctx->expr());
 
     TypesMgr::TypeId t = getTypeDecor(ctx->expr());
     TypesMgr::TypeId pointedType = Types.createErrorTy();
-    if (!Types.isPointerTy(t))
-    {
+    if (!Types.isPointerTy(t)) {
         Errors.nonPointerInPointerAccess(ctx);
-        t = Types.createErrorTy();
     } else {
         pointedType = Types.getPointedType(t);
     }
@@ -454,20 +467,28 @@ std::any TypeCheckVisitor::visitDereferention(AslParser::DereferentionContext *c
     return 0;
 }
 
-std::any TypeCheckVisitor::visitReference(AslParser::ReferenceContext *ctx)
-{
+std::any TypeCheckVisitor::visitReference(AslParser::ReferenceContext *ctx) {
     DEBUG_ENTER();
-    visit(ctx->left_expr());
+    visit(ctx->expr());
+    
+    TypesMgr::TypeId pointedType = getTypeDecor(ctx->expr());
+    TypesMgr::TypeId type = Types.createPointerTy(pointedType);
 
-    TypesMgr::TypeId pointerdType = getTypeDecor(ctx->left_expr());
-    TypesMgr::TypeId type = Types.createPointerTy(pointerdType);
+    if (!getIsLValueDecor(ctx->expr()))
+    {
+        Errors.nonReferenceableExpression(ctx);
+        if (!Types.isPointerTy(pointedType))
+            type = Types.createErrorTy();
+    }
+
+    // LOG (Types.to_string(pointedType))
+    // LOG (Types.to_string(type))
     putTypeDecor(ctx, type);
     putIsLValueDecor(ctx, false);
 
     DEBUG_EXIT();
     return 0;
 }
-
 
 std::any TypeCheckVisitor::visitFuncCall(AslParser::FuncCallContext *ctx) {
     DEBUG_ENTER();
@@ -543,8 +564,10 @@ std::any TypeCheckVisitor::visitParent(AslParser::ParentContext *ctx) {
 
 std::any TypeCheckVisitor::visitIdent(AslParser::IdentContext *ctx) {
     DEBUG_ENTER();
+
     std::string ident = ctx->getText();
     if (Symbols.findInStack(ident) == -1) {
+
         Errors.undeclaredIdent(ctx->ID());
         TypesMgr::TypeId te = Types.createErrorTy();
         putTypeDecor(ctx, te);
