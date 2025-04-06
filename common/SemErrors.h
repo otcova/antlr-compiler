@@ -2,7 +2,7 @@
 //
 //    SemErrors - Semantic errors for the Asl programming language
 //
-//    Copyright (C) 2020-2030  Universitat Politecnica de Catalunya
+//    Copyright (C) 2017-2023  Universitat Politecnica de Catalunya
 //
 //    This library is free software; you can redistribute it and/or
 //    modify it under the terms of the GNU General Public License
@@ -104,6 +104,19 @@ public:
   void nonReferenceableExpression   (antlr4::ParserRuleContext *ctx);
   //   ctx is the program node (grammar start symbol) 
   void noMainProperlyDeclared       (antlr4::ParserRuleContext *ctx);
+
+  // New errors needed in pointer type:
+  //   ctx is the node corresponding to a pointer access
+  void nonPointerInPointerAccess    (antlr4::ParserRuleContext *ctx);
+
+  // New errors needed in case statement:
+  //   ctx is the node corresponding to the expression
+  void incompatibleExpressionInCase (antlr4::ParserRuleContext *ctx);
+  //   ctx is the node corresponding to the value
+  void incompatibleValueInCase      (antlr4::ParserRuleContext *ctx);
+  //   ctx is the node corresponding to the value
+  void repeatedValueInCase          (antlr4::ParserRuleContext *ctx);
+  
 
 
 private:

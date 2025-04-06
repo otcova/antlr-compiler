@@ -2,7 +2,7 @@
 //
 //    TypesMgr - Type System for the Asl programming language
 //
-//    Copyright (C) 2020-2030  Universitat Politecnica de Catalunya
+//    Copyright (C) 2017-2023  Universitat Politecnica de Catalunya
 //
 //    This library is free software; you can redistribute it and/or
 //    modify it under the terms of the GNU General Public License
@@ -94,6 +94,11 @@ TypesMgr::TypeId TypesMgr::createFunctionTy(const std::vector<TypeId> & paramsTy
 TypesMgr::TypeId TypesMgr::createArrayTy(unsigned int size,
 					 TypeId elemType) {
   TypesVec.push_back(Type{size, elemType});
+  return TypesVec.size()-1;
+}
+
+TypesMgr::TypeId TypesMgr::createPointerTy(TypeId pointedType) {
+  TypesVec.push_back(Type{pointedType});
   return TypesVec.size()-1;
 }
 
@@ -203,6 +208,20 @@ TypesMgr::TypeId TypesMgr::getArrayElemType(TypeId tid) const {
 }
 
 // ----------------------------------------------------------------------
+// accessors for working with pointer types
+
+bool TypesMgr::isPointerTy(TypeId tid) const {
+  const Type & t = TypesVec.at(tid);
+  return t.isPointerTy();
+}
+
+TypesMgr::TypeId TypesMgr::getPointedType(TypeId tid) const {
+  const Type & t = TypesVec.at(tid);
+  assert(t.isPointerTy());
+  return t.getPointedType();
+}
+
+// ----------------------------------------------------------------------
 // methods for checking different compatibilities of Types
 
 bool TypesMgr::equalTypes(TypeId tid1, TypeId tid2) const {
@@ -237,11 +256,29 @@ bool TypesMgr::equalTypes(TypeId tid1, TypeId tid2) const {
     TypeId tid2_aux = t2.getArrayElemType();
     return equalTypes(tid1_aux, tid2_aux);
   }
+  if (t1.isArrayTy()) {  // or: if (t2.isArrayTy()) {
+    if (t1.getArraySize() != t2.getArraySize()) {
+      return false;
+    }
+    TypeId tid1_aux = t1.getArrayElemType();
+    TypeId tid2_aux = t2.getArrayElemType();
+    return equalTypes(tid1_aux, tid2_aux);
+  }
+  if (t1.isPointerTy()) {  // or: if (t2.isPointerTy()) {
+    TypeId tid1_aux = t1.getPointedType();
+    TypeId tid2_aux = t2.getPointedType();
+    return equalTypes(tid1_aux, tid2_aux);
+  }
   return false;
 }
 
 bool TypesMgr::comparableTypes(TypeId tid1, TypeId tid2,
 			       const std::string & op) const {
+  if (isPointerTy(tid1) and isPointerTy(tid2) and (op == "==" or op == "!=")) {
+    TypeId tid1_aux = getPointedType(tid1);
+    TypeId tid2_aux = getPointedType(tid2);
+    return equalTypes(tid1_aux, tid2_aux) or isVoidTy(tid1_aux) or isVoidTy(tid2_aux);
+  } 
   if ((not isPrimitiveTy(tid1)) or (not isPrimitiveTy(tid2)))
     return false;
   if (isNumericTy(tid1) and isNumericTy(tid2))
@@ -254,12 +291,16 @@ bool TypesMgr::comparableTypes(TypeId tid1, TypeId tid2,
   return false;
 }
 
-// float tid1 = (int) tid2
 bool TypesMgr::copyableTypes(TypeId tid1, TypeId tid2) const {
   if (equalTypes(tid1, tid2))
     return true;
   if (isFloatTy(tid1) and isIntegerTy(tid2))
     return true;
+  if (isPointerTy(tid1) and isPointerTy(tid2)) {
+    TypeId tid1_aux = getPointedType(tid1);
+    TypeId tid2_aux = getPointedType(tid2);
+    return equalTypes(tid1_aux, tid2_aux) or isVoidTy(tid2_aux);
+  } 
   return false;
 }
 
@@ -273,6 +314,7 @@ std::size_t TypesMgr::getSizeOfType (TypeId tid) const {
     TypeId tElem = tArr.getArrayElemType();
     return nElems * getSizeOfType(tElem);
   }
+  if (isPointerTy(tid)) return 1;
   return 0;
 }
 
@@ -313,6 +355,13 @@ std::string TypesMgr::to_string(TypeId tid) const {
     s = s + to_string(tid1) +">";
     return s;
   }
+  else if (t.isPointerTy()) {
+    TypeId tid1;
+    std::string s = "pointer(";
+    tid1 = t.getPointedType();
+    s = s + to_string(tid1) +")";
+    return s;
+  }
   else {
     return "none";
   }
@@ -337,6 +386,10 @@ std::string TypesMgr::to_string_basic(TypeId tid) const {
   const Type & t = TypesVec.at(tid);
   if (t.isArrayTy()) {
     TypeId tid1 = t.getArrayElemType();
+    return to_string(tid1);
+  }
+  else if (t.isPointerTy()) {
+    TypeId tid1 = t.getPointedType();
     return to_string(tid1);
   }
   else {
@@ -366,6 +419,11 @@ TypesMgr::Type::Type(unsigned int arraySize, TypeId arrayElemType) :
   ID{TypesMgr::TypeKind::ArrayKind},
   arraySize{arraySize},
   arrayElemTy{arrayElemType} {
+  }
+
+TypesMgr::Type::Type(TypeId pointedType) :
+  ID{TypesMgr::TypeKind::PointerKind},
+  pointedTy{pointedType} {
   }
 
 // ----------------------------------------------------------------------
@@ -460,4 +518,15 @@ unsigned int TypesMgr::Type::getArraySize() const {
 
 TypesMgr::TypeId TypesMgr::Type::getArrayElemType() const {
   return arrayElemTy;
+}
+
+// ----------------------------------------------------------------------
+// accessors for working with pointer types
+
+bool TypesMgr::Type::isPointerTy() const {
+  return ID == TypeKind::PointerKind;
+}
+
+TypesMgr::TypeId TypesMgr::Type::getPointedType() const {
+  return pointedTy;
 }

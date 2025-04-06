@@ -2,7 +2,7 @@
 //
 //    SemErrors - Semantic errors for the Asl programming language
 //
-//    Copyright (C) 2020-2030  Universitat Politecnica de Catalunya
+//    Copyright (C) 2017-2023  Universitat Politecnica de Catalunya
 //
 //    This library is free software; you can redistribute it and/or
 //    modify it under the terms of the GNU General Public License
@@ -145,6 +145,41 @@ void SemErrors::noMainProperlyDeclared(antlr4::ParserRuleContext *ctx) {
   ErrorInfo error(ctx->getStop()->getLine(), ctx->getStop()->getCharPositionInLine(), "There is no 'main' function properly declared.");
   ErrorList.push_back(error);
 }
+
+
+/////////////////////////////////////////////
+// New error needed in pointer type:
+
+void SemErrors::nonPointerInPointerAccess(antlr4::ParserRuleContext *ctx) {
+  ErrorInfo error(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), "Pointer access to a non pointer operand.");
+  ErrorList.push_back(error);
+}
+
+//
+/////////////////////////////////////////////
+
+
+/////////////////////////////////////////////
+// Errors needed in case statement:
+
+void SemErrors::incompatibleExpressionInCase(antlr4::ParserRuleContext *ctx) {
+  ErrorInfo error(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), "Case instruction requires an expression of type int or char.");
+  ErrorList.push_back(error);
+}
+
+void SemErrors::incompatibleValueInCase(antlr4::ParserRuleContext *ctx) {
+  ErrorInfo error(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), "Incompatible value in case instruction.");
+  ErrorList.push_back(error);  
+}
+
+void SemErrors::repeatedValueInCase(antlr4::ParserRuleContext *ctx) {
+  ErrorInfo error(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), "Repeated value in case instruction.");
+  ErrorList.push_back(error);  
+}
+
+//
+/////////////////////////////////////////////
+
 
 SemErrors::ErrorInfo::ErrorInfo(std::size_t line, std::size_t coln, std::string message)
   : line{line}, coln{coln}, message{message} {
