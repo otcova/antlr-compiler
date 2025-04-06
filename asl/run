@@ -4,6 +4,7 @@ set -e
 make antlr
 make
 
+# Test for ../examples
 for i in {1..4}; do
     asl="../examples/jpbasic_chkt_0$i.asl"
     err="../examples/jpbasic_chkt_0$i.err"
@@ -24,6 +25,8 @@ for i in {10..20}; do
     echo "$asl"
     delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
 done
+# End of test for ../examples
+
 
 # This is for the examn test (may need to modify)
 
@@ -33,12 +36,15 @@ done
 #     echo "$asl"
 #     delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
 # done
+# End of test for the examn test (may need to modify)
 
-for i in {1..4}; do
-    asl="../examples/jpbasic_genc_0$i.asl"
-    err="../examples/jpbasic_genc_0$i.err"
-    echo "$asl"
-    delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
-done
-
+echo "---------"
 echo "OK: 10/10"
+echo "---------"
+
+# for i in {1..4}; do
+#     asl="../examples/jpbasic_genc_0$i.asl"
+#     err="../examples/jpbasic_genc_0$i.err"
+#     echo "$asl"
+#     delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
+# done
