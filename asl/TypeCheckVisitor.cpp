@@ -35,6 +35,7 @@
 #include "../common/TreeDecoration.h"
 #include "../common/TypesMgr.h"
 
+#include <cstddef>
 #include <iostream>
 #include <string>
 
@@ -498,9 +499,22 @@ std::any TypeCheckVisitor::visitCaseStmt(AslParser::CaseStmtContext *ctx)
     TypesMgr::TypeId caseExpr = getTypeDecor(ctx->expr(0));
     TypesMgr::TypeId type = Types.createErrorTy();
 
+        
+    bool incompExprInCase = false;
     if (!Types.isIntegerTy(caseExpr) && !Types.isCharacterTy(caseExpr))
     {
         Errors.incompatibleExpressionInCase(ctx);
+        incompExprInCase = true;
+    }
+    
+    for (size_t i = 1; i < ctx->expr().size(); i++)
+    {
+        TypesMgr::TypeId cases = getTypeDecor(ctx->expr(i));
+        if (Types.isIntegerTy(cases) || Types.isCharacterTy(cases))
+            type = cases;
+
+        if ((!Types.isIntegerTy(cases) && !Types.isCharacterTy(cases)) || (!incompExprInCase && !Types.equalTypes(caseExpr, cases)))
+            Errors.incompatibleValueInCase(ctx->expr(i));
     }
 
     putTypeDecor(ctx, type);
