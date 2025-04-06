@@ -39,7 +39,7 @@
 #include <string>
 
 // uncomment the following line to enable debugging messages with DEBUG*
-// #define DEBUG_BUILD
+//  #define DEBUG_BUILD
 #include "../common/debug.h"
 
 #define LOG(x) std::cerr << " ---- " << x << std::endl;
@@ -426,6 +426,28 @@ std::any TypeCheckVisitor::visitGetArray(AslParser::GetArrayContext *ctx) {
 
     bool b = getIsLValueDecor(ctx->ident());
     putIsLValueDecor(ctx, b);
+    DEBUG_EXIT();
+    return 0;
+}
+
+std::any TypeCheckVisitor::visitDereferention(AslParser::DereferentionContext *ctx)
+{
+    DEBUG_ENTER();
+    visit(ctx->expr());
+
+    TypesMgr::TypeId t = getTypeDecor(ctx->expr());
+    TypesMgr::TypeId pointedType = Types.createErrorTy();
+    if (!Types.isPointerTy(t))
+    {
+        Errors.nonPointerInPointerAccess(ctx);
+        t = Types.createErrorTy();
+    } else {
+        pointedType = Types.getPointedType(t);
+    }
+
+    putTypeDecor(ctx, pointedType);
+    putIsLValueDecor(ctx, true);
+
     DEBUG_EXIT();
     return 0;
 }

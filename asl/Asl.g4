@@ -66,7 +66,7 @@ basic_type
 
 type    : basic_type
         | ARRAY '[' INTVAL ']' 'of' basic_type
-        | POINTTO type
+        | POINTER 'to' type
         ;
 
 statements
@@ -99,7 +99,13 @@ left_expr
         ;
 
 // Grammar for expressions with boolean, relational and aritmetic operators
-expr    : op=(NOT|PLUS|MINUS) expr                      # unary
+expr    
+        :'(' expr ')'                                  # parent
+        | ident '[' expr ']'                            # getArray
+        | ident '(' (expr (',' expr)* )? ')'            # funcCall
+        | '&' left_expr                                 # reference
+        | '*' expr                                      # dereferention
+        | op=(NOT|PLUS|MINUS) expr                      # unary
         | expr op=(MUL|DIV|MOD) expr                    # arithmetic
         | expr op=(PLUS|MINUS) expr                     # arithmetic
         | expr op=(EQUAL|NE|LT|GT|LE|GE) expr           # relational
@@ -110,12 +116,7 @@ expr    : op=(NOT|PLUS|MINUS) expr                      # unary
         | CHARVAL                                       # value
         | BOOLVAL                                       # value
         | NULLP                                         # const
-        | ident '[' expr ']'                            # getArray
-        | '*' expr                                      # dereferention
-        | '&' left_expr                                 # reference
-        | ident '(' (expr (',' expr)* )? ')'            # funcCall
         | ident                                         # exprIdent
-        | '(' expr ')'                                  # parent
         ;
 
 // Identifiers
@@ -148,7 +149,7 @@ BOOL      : 'bool';
 CHAR      : 'char';
 ARRAY     : 'array';
 NULLP     : 'null';
-POINTTO   : 'pointer to';
+POINTER   : 'pointer';
 IF        : 'if' ;
 THEN      : 'then' ;
 ELSE      : 'else' ;
