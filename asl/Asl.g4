@@ -97,7 +97,11 @@ left_expr
         ;
 
 // Grammar for expressions with boolean, relational and aritmetic operators
-expr    : op=(NOT|PLUS|MINUS) expr                      # unary
+expr    
+        : '(' expr ')'                                  # parent
+        | ident '[' expr ']'                            # getArray
+        | ident '(' (expr (',' expr)* )? ')'            # funcCall
+        | op=(NOT|PLUS|MINUS) expr                      # unary
         | expr op=(MUL|DIV|MOD) expr                    # arithmetic
         | expr op=(PLUS|MINUS) expr                     # arithmetic
         | expr op=(EQUAL|NE|LT|GT|LE|GE) expr           # relational
@@ -107,10 +111,7 @@ expr    : op=(NOT|PLUS|MINUS) expr                      # unary
         | FLOATVAL                                      # value
         | CHARVAL                                       # value
         | BOOLVAL                                       # value
-        | ident '[' expr ']'                            # getArray
-        | ident '(' (expr (',' expr)* )? ')'            # funcCall
         | ident                                         # exprIdent
-        | '(' expr ')'                                  # parent
         ;
 
 // Identifiers
