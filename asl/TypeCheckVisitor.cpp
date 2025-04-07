@@ -260,6 +260,22 @@ std::any TypeCheckVisitor::visitWriteExpr(AslParser::WriteExprContext *ctx) {
 //   return r;
 // }
 
+std::any TypeCheckVisitor::visitLeftParent(AslParser::LeftParentContext *ctx) {
+    DEBUG_ENTER();
+    visit(ctx->left_expr());
+    TypesMgr::TypeId t1 = getTypeDecor(ctx->left_expr());
+
+    // may change
+    // if ((not Types.isErrorTy(t1)) and (not Types.isPrimitiveTy(t1)))
+    //   Errors.readWriteRequireBasic(ctx);
+    putTypeDecor(ctx, t1);
+
+    bool b = getIsLValueDecor(ctx->left_expr());
+    putIsLValueDecor(ctx, b);
+    DEBUG_EXIT();
+    return 0;
+}
+
 std::any TypeCheckVisitor::visitSetIdent(AslParser::SetIdentContext *ctx) {
     DEBUG_ENTER();
 
@@ -315,12 +331,15 @@ std::any TypeCheckVisitor::visitSetPtr(AslParser::SetPtrContext *ctx) {
 
     visit(ctx->left_expr());
 
+    
     TypesMgr::TypeId varType = getTypeDecor(ctx->left_expr());
-    TypesMgr::TypeId pointedType = Types.getPointedType(varType);
+
+    TypesMgr::TypeId pointedType = Types.createErrorTy();
+    if (Types.isPointerTy(varType))
+        pointedType = Types.getPointedType(varType);
     putTypeDecor(ctx, pointedType);
     
-    bool b = getIsLValueDecor(ctx->left_expr());
-    putIsLValueDecor(ctx, b);
+    putIsLValueDecor(ctx, true);
 
     DEBUG_EXIT();
     return 0;
@@ -474,26 +493,26 @@ std::any TypeCheckVisitor::visitValue(AslParser::ValueContext *ctx) {
 std::any TypeCheckVisitor::visitGetArray(AslParser::GetArrayContext *ctx) {
     DEBUG_ENTER();
 
-    visit(ctx->ident());
-    visit(ctx->expr());
+    visit(ctx->expr(0));
+    visit(ctx->expr(1));
 
-    TypesMgr::TypeId arrayType = getTypeDecor(ctx->ident());
-    TypesMgr::TypeId indexType = getTypeDecor(ctx->expr());
+    TypesMgr::TypeId arrayType = getTypeDecor(ctx->expr(0));
+    TypesMgr::TypeId indexType = getTypeDecor(ctx->expr(1));
 
     if (not Types.isErrorTy(arrayType) && not Types.isArrayTy(arrayType)) {
-        Errors.nonArrayInArrayAccess(ctx->ident());
+        Errors.nonArrayInArrayAccess(ctx->expr(0));
         putTypeDecor(ctx, Types.createErrorTy());
     }
 
     if (not Types.isErrorTy(indexType) && not Types.isIntegerTy(indexType)) {
-        Errors.nonIntegerIndexInArrayAccess(ctx->expr());
+        Errors.nonIntegerIndexInArrayAccess(ctx->expr(1));
         putTypeDecor(ctx, Types.createErrorTy());
     }
 
     if (Types.isArrayTy(arrayType))
         putTypeDecor(ctx, Types.getArrayElemType(arrayType));
 
-    bool b = getIsLValueDecor(ctx->ident());
+    bool b = getIsLValueDecor(ctx->expr(0));
     putIsLValueDecor(ctx, b);
     DEBUG_EXIT();
     return 0;
@@ -507,7 +526,8 @@ TypeCheckVisitor::visitDereferention(AslParser::DereferentionContext *ctx) {
     TypesMgr::TypeId t = getTypeDecor(ctx->expr());
     TypesMgr::TypeId pointedType = Types.createErrorTy();
     if (!Types.isPointerTy(t)) {
-        Errors.nonPointerInPointerAccess(ctx);
+        if (!Types.isErrorTy(t))
+            Errors.nonPointerInPointerAccess(ctx);
     } else {
         pointedType = Types.getPointedType(t);
     }

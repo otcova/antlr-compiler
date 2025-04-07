@@ -36,7 +36,7 @@ for i in {1..4}; do
     delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
 done
 
-for i in {6..9}; do
+for i in {5..9}; do
     asl="../jps/jp_chkt_0$i.asl"
     err="../jps/jp_chkt_0$i.err"
     echo "$asl"
@@ -56,20 +56,6 @@ done
 echo "--------"
 echo "OK 10/10"
 echo "--------"
-
-# This is for the examn test (may need to modify)
-
-# for i in {1..9}; do
-#     asl="../jps/jp_chkt_0$i.asl"
-#     err="../jps/jp_chkt_0$i.err"
-#     echo "$asl"
-#     delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
-# done
-# End of test for the examn test (may need to modify)
-
-echo "---------"
-echo "OK: 10/10"
-echo "---------"
 
 # for i in {1..4}; do
 #     asl="../examples/jpbasic_genc_0$i.asl"

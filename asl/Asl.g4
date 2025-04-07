@@ -100,7 +100,8 @@ statement
 
 // Grammar for left expressions (l-values in C++)
 left_expr
-        : ident                     # setIdent
+        : '(' left_expr ')'         # leftParent   
+        | ident                     # setIdent
         | '*' left_expr             # setPtr
         | left_expr '[' expr ']'    # setArray
         ;
@@ -108,10 +109,10 @@ left_expr
 // Grammar for expressions with boolean, relational and aritmetic operators
 expr 
         :'(' expr ')'                                   # parent
-        | ident '[' expr ']'                            # getArray
+        | expr '[' expr ']'                             # getArray
         | ident '(' (expr (',' expr)* )? ')'            # funcCall
-        | '&' expr                                      # reference
         | '*' expr                                      # dereferention
+        | '&' expr                                      # reference
         | op=(NOT|PLUS|MINUS) expr                      # unary
         | expr op=(MUL|DIV|MOD) expr                    # arithmetic
         | expr op=(PLUS|MINUS) expr                     # arithmetic
