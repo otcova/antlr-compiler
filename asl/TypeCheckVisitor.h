@@ -70,7 +70,10 @@ class TypeCheckVisitor final : public AslBaseVisitor {
     std::any visitReadStmt(AslParser::ReadStmtContext *ctx);
     std::any visitWriteExpr(AslParser::WriteExprContext *ctx);
     // std::any visitWriteString(AslParser::WriteStringContext *ctx);
-    std::any visitLeft_expr(AslParser::Left_exprContext *ctx);
+    std::any visitSetIdent(AslParser::SetIdentContext *ctx);
+    std::any visitSetPtr(AslParser::SetPtrContext *ctx);
+    std::any visitSetArray(AslParser::SetArrayContext *ctx);
+    // std::any visitLeft_expr(AslParser::Left_exprContext *ctx);
     std::any visitExprIdent(AslParser::ExprIdentContext *ctx);
     std::any visitParent(AslParser::ParentContext *ctx);
     std::any visitUnary(AslParser::UnaryContext *ctx);

@@ -100,12 +100,13 @@ statement
 
 // Grammar for left expressions (l-values in C++)
 left_expr
-        : ident ('[' expr ']')?
-        | '*' left_expr
+        : ident                     # setIdent
+        | '*' left_expr             # setPtr
+        | left_expr '[' expr ']'    # setArray
         ;
 
 // Grammar for expressions with boolean, relational and aritmetic operators
-expr    
+expr 
         :'(' expr ')'                                   # parent
         | ident '[' expr ']'                            # getArray
         | ident '(' (expr (',' expr)* )? ')'            # funcCall
