@@ -93,7 +93,8 @@ statement
 
 // Grammar for left expressions (l-values in C++)
 left_expr
-        : ident ('[' expr ']')?
+        : ident                     # setIdent
+        | left_expr '[' expr ']'    # setArray
         ;
 
 // Grammar for expressions with boolean, relational and aritmetic operators
