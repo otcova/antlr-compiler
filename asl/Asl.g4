@@ -66,6 +66,7 @@ basic_type
 
 type    : basic_type                            # typeBasicType
         | ARRAY '[' INTVAL ']' 'of' basic_type  # typeArray
+        | '{' basic_type (',' basic_type)* '}'  # typeTuple
         ;
 
 statements
@@ -99,12 +100,14 @@ statement
 left_expr
         : ident                     # setIdent
         | left_expr '[' expr ']'    # setArray
+        | left_expr '{' expr '}'    # setTuple
         ;
 
 // Grammar for expressions with boolean, relational and aritmetic operators
 expr    
         : '(' expr ')'                                  # parent
         | ident '[' expr ']'                            # getArray
+        | ident '{' expr '}'                            # getTuple
         | ident '(' (expr (',' expr)* )? ')'            # funcCall
         | op=(NOT|PLUS|MINUS) expr                      # unary
         | expr op=(MUL|DIV|MOD) expr                    # arithmetic

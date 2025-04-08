@@ -198,6 +198,31 @@ std::any SymbolsVisitor::visitTypeArray(AslParser::TypeArrayContext* ctx) {
   return 0;
 }
 
+std::any SymbolsVisitor::visitTypeTuple(AslParser::TypeTupleContext* ctx) {
+  DEBUG_ENTER();
+
+  visitChildren(ctx);
+
+  bool isOk = true;
+
+  std::vector<TypesMgr::TypeId> fieldsTypes(ctx->basic_type().size());
+  for (int i = 0; i < fieldsTypes.size(); ++i) {
+    fieldsTypes[i] = getTypeDecor(ctx->basic_type(i));
+    if (Types.isErrorTy(fieldsTypes[i]))
+      isOk = false;
+  }
+
+  if (isOk) {
+    TypesMgr::TypeId tupleType = Types.createTupleTy(fieldsTypes);
+    putTypeDecor(ctx, tupleType);
+  } else {
+    putTypeDecor(ctx, Types.createErrorTy());
+  }
+
+  DEBUG_EXIT();
+  return 0;
+}
+
 // std::any SymbolsVisitor::visitStatements(AslParser::StatementsContext *ctx) {
 //   DEBUG_ENTER();
 //   std::any r = visitChildren(ctx);
