@@ -2,7 +2,7 @@
 //
 //    TypesMgr - Type System for the Asl programming language
 //
-//    Copyright (C) 2020-2030  Universitat Politecnica de Catalunya
+//    Copyright (C) 2018  Universitat Politecnica de Catalunya
 //
 //    This library is free software; you can redistribute it and/or
 //    modify it under the terms of the GNU General Public License
@@ -97,6 +97,11 @@ TypesMgr::TypeId TypesMgr::createArrayTy(unsigned int size,
   return TypesVec.size()-1;
 }
 
+TypesMgr::TypeId TypesMgr::createTupleTy(const std::vector<TypeId> & fieldsTypes) {
+  TypesVec.push_back(Type{fieldsTypes});
+  return TypesVec.size()-1;
+}
+
 // ----------------------------------------------------------------------
 // accessors for working with primitive types
 
@@ -137,11 +142,6 @@ bool TypesMgr::isPrimitiveTy(TypeId tid) const {
 bool TypesMgr::isPrimitiveNonVoidTy(TypeId tid) const {
   return (isPrimitiveTy(tid) and not isVoidTy(tid));
 }
-
-bool TypesMgr::isCompoundTy (TypeId tid) const {
-  return (isFunctionTy(tid) or isArrayTy(tid));
-}
-
 
 // ----------------------------------------------------------------------
 // accessors for working with function types
@@ -203,6 +203,26 @@ TypesMgr::TypeId TypesMgr::getArrayElemType(TypeId tid) const {
 }
 
 // ----------------------------------------------------------------------
+// accessors for working with tuple types
+
+bool TypesMgr::isTupleTy(TypeId tid) const {
+  const Type & t = TypesVec.at(tid);
+  return t.isTupleTy();
+}
+
+unsigned int TypesMgr::getTupleSize(TypeId tid) const {
+  const Type & t = TypesVec.at(tid);
+  assert(t.isTupleTy());
+  return t.getTupleSize();
+}
+
+TypesMgr::TypeId TypesMgr::getTupleFieldType(TypeId tid, unsigned int n) const {
+  const Type & t = TypesVec.at(tid);
+  assert(t.isTupleTy());
+  return t.getTupleFieldType(n);
+}
+
+// ----------------------------------------------------------------------
 // methods for checking different compatibilities of Types
 
 bool TypesMgr::equalTypes(TypeId tid1, TypeId tid2) const {
@@ -237,6 +257,18 @@ bool TypesMgr::equalTypes(TypeId tid1, TypeId tid2) const {
     TypeId tid2_aux = t2.getArrayElemType();
     return equalTypes(tid1_aux, tid2_aux);
   }
+  if (t1.isTupleTy()) {  // or: if (t2.isTupleTy()) {
+    if (t1.getTupleSize() != t2.getTupleSize()) {
+      return false;
+    }
+    int nFields = t1.getTupleSize();
+    for (int i = 0; i < nFields; ++i) {
+      TypeId tid1_aux = t1.getTupleFieldType(i);
+      TypeId tid2_aux = t2.getTupleFieldType(i);
+      if (not equalTypes(tid1_aux, tid2_aux))
+	return false;
+    }
+  }
   return false;
 }
 
@@ -254,7 +286,6 @@ bool TypesMgr::comparableTypes(TypeId tid1, TypeId tid2,
   return false;
 }
 
-// float tid1 = (int) tid2
 bool TypesMgr::copyableTypes(TypeId tid1, TypeId tid2) const {
   if (equalTypes(tid1, tid2))
     return true;
@@ -272,6 +303,16 @@ std::size_t TypesMgr::getSizeOfType (TypeId tid) const {
     std::size_t nElems = tArr.getArraySize();
     TypeId tElem = tArr.getArrayElemType();
     return nElems * getSizeOfType(tElem);
+  }
+  if (isTupleTy(tid)) {
+    const Type & tTuple = TypesVec.at(tid);
+    std::size_t nFields = tTuple.getTupleSize();
+    int sizeOfTuple = 0;
+    for (std::size_t i = 0; i < nFields; ++i) {
+      TypeId t1 = tTuple.getTupleFieldType(i);
+      sizeOfTuple += getSizeOfType(t1);
+    }
+    return sizeOfTuple;
   }
   return 0;
 }
@@ -313,6 +354,17 @@ std::string TypesMgr::to_string(TypeId tid) const {
     s = s + to_string(tid1) +">";
     return s;
   }
+  else if (t.isTupleTy()) {
+    std::string s = "tuple<";
+    std::size_t nFields = t.getTupleSize();
+    for (std::size_t i = 0; i < nFields; ++i) {
+      TypeId t1 = t.getTupleFieldType(i);
+      if (i > 0) s += ",";
+      s += to_string(t1);
+    }
+    s += ">";
+    return s;
+  }
   else {
     return "none";
   }
@@ -320,28 +372,6 @@ std::string TypesMgr::to_string(TypeId tid) const {
 
 void TypesMgr::dump(TypeId tid, std::ostream & os) const {
   os << to_string(tid);
-}
-
-
-std::string TypesMgr::to_string_basic(TypeId tid) const {
-  if (isPrimitiveTy(tid) or isErrorTy(tid)) {
-    switch (tid) {
-    case ErrorTyId:     return "error";
-    case IntegerTyId:   return "integer";
-    case FloatTyId:     return "float";
-    case BooleanTyId:   return "boolean";
-    case CharacterTyId: return "character";
-    case VoidTyId:      return "void";
-    }
-  }
-  const Type & t = TypesVec.at(tid);
-  if (t.isArrayTy()) {
-    TypeId tid1 = t.getArrayElemType();
-    return to_string(tid1);
-  }
-  else {
-    return "none";
-  }
 }
 
 
@@ -366,6 +396,11 @@ TypesMgr::Type::Type(unsigned int arraySize, TypeId arrayElemType) :
   ID{TypesMgr::TypeKind::ArrayKind},
   arraySize{arraySize},
   arrayElemTy{arrayElemType} {
+  }
+
+TypesMgr::Type::Type(const std::vector<TypeId> & fieldsTypes) :
+  ID{TypesMgr::TypeKind::TupleKind},
+  tupleFieldsTy{fieldsTypes} {
   }
 
 // ----------------------------------------------------------------------
@@ -460,4 +495,20 @@ unsigned int TypesMgr::Type::getArraySize() const {
 
 TypesMgr::TypeId TypesMgr::Type::getArrayElemType() const {
   return arrayElemTy;
+}
+
+// ----------------------------------------------------------------------
+// accessors for working with tuple types
+
+bool TypesMgr::Type::isTupleTy() const {
+  return ID == TypeKind::TupleKind;
+}
+
+unsigned int TypesMgr::Type::getTupleSize() const {
+  return tupleFieldsTy.size();
+}
+
+TypesMgr::TypeId TypesMgr::Type::getTupleFieldType(unsigned int i) const {
+  assert(i < tupleFieldsTy.size());
+  return tupleFieldsTy[i];
 }

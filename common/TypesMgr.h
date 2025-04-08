@@ -2,7 +2,7 @@
 //
 //    TypesMgr - Type System for the Asl programming language
 //
-//    Copyright (C) 2020-2030  Universitat Politecnica de Catalunya
+//    Copyright (C) 2018  Universitat Politecnica de Catalunya
 //
 //    This library is free software; you can redistribute it and/or
 //    modify it under the terms of the GNU General Public License
@@ -70,6 +70,7 @@ public:
 			    TypeId                      returnType);
   TypeId createArrayTy     (unsigned int                size,
 		            TypeId                      elemType);
+  TypeId createTupleTy    (const std::vector<TypeId> & fieldsTypes);
 
   // Accessors to work with primitive and error types
   bool isErrorTy            (TypeId tid) const;
@@ -81,7 +82,6 @@ public:
   bool isNumericTy          (TypeId tid) const;
   bool isPrimitiveTy        (TypeId tid) const;
   bool isPrimitiveNonVoidTy (TypeId tid) const;
-  bool isCompoundTy         (TypeId tid) const;
 
   // Accessors to work with function types
   bool                        isFunctionTy       (TypeId tid)     const;
@@ -97,6 +97,11 @@ public:
   unsigned int getArraySize     (TypeId tid) const;
   TypeId       getArrayElemType (TypeId tid) const;
 
+  // Accessors to work with tuple types
+  bool         isTupleTy         (TypeId tid) const;
+  unsigned int getTupleSize      (TypeId tid) const;
+  TypeId       getTupleFieldType (TypeId tid, unsigned int n) const;
+
   // Methods to check different compatibilities of types
   //   - structurally equal?
   bool equalTypes      (TypeId tid1, TypeId tid2)     const;
@@ -109,13 +114,11 @@ public:
   // Method to compute the size of a type (primitive type size = 1)
   std::size_t getSizeOfType (TypeId tid) const;
 
-  // Methods to convert to string and print types.
-  std::string to_string (TypeId tidm) const;
+  // Methods to convert to string and print types
+  std::string to_string (TypeId         tid)            const;
   void        dump      (TypeId         tid,
 		         std::ostream & os = std::cout) const;
-  // will return type name for basic types, element type name for arrays, 'none' for functions.
-  // useful for GenCode add_var and add_param
-  std::string to_string_basic (TypeId tidm) const;
+
 
 private:
   // Forward declaration of class Type
@@ -142,6 +145,7 @@ private:
     // Compound data types:
     FunctionKind       ,     // function types
     ArrayKind          ,     // array types
+    TupleKind         ,      // tuple types
   };
 
   // Static attributes:
@@ -175,6 +179,7 @@ private:
 	  TypeId                      returnType);
     Type (unsigned int                arraySize,
 	  TypeId                      arrayElemType);
+    Type (const std::vector<TypeId> & fieldsTypes);
 
     // Destructor
     ~Type () = default;
@@ -206,6 +211,11 @@ private:
     unsigned int getArraySize     () const;
     TypeId       getArrayElemType () const;
 
+    // Accessors to work with tuple types
+    bool         isTupleTy         () const;
+    unsigned int getTupleSize      () const;
+    TypeId       getTupleFieldType (unsigned int n) const;
+    
   private:
 
     // Atributes:
@@ -217,6 +227,8 @@ private:
     //   - to represent the type of an array:
     unsigned int arraySize;
     TypeId arrayElemTy;
+    //   - to represent the type of a tuple:
+    std::vector<TypeId> tupleFieldsTy;
 
   };  // class Type
 

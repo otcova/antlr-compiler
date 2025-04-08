@@ -27,15 +27,15 @@ for i in {10..20}; do
 done
 # End of test for ../examples
 
-
 # This is for the examn test (may need to modify)
 
-# for i in {1..9}; do
-#     asl="../jps/jp_chkt_0$i.asl"
-#     err="../jps/jp_chkt_0$i.err"
-#     echo "$asl"
-#     delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
-# done
+for i in {1..9}; do
+    asl="../jps/jp_chkt_0$i.asl"
+    err="../jps/jp_chkt_0$i.err"
+    echo "$asl"
+    delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
+done
+
 # End of test for the examn test (may need to modify)
 
 echo "---------"
@@ -48,3 +48,4 @@ echo "---------"
 #     echo "$asl"
 #     delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
 # done
+

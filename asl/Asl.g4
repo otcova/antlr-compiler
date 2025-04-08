@@ -89,6 +89,10 @@ statement
         | WRITE STRING ';'                    # writeString
         
         | RETURN expr? ';'                      # return
+        
+        | PACK expr (',' expr)* INTO ident ';' # pack
+
+        | UNPACK ident INTO left_expr (',' left_expr)* ';' # unpack
         ;
 
 // Grammar for left expressions (l-values in C++)
@@ -156,6 +160,9 @@ ENDFUNC   : 'endfunc' ;
 RETURN    : 'return' ;
 READ      : 'read' ;
 WRITE     : 'write' ;
+PACK      : 'pack' ;
+UNPACK    : 'unpack' ;
+INTO      : 'into' ;
 BOOLVAL   : ('true' | 'false') ;
 INTVAL    : ('0'..'9')+ ;
 FLOATVAL  : ('0'..'9')+ '.' ('0'..'9')+ ;

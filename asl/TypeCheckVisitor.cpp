@@ -133,6 +133,67 @@ std::any TypeCheckVisitor::visitStatements(AslParser::StatementsContext *ctx) {
     return 0;
 }
 
+std::any TypeCheckVisitor::visitPack(AslParser::PackContext *ctx) {
+    DEBUG_ENTER();
+    visitChildren(ctx);
+
+    TypesMgr::TypeId arrayTy = getTypeDecor(ctx->ident());
+    if (Types.isArrayTy(arrayTy)) {
+        int size = Types.getArraySize(arrayTy);
+        if (ctx->expr().size() != size) {
+            Errors.packUnpackNumberOfItemsMismatch(ctx);
+        }
+
+        TypesMgr::TypeId elementTy = Types.getArrayElemType(arrayTy);
+
+        for (int i = 0; i < ctx->expr().size(); ++i) {
+            AslParser::ExprContext *expr = ctx->expr(i);
+            TypesMgr::TypeId exprTy = getTypeDecor(expr);
+            if (Types.isErrorTy(exprTy))
+                continue;
+
+            if (!Types.copyableTypes(elementTy, exprTy))
+                Errors.packUnpackIncompatibleTypes(ctx, i + 1);
+        }
+    } else if (!Types.isErrorTy(arrayTy)) {
+        Errors.packUnpackWithNonArray(ctx);
+    }
+
+    DEBUG_EXIT();
+    return 0;
+}
+std::any TypeCheckVisitor::visitUnpack(AslParser::UnpackContext *ctx) {
+    DEBUG_ENTER();
+    visitChildren(ctx);
+
+    TypesMgr::TypeId arrayTy = getTypeDecor(ctx->ident());
+
+    if (Types.isArrayTy(arrayTy)) {
+
+        int size = Types.getArraySize(arrayTy);
+        if (ctx->left_expr().size() != size) {
+            Errors.packUnpackNumberOfItemsMismatch(ctx);
+        }
+
+        TypesMgr::TypeId elementTy = Types.getArrayElemType(arrayTy);
+
+        for (int i = 0; i < ctx->left_expr().size(); ++i) {
+            AslParser::Left_exprContext *expr = ctx->left_expr(i);
+            TypesMgr::TypeId exprTy = getTypeDecor(expr);
+            if (Types.isErrorTy(exprTy))
+                continue;
+
+            if (!Types.copyableTypes(exprTy, elementTy))
+                Errors.packUnpackIncompatibleTypes(ctx, i + 1);
+        }
+    } else if (!Types.isErrorTy(arrayTy)) {
+        Errors.packUnpackWithNonArray(ctx);
+    }
+
+    DEBUG_EXIT();
+    return 0;
+}
+
 std::any TypeCheckVisitor::visitAssignStmt(AslParser::AssignStmtContext *ctx) {
     DEBUG_ENTER();
     visit(ctx->left_expr());
@@ -276,7 +337,7 @@ std::any TypeCheckVisitor::visitSetIdent(AslParser::SetIdentContext *ctx) {
 
 std::any TypeCheckVisitor::visitSetArray(AslParser::SetArrayContext *ctx) {
     DEBUG_ENTER();
-    
+
     visit(ctx->left_expr());
     visit(ctx->expr());
 
@@ -288,8 +349,7 @@ std::any TypeCheckVisitor::visitSetArray(AslParser::SetArrayContext *ctx) {
 
     TypesMgr::TypeId indexType = getTypeDecor(ctx->expr());
 
-    if (not Types.isErrorTy(indexType) &&
-        not Types.isIntegerTy(indexType)) {
+    if (not Types.isErrorTy(indexType) && not Types.isIntegerTy(indexType)) {
         Errors.nonIntegerIndexInArrayAccess(ctx->expr());
     }
 
@@ -333,8 +393,9 @@ std::any TypeCheckVisitor::visitSetArray(AslParser::SetArrayContext *ctx) {
 //             putTypeDecor(ctx, Types.createErrorTy());
 //         } else {
 //             if (Types.isArrayTy(varType)) {
-//                 TypesMgr::TypeId elementType = Types.getArrayElemType(varType);
-//                 putTypeDecor(ctx, elementType);
+//                 TypesMgr::TypeId elementType =
+//                 Types.getArrayElemType(varType); putTypeDecor(ctx,
+//                 elementType);
 //             } else {
 //                 Errors.nonArrayInArrayAccess(ctx->ident());
 //                 putTypeDecor(ctx, Types.createErrorTy());

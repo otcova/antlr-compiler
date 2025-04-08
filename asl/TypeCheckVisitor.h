@@ -62,6 +62,8 @@ class TypeCheckVisitor final : public AslBaseVisitor {
     // std::any visitVariable_decl(AslParser::Variable_declContext *ctx);
     // std::any visitType(AslParser::TypeContext *ctx);
     std::any visitStatements(AslParser::StatementsContext *ctx);
+    std::any visitPack(AslParser::PackContext *ctx);
+    std::any visitUnpack(AslParser::UnpackContext *ctx);
     std::any visitAssignStmt(AslParser::AssignStmtContext *ctx);
     std::any visitIfStmt(AslParser::IfStmtContext *ctx);
     std::any visitWhileStmt(AslParser::WhileStmtContext *ctx);
