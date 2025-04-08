@@ -172,19 +172,27 @@ std::any SymbolsVisitor::visitBasic_type(AslParser::Basic_typeContext* ctx) {
   return 0;
 }
 
-std::any SymbolsVisitor::visitType(AslParser::TypeContext* ctx) {
+std::any SymbolsVisitor::visitTypeBasicType(AslParser::TypeBasicTypeContext* ctx) {
   DEBUG_ENTER();
 
   visit(ctx->basic_type());
   TypesMgr::TypeId basicType = getTypeDecor(ctx->basic_type());
   putTypeDecor(ctx, basicType);
-  if (ctx->ARRAY())
-  {
-    unsigned int size = stoi(ctx->INTVAL()->getText());
-    TypesMgr::TypeId elemType = basicType;
-    TypesMgr::TypeId t = Types.createArrayTy(size, elemType);
-    putTypeDecor(ctx, t);
-  }
+
+  DEBUG_EXIT();
+  return 0;
+}
+
+std::any SymbolsVisitor::visitTypeArray(AslParser::TypeArrayContext* ctx) {
+  DEBUG_ENTER();
+
+  visit(ctx->basic_type());
+
+  TypesMgr::TypeId elementType = getTypeDecor(ctx->basic_type());
+  unsigned int size = stoi(ctx->INTVAL()->getText());
+
+  TypesMgr::TypeId arrayType = Types.createArrayTy(size, elementType);
+  putTypeDecor(ctx, arrayType);
 
   DEBUG_EXIT();
   return 0;

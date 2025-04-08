@@ -64,8 +64,8 @@ basic_type
         | CHAR
         ;
 
-type    : basic_type
-        | ARRAY '[' INTVAL ']' 'of' basic_type
+type    : basic_type                            # typeBasicType
+        | ARRAY '[' INTVAL ']' 'of' basic_type  # typeArray
         ;
 
 statements
