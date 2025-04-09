@@ -38,7 +38,7 @@ done
 
 for i in {1..9}; do
     asl="../examples/jp_genc_0$i.asl"
-    in="../examples/jpbasic_genc_0$i.in"
+    in="../examples/jp_genc_0$i.in"
     out="../examples/jp_genc_0$i.out"
     echo "$asl"
     ./asl "$asl" >ir.asm
@@ -47,7 +47,7 @@ done
 
 for i in {10..14}; do
     asl="../examples/jp_genc_$i.asl"
-    in="../examples/jpbasic_genc_0$i.in"
+    in="../examples/jp_genc_$i.in"
     out="../examples/jp_genc_$i.out"
     echo "$asl"
     ./asl "$asl" >ir.asm
