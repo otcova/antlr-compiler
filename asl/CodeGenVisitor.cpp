@@ -298,6 +298,7 @@ std::any CodeGenVisitor::visitIdent(AslParser::IdentContext* ctx) {
 }
 
 // Getters for the necessary tree node atributes:
+
 //   Scope and Type
 SymTable::ScopeId CodeGenVisitor::getScopeDecor(
     antlr4::ParserRuleContext* ctx) const {

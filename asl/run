@@ -28,6 +28,33 @@ done
 # End of test for ../examples
 
 
+for i in {1..4}; do
+    asl="../examples/jpbasic_genc_0$i.asl"
+    in="../examples/jpbasic_genc_0$i.in"
+    out="../examples/jpbasic_genc_0$i.out"
+    echo "$asl"
+    ./asl "$asl" >  a.t 
+    delta <(cat "$out") <(../tvm/tvm a.t < "$in")
+done
+
+for i in {1..9}; do
+    asl="../examples/jp_genc_0$i.asl"
+    in="../examples/jpbasic_genc_0$i.in"
+    out="../examples/jp_genc_0$i.out"
+    echo "$asl"
+      ./asl "$asl" > a.t 
+    delta <(cat "$out") <(../tvm/tvm a.t < "$in")
+done
+
+for i in {10..14}; do
+    asl="../examples/jp_genc_$i.asl"
+    in="../examples/jpbasic_genc_0$i.in"
+    out="../examples/jp_genc_$i.out"
+    echo "$asl"
+      ./asl "$asl" > a.t 
+    delta <(cat "$out") <(../tvm/tvm a.t < "$in")
+done
+
 # This is for the examn test (may need to modify)
 
 # for i in {1..9}; do
@@ -42,9 +69,3 @@ echo "---------"
 echo "OK: 10/10"
 echo "---------"
 
-# for i in {1..4}; do
-#     asl="../examples/jpbasic_genc_0$i.asl"
-#     err="../examples/jpbasic_genc_0$i.err"
-#     echo "$asl"
-#     delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
-# done
