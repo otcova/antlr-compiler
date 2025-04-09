@@ -336,6 +336,30 @@ std::any CodeGenVisitor::visitRelational(AslParser::RelationalContext* ctx) {
   return codAts;
 }
 
+std::any CodeGenVisitor::visitLogical(AslParser::LogicalContext *ctx)
+{
+  DEBUG_ENTER();
+  CodeAttribs&& codAt1 = std::any_cast<CodeAttribs>(visit(ctx->expr(0)));
+  std::string addr1 = codAt1.addr;
+  instructionList& code1 = codAt1.code;
+  CodeAttribs&& codAt2 = std::any_cast<CodeAttribs>(visit(ctx->expr(1)));
+  std::string addr2 = codAt2.addr;
+  instructionList& code2 = codAt2.code;
+  instructionList&& code = code1 || code2;
+  // TypesMgr::TypeId t1 = getTypeDecor(ctx->expr(0));
+  // TypesMgr::TypeId t2 = getTypeDecor(ctx->expr(1));
+  // TypesMgr::TypeId  t = getTypeDecor(ctx);
+  std::string temp = "%" + codeCounters.newTEMP();
+  if (ctx->AND())
+    code = code || instruction::AND(temp, addr1, addr2);
+  else if (ctx->OR())
+    code = code || instruction::OR(temp, addr1, addr2);  
+
+  CodeAttribs codAts(temp, "", code);
+  DEBUG_EXIT();
+  return codAts;
+}
+
 std::any CodeGenVisitor::visitValue(AslParser::ValueContext* ctx) {
   DEBUG_ENTER();
   instructionList code;
