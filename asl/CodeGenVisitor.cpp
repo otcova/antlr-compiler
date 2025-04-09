@@ -260,8 +260,8 @@ std::any CodeGenVisitor::visitArithmetic(AslParser::ArithmeticContext* ctx) {
   std::string addr2 = codAt2.addr;
   instructionList& code2 = codAt2.code;
   instructionList&& code = code1 || code2;
-  TypesMgr::TypeId t1 = getTypeDecor(ctx->expr(0));
-  TypesMgr::TypeId t2 = getTypeDecor(ctx->expr(1));
+  // TypesMgr::TypeId t1 = getTypeDecor(ctx->expr(0));
+  // TypesMgr::TypeId t2 = getTypeDecor(ctx->expr(1));
   TypesMgr::TypeId  t = getTypeDecor(ctx);
 
   std::string temp = "%" + codeCounters.newTEMP();
@@ -294,6 +294,27 @@ std::any CodeGenVisitor::visitArithmetic(AslParser::ArithmeticContext* ctx) {
   }
 
   CodeAttribs codAts(temp, "", code);
+  DEBUG_EXIT();
+  return codAts;
+}
+
+std::any CodeGenVisitor::visitUnary(AslParser::UnaryContext* ctx) {
+  DEBUG_ENTER();
+  CodeAttribs&& codAt = std::any_cast<CodeAttribs>(visit(ctx->expr()));
+  std::string var = codAt.addr;
+  instructionList& code = codAt.code;
+
+  std::string result = var;
+
+  if (ctx->NOT()) {
+    result = "%" + codeCounters.newTEMP();
+    code = code || instruction::NOT(result, var);
+  } else if (ctx->MINUS()) {
+    result = "%" + codeCounters.newTEMP();
+    code = code || instruction::NEG(result, var);
+  }
+
+  CodeAttribs codAts(result, "", code);
   DEBUG_EXIT();
   return codAts;
 }
