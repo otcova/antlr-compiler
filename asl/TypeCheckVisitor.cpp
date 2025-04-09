@@ -349,18 +349,22 @@ std::any TypeCheckVisitor::visitUnary(AslParser::UnaryContext *ctx) {
     DEBUG_ENTER();
     visit(ctx->expr());
     TypesMgr::TypeId t1 = getTypeDecor(ctx->expr());
-    std::string oper = ctx->op->getText();
+    // std::string oper = ctx->op->getText();
 
     if (not Types.isErrorTy(t1)) {
         if ((ctx->PLUS() || ctx->MINUS()) && not Types.isNumericTy(t1))
+        {
             Errors.incompatibleOperator(ctx->op);
+            t1 = Types.createErrorTy();
+        }
         else if (ctx->NOT() && not Types.isBooleanTy(t1))
+        {
             Errors.incompatibleOperator(ctx->op);
+            t1 = Types.createErrorTy();
+        }
     }
-
-    putTypeDecor(ctx, Types.createIntegerTy());
-    if (ctx->NOT())
-        putTypeDecor(ctx, Types.createBooleanTy());
+    putTypeDecor(ctx, t1);
+    
     putIsLValueDecor(ctx, false);
     DEBUG_EXIT();
     return 0;
