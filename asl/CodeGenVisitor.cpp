@@ -234,6 +234,13 @@ std::any CodeGenVisitor::visitSetArray(AslParser::SetArrayContext* ctx) {
   return codAts;
 }
 
+// std::any CodeGenVisitor::visitLeft_expr(AslParser::Left_exprContext* ctx) {
+//   DEBUG_ENTER();
+//   CodeAttribs&& codAts = std::any_cast<CodeAttribs>(visit(ctx->ident()));
+//   DEBUG_EXIT();
+//   return codAts;
+// }
+
 std::any CodeGenVisitor::visitParent(AslParser::ParentContext* ctx)
 {
   DEBUG_ENTER();
@@ -242,55 +249,69 @@ std::any CodeGenVisitor::visitParent(AslParser::ParentContext* ctx)
   return codAts;
 }
 
-// std::any CodeGenVisitor::visitLeft_expr(AslParser::Left_exprContext* ctx) {
-//   DEBUG_ENTER();
-//   CodeAttribs&& codAts = std::any_cast<CodeAttribs>(visit(ctx->ident()));
-//   DEBUG_EXIT();
-//   return codAts;
-// }
+std::any CodeGenVisitor::visitGetArray(AslParser::GetArrayContext *ctx) {
+  // TODO
+}
+  
+std::any CodeGenVisitor::visitFuncCall(AslParser::FuncCallContext *ctx)
+{
+  // TODO
+} 
+
 
 std::any CodeGenVisitor::visitArithmetic(AslParser::ArithmeticContext* ctx) {
   DEBUG_ENTER();
   CodeAttribs&& codAt1 = std::any_cast<CodeAttribs>(visit(ctx->expr(0)));
-  std::string addr1 = codAt1.addr;
+  std::string lhs = codAt1.addr;
   instructionList& code1 = codAt1.code;
 
   CodeAttribs&& codAt2 = std::any_cast<CodeAttribs>(visit(ctx->expr(1)));
 
-  std::string addr2 = codAt2.addr;
+  std::string rhs = codAt2.addr;
   instructionList& code2 = codAt2.code;
   instructionList&& code = code1 || code2;
-  // TypesMgr::TypeId t1 = getTypeDecor(ctx->expr(0));
-  // TypesMgr::TypeId t2 = getTypeDecor(ctx->expr(1));
+  TypesMgr::TypeId t1 = getTypeDecor(ctx->expr(0));
+  TypesMgr::TypeId t2 = getTypeDecor(ctx->expr(1));
   TypesMgr::TypeId  t = getTypeDecor(ctx);
 
   std::string temp = "%" + codeCounters.newTEMP();
   if (Types.isFloatTy(t))
   {
+    if (Types.isIntegerTy(t1)){
+      std::string temp = "%" + codeCounters.newTEMP();
+      code = code || instruction::FLOAT(temp, lhs);
+      lhs = temp;
+    }
+    if (Types.isIntegerTy(t2)){
+      std::string temp = "%" + codeCounters.newTEMP();
+      code = code || instruction::FLOAT(temp, rhs);
+      rhs = temp;
+    }
+
     if (ctx->MUL())
-      code = code || instruction::FMUL(temp, addr1, addr2);
+      code = code || instruction::FMUL(temp, lhs, rhs);
     else if (ctx->DIV())
-      code = code || instruction::FDIV(temp, addr1, addr2);
+      code = code || instruction::FDIV(temp, lhs, rhs);
     else if (ctx->PLUS())
-      code = code || instruction::FADD(temp, addr1, addr2);
+      code = code || instruction::FADD(temp, lhs, rhs);
     else if (ctx->MINUS())
-      code = code || instruction::FSUB(temp, addr1, addr2);
+      code = code || instruction::FSUB(temp, lhs, rhs);
   } else {
     if (ctx->MUL())
-      code = code || instruction::MUL(temp, addr1, addr2);
+      code = code || instruction::MUL(temp, lhs, rhs);
     else if (ctx->DIV())
-      code = code || instruction::DIV(temp, addr1, addr2);
+      code = code || instruction::DIV(temp, lhs, rhs);
     else if (ctx->MOD())
     {
       // a % b = a - b*int(a/b)
-      code = code || instruction::DIV(temp, addr1, addr2);
-      code = code || instruction::MUL(temp, addr2, temp);
-      code = code || instruction::SUB(temp, addr1, temp);
+      code = code || instruction::DIV(temp, lhs, rhs);
+      code = code || instruction::MUL(temp, rhs, temp);
+      code = code || instruction::SUB(temp, lhs, temp);
     }
     else if (ctx->PLUS())
-      code = code || instruction::ADD(temp, addr1, addr2);
+      code = code || instruction::ADD(temp, lhs, rhs);
     else if (ctx->MINUS())
-      code = code || instruction::SUB(temp, addr1, addr2);
+      code = code || instruction::SUB(temp, lhs, rhs);
   }
 
   CodeAttribs codAts(temp, "", code);
@@ -304,6 +325,7 @@ std::any CodeGenVisitor::visitUnary(AslParser::UnaryContext* ctx) {
   std::string var = codAt.addr;
   instructionList& code = codAt.code;
 
+  TypesMgr::TypeId  t = getTypeDecor(ctx->expr());
   std::string result = var;
 
   if (ctx->NOT()) {
@@ -311,7 +333,11 @@ std::any CodeGenVisitor::visitUnary(AslParser::UnaryContext* ctx) {
     code = code || instruction::NOT(result, var);
   } else if (ctx->MINUS()) {
     result = "%" + codeCounters.newTEMP();
-    code = code || instruction::NEG(result, var);
+    if (Types.isIntegerTy(t))
+      code = code || instruction::NEG(result, var);
+    else if (Types.isFloatTy(t))
+      code = code || instruction::FNEG(result, var);
+    
   }
 
   CodeAttribs codAts(result, "", code);
@@ -385,7 +411,15 @@ std::any CodeGenVisitor::visitValue(AslParser::ValueContext* ctx) {
   DEBUG_ENTER();
   instructionList code;
   std::string temp = "%" + codeCounters.newTEMP();
-  code = instruction::ILOAD(temp, ctx->getText());
+  if (ctx->INTVAL())
+    code = instruction::ILOAD(temp, ctx->getText());
+  else if (ctx->FLOATVAL())
+    code = instruction::FLOAD(temp, ctx->getText());
+  else if (ctx->BOOLVAL())
+    code = instruction::ILOAD(temp, ctx->getText());
+  else if (ctx->CHARVAL())
+    code = instruction::CHLOAD(temp, ctx->getText());
+
   CodeAttribs codAts(temp, "", code);
   DEBUG_EXIT();
   return codAts;

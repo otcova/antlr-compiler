@@ -77,18 +77,19 @@ public:
   std::any visitWriteString(AslParser::WriteStringContext *ctx);
   std::any visitSetIdent(AslParser::SetIdentContext *ctx);
   std::any visitSetArray(AslParser::SetArrayContext *ctx);
-  std::any visitParent(AslParser::ParentContext *ctx);
-
   // std::any visitLeft_expr(AslParser::Left_exprContext *ctx);
-  std::any visitExprIdent(AslParser::ExprIdentContext *ctx);
+
+  std::any visitParent(AslParser::ParentContext *ctx);
+  std::any visitGetArray(AslParser::GetArrayContext *ctx); // TODO
+  std::any visitFuncCall(AslParser::FuncCallContext *ctx); // TODO
   std::any visitArithmetic(AslParser::ArithmeticContext *ctx);
   std::any visitUnary(AslParser::UnaryContext *ctx);
   std::any visitRelational(AslParser::RelationalContext *ctx);
   std::any visitLogical(AslParser::LogicalContext *ctx);
-
   std::any visitValue(AslParser::ValueContext *ctx);
-  std::any visitIdent(AslParser::IdentContext *ctx);
+  std::any visitExprIdent(AslParser::ExprIdentContext *ctx);
 
+  std::any visitIdent(AslParser::IdentContext *ctx);
 private:
 
   // Attributes
