@@ -77,6 +77,8 @@ public:
   std::any visitWriteString(AslParser::WriteStringContext *ctx);
   std::any visitSetIdent(AslParser::SetIdentContext *ctx);
   std::any visitSetArray(AslParser::SetArrayContext *ctx);
+  std::any visitParent(AslParser::ParentContext *ctx);
+
   // std::any visitLeft_expr(AslParser::Left_exprContext *ctx);
   std::any visitExprIdent(AslParser::ExprIdentContext *ctx);
   std::any visitArithmetic(AslParser::ArithmeticContext *ctx);

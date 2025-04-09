@@ -42,7 +42,7 @@ for i in {1..9}; do
     in="../examples/jpbasic_genc_0$i.in"
     out="../examples/jp_genc_0$i.out"
     echo "$asl"
-      ./asl "$asl" > a.t 
+    ./asl "$asl" > a.t
     delta <(cat "$out") <(../tvm/tvm a.t < "$in")
 done
 
