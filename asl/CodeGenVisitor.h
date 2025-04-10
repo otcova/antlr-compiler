@@ -65,9 +65,13 @@ public:
   // Methods to visit each kind of node:
   std::any visitProgram(AslParser::ProgramContext *ctx);
   std::any visitFunction(AslParser::FunctionContext *ctx);
+  std::any visitParameters(AslParser::ParametersContext *ctx);
+  std::any visitParameter(AslParser::ParameterContext *ctx);
+
   std::any visitDeclarations(AslParser::DeclarationsContext *ctx);
   std::any visitVariable_decl(AslParser::Variable_declContext *ctx);
-  // std::any visitType(AslParser::TypeContext *ctx);
+  std::any visitBasic_type(AslParser::Basic_typeContext *ctx);
+
   std::any visitStatements(AslParser::StatementsContext *ctx);
   std::any visitAssignStmt(AslParser::AssignStmtContext *ctx);
   std::any visitIfStmt(AslParser::IfStmtContext *ctx);
@@ -76,13 +80,16 @@ public:
   std::any visitReadStmt(AslParser::ReadStmtContext *ctx);
   std::any visitWriteExpr(AslParser::WriteExprContext *ctx);
   std::any visitWriteString(AslParser::WriteStringContext *ctx);
+  std::any visitReturn(AslParser::ReturnContext *ctx);
+
+
   std::any visitSetIdent(AslParser::SetIdentContext *ctx);
   std::any visitSetArray(AslParser::SetArrayContext *ctx);
   // std::any visitLeft_expr(AslParser::Left_exprContext *ctx);
 
   std::any visitParent(AslParser::ParentContext *ctx);
   std::any visitGetArray(AslParser::GetArrayContext *ctx); // TODO
-  std::any visitFuncCall(AslParser::FuncCallContext *ctx); // TODO
+  std::any visitFuncCall(AslParser::FuncCallContext *ctx);
   std::any visitArithmetic(AslParser::ArithmeticContext *ctx);
   std::any visitUnary(AslParser::UnaryContext *ctx);
   std::any visitRelational(AslParser::RelationalContext *ctx);
