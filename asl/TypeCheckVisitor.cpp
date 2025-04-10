@@ -219,8 +219,10 @@ std::any TypeCheckVisitor::visitProcCall(AslParser::ProcCallContext *ctx) {
                 TypesMgr::TypeId funcParamType = params[i];
 
                 if (!Types.isErrorTy(exprType) and
-                    !Types.equalTypes(funcParamType, exprType))
-                    Errors.incompatibleParameter(ctx->expr(i), i + 1, ctx);
+                    !Types.copyableTypes(funcParamType, exprType))
+                    {
+                        Errors.incompatibleParameter(ctx->expr(i), i + 1, ctx);
+                    }
             }
         }
     }
