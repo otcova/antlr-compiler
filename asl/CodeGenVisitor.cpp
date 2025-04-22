@@ -105,8 +105,9 @@ std::any CodeGenVisitor::visitFunction(AslParser::FunctionContext *ctx) {
 
     instructionList &&code =
         std::any_cast<instructionList>(visit(ctx->statements()));
-
+    
     code = code || instruction(instruction::RETURN());
+
 
     subr.set_instructions(code);
     Symbols.popScope();
@@ -126,7 +127,11 @@ std::any CodeGenVisitor::visitParameters(AslParser::ParametersContext *ctx) {
 std::any CodeGenVisitor::visitParameter(AslParser::ParameterContext *ctx) {
     std::string name = ctx->ID()->getText();
     TypesMgr::TypeId tid = getTypeDecor(ctx->type());
+
     std::string typeStr = Types.to_string(tid);
+
+    if (Types.isArrayTy(tid))
+        typeStr = Types.to_string(Types.getArrayElemType(tid)) + " array";//TODO
 
     return var(name, typeStr);
 }
@@ -168,7 +173,7 @@ std::any CodeGenVisitor::visitBasic_type(AslParser::Basic_typeContext *ctx) {
     std::string type = Types.to_string(typeId);
 
     DEBUG_EXIT();
-    return var("funcType", type);
+    return var("funcType", type); // TODO
 }
 
 // std::any CodeGenVisitor::visitTypeBasicType(AslParser::TypeBasicTypeContext *ctx)
@@ -226,8 +231,8 @@ std::any CodeGenVisitor::visitAssignStmt(AslParser::AssignStmtContext *ctx) {
         code = code || instruction::FLOAT(temp, addr2);
         addr2 = temp;
     }
-
-    if (offs1 != "") // for array access
+    LOG(Types.to_string(tid1))
+    if (offs1 != "") // for array access // TODO may be need to change typecheck for assigment of array
     {
         code = code1 || code2 || code || instruction::XLOAD(addr1, offs1, addr2);
     }
@@ -325,6 +330,14 @@ std::any CodeGenVisitor::visitProcCall(AslParser::ProcCallContext *ctx) {
             code = code || instruction::FLOAT(temp, param.addr);
             param.addr = temp;
         }
+
+        if (Types.isArrayTy(paramType))
+        {
+            std::string temp = "%" + codeCounters.newTEMP();
+            code = code || instruction::ALOAD(temp, param.addr);
+            param.addr = temp;
+        }
+
         code = code || instruction::PUSH(param.addr);
     }
 
@@ -489,6 +502,14 @@ std::any CodeGenVisitor::visitFuncCall(AslParser::FuncCallContext *ctx) {
             code = code || instruction::FLOAT(temp, param.addr);
             param.addr = temp;
         }
+
+        if (Types.isArrayTy(paramType))
+        {
+            std::string temp = "%" + codeCounters.newTEMP();
+            code = code || instruction::ALOAD(temp, param.addr);
+            param.addr = temp;
+        }
+
         code = code || instruction::PUSH(param.addr);
     }
 
@@ -689,7 +710,7 @@ std::any CodeGenVisitor::visitValue(AslParser::ValueContext *ctx) {
     else if (ctx->FLOATVAL())
         code = instruction::FLOAD(temp, ctx->getText());
     else if (ctx->BOOLVAL()) {
-        if (ctx->getText() == "false")
+        if (ctx->getText() == "false") // TODO
             code = instruction::ILOAD(temp, "0");
         else if (ctx->getText() == "true")
             code = instruction::ILOAD(temp, "1");
