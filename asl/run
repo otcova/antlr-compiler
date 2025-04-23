@@ -32,8 +32,8 @@ for i in {1..4}; do
     in="../examples/jpbasic_genc_0$i.in"
     out="../examples/jpbasic_genc_0$i.out"
     echo "$asl"
-    ./asl "$asl" >ir.asm
-    delta <(cat "$out") <(../tvm/tvm ir.asm <"$in")
+    ./asl "$asl" > $asl.asm
+    delta <(cat "$out") <(../tvm/tvm $asl.asm <"$in")
 done
 
 for i in {1..9}; do
@@ -41,8 +41,8 @@ for i in {1..9}; do
     in="../examples/jp_genc_0$i.in"
     out="../examples/jp_genc_0$i.out"
     echo "$asl"
-    ./asl "$asl" >ir.asm
-    delta <(cat "$out") <(../tvm/tvm ir.asm <"$in")
+    ./asl "$asl" > $asl.asm
+    delta <(cat "$out") <(../tvm/tvm $asl.asm <"$in")
 done
 
 for i in {10..14}; do
@@ -50,8 +50,8 @@ for i in {10..14}; do
     in="../examples/jp_genc_$i.in"
     out="../examples/jp_genc_$i.out"
     echo "$asl"
-    ./asl "$asl" >ir.asm
-    delta <(cat "$out") <(../tvm/tvm ir.asm <"$in")
+    ./asl "$asl" > $asl.asm
+    delta <(cat "$out") <(../tvm/tvm $asl.asm <"$in")
 done
 
 # This is for the examn test (may need to modify)

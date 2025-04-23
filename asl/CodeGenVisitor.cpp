@@ -202,6 +202,8 @@ std::any CodeGenVisitor::visitAssignStmt(AslParser::AssignStmtContext *ctx) {
     CodeAttribs &&codeAtsRhs = std::any_cast<CodeAttribs>(visit(ctx->expr()));
     std::string addrRhs = codeAtsRhs.addr;
     instructionList &codeRhs = codeAtsRhs.code;
+    std::string offsRhs = codeAtsRhs.offs;
+
     TypesMgr::TypeId typeRhs = getTypeDecor(ctx->expr());
 
     if (Types.isIntegerTy(typeRhs) && Types.isFloatTy(typeLhs))
@@ -705,7 +707,7 @@ std::any CodeGenVisitor::visitValue(AslParser::ValueContext *ctx) {
     else if (ctx->TRUE())
         code = instruction::ILOAD(temp, "1");
     else if (ctx->CHARVAL())
-        code = instruction::CHLOAD(temp, ctx->getText());
+        code = instruction::LOAD(temp, ctx->getText());
 
     CodeAttribs codAts(temp, "", code);
     DEBUG_EXIT();
