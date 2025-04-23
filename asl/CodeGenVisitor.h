@@ -65,12 +65,9 @@ public:
   // Methods to visit each kind of node:
   std::any visitProgram(AslParser::ProgramContext *ctx);
   std::any visitFunction(AslParser::FunctionContext *ctx);
-  std::any visitParameters(AslParser::ParametersContext *ctx);
-  std::any visitParameter(AslParser::ParameterContext *ctx);
 
   std::any visitDeclarations(AslParser::DeclarationsContext *ctx);
   std::any visitVariable_decl(AslParser::Variable_declContext *ctx);
-  std::any visitBasic_type(AslParser::Basic_typeContext *ctx);
 
   // std::any visitTypeBasicType(AslParser::TypeBasicTypeContext *ctx);
   // std::any visitTypeArray(AslParser::TypeArrayContext *ctx);

@@ -449,7 +449,7 @@ std::any TypeCheckVisitor::visitValue(AslParser::ValueContext *ctx) {
         t = Types.createFloatTy();
     else if (ctx->CHARVAL())
         t = Types.createCharacterTy();
-    else if (ctx->BOOLVAL())
+    else if (ctx->TRUE() || ctx->FALSE())
         t = Types.createBooleanTy();
 
     putTypeDecor(ctx, t);

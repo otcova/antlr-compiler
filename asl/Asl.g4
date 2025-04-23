@@ -111,7 +111,7 @@ expr
         | INTVAL                                        # value
         | FLOATVAL                                      # value
         | CHARVAL                                       # value
-        | BOOLVAL                                       # value
+        | (TRUE | FALSE)                                # value
         | ident                                         # exprIdent
         ;
 
@@ -156,7 +156,8 @@ ENDFUNC   : 'endfunc' ;
 RETURN    : 'return' ;
 READ      : 'read' ;
 WRITE     : 'write' ;
-BOOLVAL   : ('true' | 'false') ;
+TRUE      : 'true' ;
+FALSE     : 'false' ;
 INTVAL    : ('0'..'9')+ ;
 FLOATVAL  : ('0'..'9')+ '.' ('0'..'9')+ ;
 CHARVAL   : '\'' ( ESC_SEQ | ~('\\'|'\'') ) '\'' ;
