@@ -9,32 +9,41 @@ function f
   endvars
 
      ;;; = 'c=v;'
-     c = v
+     %1 = 0
+  label while1 :
+     %2 = %1 < 10
+     ifFalse %2 goto endwhile1
+     %3 = v
+     %4 = %3[%1]
+     c[%1] = %4
+     %1 = %1 + 1
+     goto while1
+  label endwhile1 :
      ;;; = 'write"en f. c: ";'
      writes "en f. c: "
      ;;; = 'i=0;'
-     %1 = 0
-     i = %1
+     %5 = 0
+     i = %5
      ;;; = 'whilei<10dowritec[i];write' ';i=i+1;endwhile'
-  label while1 :
-     %2 = 10
-     %3 = i < %2
-     ifFalse %3 goto endwhile1
+  label while2 :
+     %6 = 10
+     %7 = i < %6
+     ifFalse %7 goto endwhile2
      ;;; = 'writec[i];'
-     %4 = c[i]
-     writei %4
+     %8 = c[i]
+     writei %8
      ;;; = 'write' ';'
-     %5 = ' '
-     writec %5
+     %9 = ' '
+     writec %9
      ;;; = 'i=i+1;'
-     %6 = 1
-     %7 = i + %6
-     i = %7
-     goto while1
-  label endwhile1 :
+     %10 = 1
+     %11 = i + %10
+     i = %11
+     goto while2
+  label endwhile2 :
      ;;; = 'write'\n';'
-     %8 = '\n'
-     writec %8
+     %12 = '\n'
+     writec %12
      return
 endfunction
 
@@ -67,7 +76,16 @@ function g
      goto while1
   label endwhile1 :
      ;;; = 'v=d;'
-     v = d
+     %8 = 0
+  label while2 :
+     %9 = %8 < 10
+     ifFalse %9 goto endwhile2
+     %10 = d[%8]
+     %11 = v
+     %11[%8] = %10
+     %8 = %8 + 1
+     goto while2
+  label endwhile2 :
      return
 endfunction
 
@@ -99,117 +117,125 @@ function main
      goto while1
   label endwhile1 :
      ;;; = 'b=a;'
-     b = a
+     %7 = 0
+  label while2 :
+     %8 = %7 < 10
+     ifFalse %8 goto endwhile2
+     %9 = a[%7]
+     b[%7] = %9
+     %7 = %7 + 1
+     goto while2
+  label endwhile2 :
      ;;; = 'write"despres de b=a. b: ";'
      writes "despres de b=a. b: "
      ;;; = 'i=0;'
-     %7 = 0
-     i = %7
+     %10 = 0
+     i = %10
      ;;; = 'whilei<10dowriteb[i];write' ';i=i+1;endwhile'
-  label while2 :
-     %8 = 10
-     %9 = i < %8
-     ifFalse %9 goto endwhile2
-     ;;; = 'writeb[i];'
-     %10 = b[i]
-     writei %10
-     ;;; = 'write' ';'
-     %11 = ' '
-     writec %11
-     ;;; = 'i=i+1;'
-     %12 = 1
-     %13 = i + %12
-     i = %13
-     goto while2
-  label endwhile2 :
-     ;;; = 'write'\n';'
-     %14 = '\n'
-     writec %14
-     ;;; = 'write"despres de b=a. a: ";'
-     writes "despres de b=a. a: "
-     ;;; = 'i=0;'
-     %15 = 0
-     i = %15
-     ;;; = 'whilei<10dowritea[i];write' ';i=i+1;endwhile'
   label while3 :
-     %16 = 10
-     %17 = i < %16
-     ifFalse %17 goto endwhile3
-     ;;; = 'writea[i];'
-     %18 = a[i]
-     writei %18
+     %11 = 10
+     %12 = i < %11
+     ifFalse %12 goto endwhile3
+     ;;; = 'writeb[i];'
+     %13 = b[i]
+     writei %13
      ;;; = 'write' ';'
-     %19 = ' '
-     writec %19
+     %14 = ' '
+     writec %14
      ;;; = 'i=i+1;'
-     %20 = 1
-     %21 = i + %20
-     i = %21
+     %15 = 1
+     %16 = i + %15
+     i = %16
      goto while3
   label endwhile3 :
      ;;; = 'write'\n';'
-     %22 = '\n'
+     %17 = '\n'
+     writec %17
+     ;;; = 'write"despres de b=a. a: ";'
+     writes "despres de b=a. a: "
+     ;;; = 'i=0;'
+     %18 = 0
+     i = %18
+     ;;; = 'whilei<10dowritea[i];write' ';i=i+1;endwhile'
+  label while4 :
+     %19 = 10
+     %20 = i < %19
+     ifFalse %20 goto endwhile4
+     ;;; = 'writea[i];'
+     %21 = a[i]
+     writei %21
+     ;;; = 'write' ';'
+     %22 = ' '
      writec %22
+     ;;; = 'i=i+1;'
+     %23 = 1
+     %24 = i + %23
+     i = %24
+     goto while4
+  label endwhile4 :
+     ;;; = 'write'\n';'
+     %25 = '\n'
+     writec %25
      ;;; = 'f(a);'
-     %23 = &a
-     pushparam %23
+     %26 = &a
+     pushparam %26
      call f
      popparam 
      ;;; = 'write"despres de f(a). a: ";'
      writes "despres de f(a). a: "
      ;;; = 'i=0;'
-     %24 = 0
-     i = %24
+     %27 = 0
+     i = %27
      ;;; = 'whilei<10dowritea[i];write' ';i=i+1;endwhile'
-  label while4 :
-     %25 = 10
-     %26 = i < %25
-     ifFalse %26 goto endwhile4
+  label while5 :
+     %28 = 10
+     %29 = i < %28
+     ifFalse %29 goto endwhile5
      ;;; = 'writea[i];'
-     %27 = a[i]
-     writei %27
+     %30 = a[i]
+     writei %30
      ;;; = 'write' ';'
-     %28 = ' '
-     writec %28
-     ;;; = 'i=i+1;'
-     %29 = 1
-     %30 = i + %29
-     i = %30
-     goto while4
-  label endwhile4 :
-     ;;; = 'write'\n';'
-     %31 = '\n'
+     %31 = ' '
      writec %31
+     ;;; = 'i=i+1;'
+     %32 = 1
+     %33 = i + %32
+     i = %33
+     goto while5
+  label endwhile5 :
+     ;;; = 'write'\n';'
+     %34 = '\n'
+     writec %34
      ;;; = 'g(a);'
-     %32 = &a
-     pushparam %32
+     %35 = &a
+     pushparam %35
      call g
      popparam 
      ;;; = 'write"despres de g(a). a: ";'
      writes "despres de g(a). a: "
      ;;; = 'i=0;'
-     %33 = 0
-     i = %33
+     %36 = 0
+     i = %36
      ;;; = 'whilei<10dowritea[i];write' ';i=i+1;endwhile'
-  label while5 :
-     %34 = 10
-     %35 = i < %34
-     ifFalse %35 goto endwhile5
+  label while6 :
+     %37 = 10
+     %38 = i < %37
+     ifFalse %38 goto endwhile6
      ;;; = 'writea[i];'
-     %36 = a[i]
-     writei %36
+     %39 = a[i]
+     writei %39
      ;;; = 'write' ';'
-     %37 = ' '
-     writec %37
-     ;;; = 'i=i+1;'
-     %38 = 1
-     %39 = i + %38
-     i = %39
-     goto while5
-  label endwhile5 :
-     ;;; = 'write'\n';'
-     %40 = '\n'
+     %40 = ' '
      writec %40
+     ;;; = 'i=i+1;'
+     %41 = 1
+     %42 = i + %41
+     i = %42
+     goto while6
+  label endwhile6 :
+     ;;; = 'write'\n';'
+     %43 = '\n'
+     writec %43
      return
 endfunction
 

@@ -99,7 +99,6 @@ public:
 
   std::any visitIdent(AslParser::IdentContext *ctx);
 private:
-
   // Attributes
   TypesMgr        & Types;
   SymTable        & Symbols;
@@ -145,5 +144,12 @@ private:
     instructionList code;
 
   };  // class CodeAttribs
-  
+
+private: 
+  instructionList inst_while(CodeAttribs& cond, instructionList body);
+  instructionList inst_assignScalar(
+    TypesMgr::TypeId typeLhs, std::string& lhs, std::string& offsetLhs,
+    TypesMgr::TypeId typeRhs, std::string& rhs);
+  std::string inst_load(CodeAttribs& code);
+
 };  // class CodeGenVisitor
