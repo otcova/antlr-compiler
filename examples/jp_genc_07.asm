@@ -24,40 +24,40 @@ function main
 
    ;;; = 'readb[5];'
    %1 = 5
-   readf b
-   b[%1] = b
+   readf %2
+   b[%1] = %2
    ;;; = 'c[7]=b[5];'
-   %2 = 7
-   %3 = 5
-   %4 = b[%3]
-   c[%2] = %4
+   %3 = 7
+   %4 = 5
+   %5 = b[%4]
+   c[%3] = %5
    ;;; = 'writeb[5];'
-   %5 = 5
-   %6 = b[%5]
-   writef %6
+   %6 = 5
+   %7 = b[%6]
+   writef %7
    ;;; = 'write"\n";'
    writes "\n"
    ;;; = 'writec[7];'
-   %7 = 7
-   %8 = c[%7]
-   writef %8
+   %8 = 7
+   %9 = c[%8]
+   writef %9
    ;;; = 'write"\n";'
    writes "\n"
    ;;; = 'f(b);'
-   %9 = &b
-   pushparam %9
+   %10 = &b
+   pushparam %10
    call f
    popparam 
    ;;; = 'writeb[5];'
-   %10 = 5
-   %11 = b[%10]
-   writef %11
+   %11 = 5
+   %12 = b[%11]
+   writef %12
    ;;; = 'write"\n";'
    writes "\n"
    ;;; = 'writec[7];'
-   %12 = 7
-   %13 = c[%12]
-   writef %13
+   %13 = 7
+   %14 = c[%13]
+   writef %14
    ;;; = 'write"\n";'
    writes "\n"
    return

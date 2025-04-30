@@ -5,24 +5,25 @@ function f
   endvars
 
      ;;; = 'reada;'
-     readi a
+     readi %1
+     a = %1
      ;;; = 'ifa==10thena=3;endif'
-     %1 = 10
-     %2 = a == %1
-     ifFalse %2 goto endif1
+     %2 = 10
+     %3 = a == %2
+     ifFalse %3 goto endif1
      ;;; = 'a=3;'
-     %3 = 3
-     a = %3
+     %4 = 3
+     a = %4
   label endif1 :
      ;;; = 'b=a+67;'
-     %4 = 67
-     %5 = a + %4
-     b = %5
+     %5 = 67
+     %6 = a + %5
+     b = %6
      ;;; = 'writeb+a+1;'
-     %6 = b + a
-     %7 = 1
-     %8 = %6 + %7
-     writei %8
+     %7 = b + a
+     %8 = 1
+     %9 = %7 + %8
+     writei %9
      return
 endfunction
 
@@ -32,11 +33,12 @@ function main
   endvars
 
      ;;; = 'reada;'
-     readi a
+     readi %1
+     a = %1
      ;;; = 'ifa==3thenf();endif'
-     %1 = 3
-     %2 = a == %1
-     ifFalse %2 goto endif1
+     %2 = 3
+     %3 = a == %2
+     ifFalse %3 goto endif1
      ;;; = 'f();'
      call f
   label endif1 :

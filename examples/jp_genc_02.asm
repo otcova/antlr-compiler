@@ -7,43 +7,44 @@ function main
   endvars
 
      ;;; = 'readn;'
-     readi n
+     readi %1
+     n = %1
      ;;; = 'aux=n;'
      aux = n
      ;;; = 'ifn<0thenwrite"n >= 0!\n";end=true;endif'
-     %1 = 0
-     %2 = n < %1
-     ifFalse %2 goto endif1
+     %2 = 0
+     %3 = n < %2
+     ifFalse %3 goto endif1
      ;;; = 'write"n >= 0!\n";'
      writes "n >= 0!\n"
      ;;; = 'end=true;'
-     %3 = 1
-     end = %3
+     %4 = 1
+     end = %4
   label endif1 :
      ;;; = 'f=1;'
-     %4 = 1
-     f = %4
+     %5 = 1
+     f = %5
      ;;; = 'whilenotendandn>1dof=f*n;n=n-1;endwhile'
   label while1 :
-     %5 = not end
-     %6 = 1
-     %7 = n <= %6
-     %7 = not %7
-     %8 = %5 and %7
-     ifFalse %8 goto endwhile1
+     %6 = not end
+     %7 = 1
+     %8 = n <= %7
+     %8 = not %8
+     %9 = %6 and %8
+     ifFalse %9 goto endwhile1
      ;;; = 'f=f*n;'
-     %9 = f * n
-     f = %9
+     %10 = f * n
+     f = %10
      ;;; = 'n=n-1;'
-     %10 = 1
-     %11 = n - %10
-     n = %11
+     %11 = 1
+     %12 = n - %11
+     n = %12
      goto while1
   label endwhile1 :
      ;;; = 'ifend==falsethenwriteaux;write"!=";writef;write"\n";endif'
-     %12 = 0
-     %13 = end == %12
-     ifFalse %13 goto endif2
+     %13 = 0
+     %14 = end == %13
+     ifFalse %14 goto endif2
      ;;; = 'writeaux;'
      writei aux
      ;;; = 'write"!=";'

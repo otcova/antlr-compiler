@@ -13,36 +13,38 @@ function f
 
      ;;; = 'readz[5];'
      %1 = 5
-     readi z
-     z[%1] = z
+     readi %2
+     z[%1] = %2
      ;;; = 'writez[5]-88*f;'
-     %2 = 5
-     %3 = z[%2]
-     %4 = 88
-     %6 = float %4
-     %5 = %6 *. f
-     %8 = float %3
-     %7 = %8 -. %5
-     writef %7
+     %3 = 5
+     %4 = z[%3]
+     %5 = 88
+     %7 = float %5
+     %6 = %7 *. f
+     %9 = float %4
+     %8 = %9 -. %6
+     writef %8
      ;;; = 'readb;'
-     readi b
+     readi %10
+     b = %10
      ;;; = 'readf;'
-     readf f
+     readf %11
+     f = %11
      ;;; = 'ifbthenwrite"h\n\tl\\a";write---f;write"\n";endif'
      ifFalse b goto endif1
      ;;; = 'write"h\n\tl\\a";'
      writes "h\n\tl\\a"
      ;;; = 'write---f;'
-     %9 = -. f
-     %10 = -. %9
-     %11 = -. %10
-     writef %11
+     %12 = -. f
+     %13 = -. %12
+     %14 = -. %13
+     writef %14
      ;;; = 'write"\n";'
      writes "\n"
   label endif1 :
      ;;; = 'returntrue;'
-     %12 = 1
-     _result = %12
+     %15 = 1
+     _result = %15
      return
      return
 endfunction

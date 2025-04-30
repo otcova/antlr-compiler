@@ -18,19 +18,19 @@ function read_chars
      ifFalse %3 goto endwhile1
      ;;; = 'reada[i];'
      %4 = a
-     readc %4
-     %4[i] = %4
+     readc %5
+     %4[i] = %5
      ;;; = 'ifa[i]!='.'theni=i+1;elsereturni;endif'
-     %5 = a
-     %6 = %5[i]
-     %7 = '.'
-     %8 = %6 == %7
-     %8 = not %8
-     ifFalse %8 goto else2
+     %6 = a
+     %7 = %6[i]
+     %8 = '.'
+     %9 = %7 == %8
+     %9 = not %9
+     ifFalse %9 goto else2
      ;;; = 'i=i+1;'
-     %9 = 1
-     %10 = i + %9
-     i = %10
+     %10 = 1
+     %11 = i + %10
+     i = %11
      goto endif1
   label else2 :
      ;;; = 'returni;'
@@ -40,8 +40,8 @@ function read_chars
      goto while1
   label endwhile1 :
      ;;; = 'return10;'
-     %11 = 10
-     _result = %11
+     %12 = 10
+     _result = %12
      return
      return
 endfunction

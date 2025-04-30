@@ -19,9 +19,11 @@ function main
   endvars
 
    ;;; = 'readx;'
-   readi x
+   readi %1
+   x = %1
    ;;; = 'ready;'
-   readi y
+   readi %2
+   y = %2
    ;;; = 'write"x*y*2=";'
    writes "x*y*2="
    ;;; = 'writemul(x,y)*2;'
@@ -31,10 +33,10 @@ function main
    call mul
    popparam 
    popparam 
-   popparam %1
-   %2 = 2
-   %3 = %1 * %2
-   writei %3
+   popparam %3
+   %4 = 2
+   %5 = %3 * %4
+   writei %5
    ;;; = 'write".\n";'
    writes ".\n"
    return

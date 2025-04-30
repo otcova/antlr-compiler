@@ -406,23 +406,22 @@ std::any CodeGenVisitor::visitReadStmt(AslParser::ReadStmtContext *ctx) {
 
     CodeAttribs &&codAtsE = std::any_cast<CodeAttribs>(visit(ctx->left_expr()));
     std::string addr1 = codAtsE.addr;
-    std::string          offs1 = codAtsE.offs;
-    instructionList &code1 = codAtsE.code;
-    instructionList &code = code1;
+    std::string offs1 = codAtsE.offs;
+    TypesMgr::TypeId type = getTypeDecor(ctx->left_expr());
 
-    TypesMgr::TypeId tid1 = getTypeDecor(ctx->left_expr());
+    instructionList code = codAtsE.code;
+    std::string input = "%" + codeCounters.newTEMP();
 
-    if (Types.isIntegerTy(tid1))
-        code = code1 || instruction::READI(addr1);
-    else if (Types.isFloatTy(tid1))
-        code = code1 || instruction::READF(addr1);
-    else if (Types.isCharacterTy(tid1))
-        code = code1 || instruction::READC(addr1);
-    else if (Types.isBooleanTy(tid1))
-        code = code1 || instruction::READI(addr1);
+    if (Types.isIntegerTy(type))
+        code = code || instruction::READI(input);
+    else if (Types.isFloatTy(type))
+        code = code || instruction::READF(input);
+    else if (Types.isCharacterTy(type))
+        code = code || instruction::READC(input);
+    else if (Types.isBooleanTy(type))
+        code = code || instruction::READI(input);
 
-    if (offs1 != "") // for array access
-        code = code1 || instruction::XLOAD(addr1, offs1, addr1);
+    code = code || inst_assignScalar(type, addr1, offs1, type, input);
 
     DEBUG_EXIT();
     return code;

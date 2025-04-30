@@ -47,23 +47,24 @@ function main
      %2 = 1
      end = %2
      ;;; = 'readmax;'
-     readi max
+     readi %3
+     max = %3
      ;;; = 'ifi<=maxthenend=false;elsei=0;endif'
-     %3 = i <= max
-     ifFalse %3 goto else2
+     %4 = i <= max
+     ifFalse %4 goto else2
      ;;; = 'end=false;'
-     %4 = 0
-     end = %4
+     %5 = 0
+     end = %5
      goto endif1
   label else2 :
      ;;; = 'i=0;'
-     %5 = 0
-     i = %5
+     %6 = 0
+     i = %6
   label endif1 :
      ;;; = 'whilenotenddowritei;write"!=";writefact(i);write"\n";ifi==maxthenend=true;elsei=i+1;endifendwhile'
   label while1 :
-     %6 = not end
-     ifFalse %6 goto endwhile1
+     %7 = not end
+     ifFalse %7 goto endwhile1
      ;;; = 'writei;'
      writei i
      ;;; = 'write"!=";'
@@ -73,22 +74,22 @@ function main
      pushparam i
      call fact
      popparam 
-     popparam %7
-     writei %7
+     popparam %8
+     writei %8
      ;;; = 'write"\n";'
      writes "\n"
      ;;; = 'ifi==maxthenend=true;elsei=i+1;endif'
-     %8 = i == max
-     ifFalse %8 goto else4
+     %9 = i == max
+     ifFalse %9 goto else4
      ;;; = 'end=true;'
-     %9 = 1
-     end = %9
+     %10 = 1
+     end = %10
      goto endif3
   label else4 :
      ;;; = 'i=i+1;'
-     %10 = 1
-     %11 = i + %10
-     i = %11
+     %11 = 1
+     %12 = i + %11
+     i = %12
   label endif3 :
      goto while1
   label endwhile1 :
