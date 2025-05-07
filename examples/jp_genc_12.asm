@@ -11,11 +11,11 @@ function f
      ;;; = 'c=v;'
      %1 = 0
   label while1 :
-     %2 = %1 < 10
-     ifFalse %2 goto endwhile1
-     %3 = v
-     %4 = %3[%1]
-     c[%1] = %4
+     %4 = %1 < 10
+     ifFalse %4 goto endwhile1
+     %2 = v
+     %3 = %2[%1]
+     c[%1] = %3
      %1 = %1 + 1
      goto while1
   label endwhile1 :
@@ -78,11 +78,11 @@ function g
      ;;; = 'v=d;'
      %8 = 0
   label while2 :
-     %9 = %8 < 10
-     ifFalse %9 goto endwhile2
-     %10 = d[%8]
-     %11 = v
-     %11[%8] = %10
+     %11 = %8 < 10
+     ifFalse %11 goto endwhile2
+     %9 = d[%8]
+     %10 = v
+     %10[%8] = %9
      %8 = %8 + 1
      goto while2
   label endwhile2 :
@@ -119,10 +119,10 @@ function main
      ;;; = 'b=a;'
      %7 = 0
   label while2 :
-     %8 = %7 < 10
-     ifFalse %8 goto endwhile2
-     %9 = a[%7]
-     b[%7] = %9
+     %9 = %7 < 10
+     ifFalse %9 goto endwhile2
+     %8 = a[%7]
+     b[%7] = %8
      %7 = %7 + 1
      goto while2
   label endwhile2 :

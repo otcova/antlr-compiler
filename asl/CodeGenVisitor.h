@@ -142,14 +142,41 @@ private:
     std::string offs;
     //   - the three-address code associated to an statement/expression
     instructionList code;
-
   };  // class CodeAttribs
 
-private: 
-  instructionList inst_while(CodeAttribs& cond, instructionList body);
-  instructionList inst_assignScalar(
-    TypesMgr::TypeId typeLhs, std::string& lhs, std::string& offsetLhs,
-    TypesMgr::TypeId typeRhs, std::string& rhs);
-  std::string inst_load(CodeAttribs& code);
+private:
+
+  struct While {
+    CodeAttribs& cond;
+    instructionList body;
+  };
+
+  struct ForRange {
+    // Inclusive
+    const std::string& start;
+    // Exclusive
+    const std::string& end;
+
+    const std::string& index;
+    instructionList body;
+  };
+  struct Assign {
+    TypesMgr::TypeId dstType;
+    std::string& dst;
+    std::string& dstOffset;
+
+    TypesMgr::TypeId srcType;
+    std::string& src;
+  };
+
+
+  instructionList inst(While);
+  instructionList inst(ForRange);
+  instructionList inst(Assign);
+
+  CodeAttribs inst_load(const std::string& addr, const std::string& offset="");
+
+  std::string newTemp();
+
 
 };  // class CodeGenVisitor
