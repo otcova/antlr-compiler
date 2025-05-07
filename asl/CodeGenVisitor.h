@@ -147,7 +147,7 @@ private:
 private:
 
   struct While {
-    CodeAttribs& cond;
+    const CodeAttribs& cond;
     instructionList body;
   };
 
@@ -162,11 +162,11 @@ private:
   };
   struct Assign {
     TypesMgr::TypeId dstType;
-    std::string& dst;
-    std::string& dstOffset;
+    const std::string& dst;
+    const std::string& dstOffset;
 
     TypesMgr::TypeId srcType;
-    std::string& src;
+    const std::string& src;
   };
 
 

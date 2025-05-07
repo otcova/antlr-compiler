@@ -84,16 +84,21 @@ std::any CodeGenVisitor::visitFunction(AslParser::FunctionContext *ctx) {
     subroutine subr(ctx->ID()->getText());
     codeCounters.reset();
 
+    TypesMgr::TypeId returnType = Types.createVoidTy();
+
     // Define Return Variable
     if (ctx->basic_type()) {
-        TypesMgr::TypeId returnType = getTypeDecor(ctx->basic_type());
+        returnType = getTypeDecor(ctx->basic_type());
         subr.add_param("_result", Types.to_string(returnType));
     }
+
+    std::vector<TypesMgr::TypeId> paramsTypes;
 
     // Define Parameters
     for (auto *param : ctx->parameters()->parameter()) {
         std::string name = param->ID()->getText();
         TypesMgr::TypeId type = getTypeDecor(param->type());
+        paramsTypes.push_back(type);
 
         if (Types.isArrayTy(type)) {
             TypesMgr::TypeId elementType = Types.getArrayElemType(type);
@@ -102,6 +107,9 @@ std::any CodeGenVisitor::visitFunction(AslParser::FunctionContext *ctx) {
             subr.add_param(name, Types.to_string(type));
         }
     }
+
+    setCurrentFunctionTy(Types.createFunctionTy(paramsTypes, returnType));
+
 
     // Define Local Variables
     std::vector<var> &&lvars =
@@ -191,26 +199,30 @@ std::any CodeGenVisitor::visitStatements(AslParser::StatementsContext *ctx) {
 instructionList CodeGenVisitor::inst(Assign assign) {
     instructionList code;
 
+    std::string src = assign.src;
+    std::string dst = assign.dst;
+
     // Handle array by reference
     if (assign.dstOffset != "") {
-        if (Symbols.isParameterClass(assign.dst)) {
+        if (Symbols.isParameterClass(dst)) {
             std::string arrayAddr = newTemp();
-            code = code || instruction::LOAD(arrayAddr, assign.dst);
-            assign.dst = arrayAddr;
+            code = code || instruction::LOAD(arrayAddr, dst);
+            dst = arrayAddr;
         }
     }
 
+    // Float -> Int conversion
     if (Types.isIntegerTy(assign.srcType) && Types.isFloatTy(assign.dstType))
     {
         std::string temp = newTemp();
-        code = code || instruction::FLOAT(temp, assign.src);
-        assign.src = temp;
+        code = code || instruction::FLOAT(temp, src);
+        src = temp;
     }
 
     if (assign.dstOffset != "") // a[i] = x
-        code = code || instruction::XLOAD(assign.dst, assign.dstOffset, assign.src);
+        code = code || instruction::XLOAD(dst, assign.dstOffset, src);
     else  // x = y // x = a[i]
-        code = code || instruction::LOAD(assign.dst, assign.src);
+        code = code || instruction::LOAD(dst, src);
 
     return code;
 }
@@ -399,10 +411,10 @@ std::any CodeGenVisitor::visitProcCall(AslParser::ProcCallContext *ctx) {
             param.addr = temp;
         }
 
-        if (Types.isArrayTy(paramType))
+        if (Types.isArrayTy(paramType) && !Symbols.isParameterClass(param.addr))
         {
             std::string temp = newTemp();
-            code = code || instruction::ALOAD(temp, param.addr); // TODO
+            code = code || instruction::ALOAD(temp, param.addr);
             param.addr = temp;
         }
 
@@ -489,12 +501,17 @@ std::any CodeGenVisitor::visitReturn(AslParser::ReturnContext *ctx) {
     DEBUG_ENTER();
     instructionList code;
     if (ctx->expr()) {
-        CodeAttribs &&codAts = std::any_cast<CodeAttribs>(visit(ctx->expr()));
-        std::string val = codAts.addr;
-        instructionList &code1 = codAts.code;
-
-        code = code1 || instruction::LOAD("_result", val) || instruction::RETURN();
+        CodeAttribs &&resultCode = std::any_cast<CodeAttribs>(visit(ctx->expr()));
+        code = code || resultCode.code || inst(Assign {
+            .dstType = Types.getFuncReturnType(getCurrentFunctionTy()),
+            .dst = "_result",
+            .dstOffset = "",
+            .srcType = getTypeDecor(ctx->expr()),
+            .src = resultCode.addr,
+        });
     }
+
+    code = code || instruction::RETURN();
     DEBUG_EXIT();
     return code;
 }
@@ -580,8 +597,7 @@ std::any CodeGenVisitor::visitFuncCall(AslParser::FuncCallContext *ctx) {
             param.addr = temp;
         }
 
-        if (Types.isArrayTy(paramType))
-        {
+        if (Types.isArrayTy(paramType) && !Symbols.isParameterClass(param.addr)) {
             std::string temp = newTemp();
             code = code || instruction::ALOAD(temp, param.addr);
             param.addr = temp;

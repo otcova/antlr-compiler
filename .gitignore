@@ -8,6 +8,6 @@ asl/Asl*.cpp
 asl/AslLexer.interp
 asl/AslLexer.tokens
 asl/.antlr
-asl/ir.asm
+exemples/*.asm
 tvm
 *.swp

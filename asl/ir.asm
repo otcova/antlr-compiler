@@ -19,10 +19,10 @@ function main
    ;;; = 'writec;'
    writei c
    ;;; = 'write'.';'
-   %4 = '.'
+   %4 = ''.''
    writec %4
    ;;; = 'write'\n';'
-   %5 = '\n'
+   %5 = ''\n''
    writec %5
    ;;; = 'c=(-a)%b;'
    %6 = - a
@@ -33,10 +33,10 @@ function main
    ;;; = 'writec;'
    writei c
    ;;; = 'write'.';'
-   %8 = '.'
+   %8 = ''.''
    writec %8
    ;;; = 'write'\n';'
-   %9 = '\n'
+   %9 = ''\n''
    writec %9
    ;;; = 'c=a%(-b);'
    %10 = - b
@@ -47,10 +47,10 @@ function main
    ;;; = 'writec;'
    writei c
    ;;; = 'write'.';'
-   %12 = '.'
+   %12 = ''.''
    writec %12
    ;;; = 'write'\n';'
-   %13 = '\n'
+   %13 = ''\n''
    writec %13
    ;;; = 'c=(a+3)%b;'
    %14 = 3
@@ -62,10 +62,10 @@ function main
    ;;; = 'writec;'
    writei c
    ;;; = 'write'.';'
-   %17 = '.'
+   %17 = ''.''
    writec %17
    ;;; = 'write'\n';'
-   %18 = '\n'
+   %18 = ''\n''
    writec %18
    ;;; = 'c=(-a-3)%(-b);'
    %19 = - a
@@ -79,10 +79,10 @@ function main
    ;;; = 'writec;'
    writei c
    ;;; = 'write'.';'
-   %24 = '.'
+   %24 = ''.''
    writec %24
    ;;; = 'write'\n';'
-   %25 = '\n'
+   %25 = ''\n''
    writec %25
    return
 endfunction
