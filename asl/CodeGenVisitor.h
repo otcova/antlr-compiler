@@ -82,6 +82,9 @@ public:
   std::any visitWriteString(AslParser::WriteStringContext *ctx);
   std::any visitReturn(AslParser::ReturnContext *ctx);
 
+  std::any visitSwap(AslParser::SwapContext *ctx);
+  std::any visitSwitch(AslParser::SwitchContext *ctx);
+
 
   std::any visitSetIdent(AslParser::SetIdentContext *ctx);
   std::any visitSetArray(AslParser::SetArrayContext *ctx);

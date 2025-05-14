@@ -89,6 +89,16 @@ statement
         | WRITE STRING ';'                    # writeString
         
         | RETURN expr? ';'                      # return
+
+
+
+        | SWAP '(' left_expr ',' left_expr ')' ';' # swap
+
+        | SWITCH expr ':'
+        (CASE expr ':' statement+ ENDCASE)+ 
+        (DEFAULT ':' statement+)? ENDSWITCH                   # switch
+
+
         ;
 
 // Grammar for left expressions (l-values in C++)
@@ -158,6 +168,15 @@ READ      : 'read' ;
 WRITE     : 'write' ;
 TRUE      : 'true' ;
 FALSE     : 'false' ;
+
+SWAP      : 'swap' ;
+SWITCH    : 'switch' ;
+CASE      : 'case' ;
+DEFAULT   : 'default' ;
+ENDCASE   : 'endcase' ;
+ENDSWITCH   : 'endswitch' ;
+
+
 INTVAL    : ('0'..'9')+ ;
 FLOATVAL  : ('0'..'9')+ '.' ('0'..'9')+ ;
 CHARVAL   : '\'' ( ESC_SEQ | ~('\\'|'\'') ) '\'' ;

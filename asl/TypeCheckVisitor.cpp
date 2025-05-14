@@ -35,6 +35,7 @@
 #include "../common/TreeDecoration.h"
 #include "../common/TypesMgr.h"
 
+#include <cstddef>
 #include <iostream>
 #include <string>
 
@@ -252,6 +253,48 @@ std::any TypeCheckVisitor::visitWriteExpr(AslParser::WriteExprContext *ctx) {
     DEBUG_EXIT();
     return 0;
 }
+
+
+
+std::any TypeCheckVisitor::visitSwap(AslParser::SwapContext *ctx) {
+    DEBUG_ENTER();
+    visitChildren(ctx);
+    TypesMgr::TypeId arg0 = getTypeDecor(ctx->left_expr(0));
+    TypesMgr::TypeId arg1 = getTypeDecor(ctx->left_expr(1));
+
+    if (!Types.isErrorTy(arg0) && !Types.isErrorTy(arg1))
+        if(!Types.copyableTypes(arg0, arg1) || !Types.copyableTypes(arg1, arg0))
+            Errors.incompatibleArgumentsInSwap(ctx);
+
+    DEBUG_EXIT();
+    return 0;
+
+
+}
+
+std::any TypeCheckVisitor::visitSwitch(AslParser::SwitchContext *ctx)
+{
+    DEBUG_ENTER();
+    visitChildren(ctx);
+
+    TypesMgr::TypeId tE = getTypeDecor(ctx->expr(0));
+    if (!Types.isErrorTy(tE))
+    {
+        for (size_t i = 1; i < ctx->expr().size(); i++)
+        {
+            TypesMgr::TypeId tV = getTypeDecor(ctx->expr(i));
+            if (!Types.isErrorTy(tV) && !Types.comparableTypes(tE, tV, "="))
+                Errors.incompatibleValueInSwitch(ctx->expr(i));
+        }
+    }
+
+    DEBUG_EXIT();
+    return 0;
+}
+
+
+
+
 
 // std::any TypeCheckVisitor::visitWriteString(AslParser::WriteStringContext
 // *ctx) {

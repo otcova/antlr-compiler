@@ -28,6 +28,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "CodeGenVisitor.h"
+#include "TypeCheckVisitor.h"
 #include "antlr4-runtime.h"
 
 #include "../common/SymTable.h"
@@ -35,6 +36,7 @@
 #include "../common/TypesMgr.h"
 #include "../common/code.h"
 
+#include <any>
 #include <cassert>
 #include <cstddef> // std::size_t
 #include <string>
@@ -526,6 +528,122 @@ std::any CodeGenVisitor::visitReturn(AslParser::ReturnContext *ctx) {
     DEBUG_EXIT();
     return code;
 }
+
+std::any CodeGenVisitor::visitSwap(AslParser::SwapContext *ctx) {
+
+    DEBUG_ENTER();
+    instructionList code;
+
+    CodeAttribs arg0 = std::any_cast<CodeAttribs>(visit(ctx->left_expr(0)));
+    CodeAttribs arg1 = std::any_cast<CodeAttribs>(visit(ctx->left_expr(1)));
+    code = code || arg0.code || arg1.code;
+
+
+    TypesMgr::TypeId arg0Ty = getTypeDecor(ctx->left_expr(0));
+    TypesMgr::TypeId arg1Ty = getTypeDecor(ctx->left_expr(1));
+
+
+    if (Types.isArrayTy(arg0Ty) && Types.isArrayTy(arg1Ty)) {
+        TypesMgr::TypeId elemTypeArg0 = Types.getArrayElemType(arg0Ty);
+        TypesMgr::TypeId elemTypeArg1 = Types.getArrayElemType(arg1Ty);
+
+        size_t size = Types.getArraySize(arg0Ty);
+        std::string index = newTemp();
+
+
+        CodeAttribs arg0_src = inst_load(arg0.addr, index);
+        CodeAttribs arg1_src = inst_load(arg1.addr, index);
+        instructionList body = arg0_src.code || arg1_src.code;
+
+        // temp = arg0
+        std::string temp = newTemp();
+        body = body || inst(Assign {
+            .dstType = elemTypeArg0,
+            .dst = temp,
+            .dstOffset = "",
+
+            .srcType = elemTypeArg0,
+            .src = arg0_src.addr,
+        });
+        
+        // arg0 = arg1
+        body = body || inst(Assign {
+            .dstType = elemTypeArg0,
+            .dst = arg0.addr,
+            .dstOffset = index,
+
+            .srcType = elemTypeArg1,
+            .src = arg1_src.addr,
+        });
+
+        // arg1 = temp
+        body = body || inst(Assign {
+            .dstType = elemTypeArg1,
+            .dst = arg1.addr,
+            .dstOffset = index,
+
+            .srcType = elemTypeArg0,
+            .src = temp,
+        });
+        
+        // for i in 0..size { dst[i] = src[i]; }
+        code = code || inst(ForRange {
+            .start = "0",
+            .end = std::to_string(size),
+            .index=index,
+            .body = body,
+        });
+
+
+    } else {
+        CodeAttribs arg0_src = inst_load(arg0.addr, arg0.offs);
+        CodeAttribs arg1_src = inst_load(arg1.addr, arg1.offs);
+        code = code || arg0_src.code || arg1_src.code;
+
+        // temp = arg0
+        std::string temp = newTemp();
+        code = code || inst(Assign {
+            .dstType = arg0Ty,
+            .dst = temp,
+            .dstOffset = "",
+
+            .srcType = arg0Ty,
+            .src = arg0_src.addr,
+        });
+        
+        // arg0 = arg1
+        code = code || inst(Assign {
+            .dstType = arg0Ty,
+            .dst = arg0.addr,
+            .dstOffset = arg0.offs,
+
+            .srcType = arg1Ty,
+            .src = arg1_src.addr,
+        });
+
+        // arg1 = temp
+        code = code || inst(Assign {
+            .dstType = arg1Ty,
+            .dst = arg1.addr,
+            .dstOffset = arg1.offs,
+
+            .srcType = arg0Ty,
+            .src = temp,
+        });
+    }
+   
+    DEBUG_EXIT();
+    return code;
+}
+
+std::any CodeGenVisitor::visitSwitch(AslParser::SwitchContext *ctx) {
+    DEBUG_ENTER();
+    CodeAttribs codAts = CodeAttribs("", "", {});
+    DEBUG_EXIT();
+    return codAts;
+}
+
+
 
 std::any CodeGenVisitor::visitSetIdent(AslParser::SetIdentContext *ctx) {
     DEBUG_ENTER();
