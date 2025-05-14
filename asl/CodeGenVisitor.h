@@ -169,11 +169,12 @@ private:
     const std::string& src;
   };
 
-
   instructionList inst(While);
   instructionList inst(ForRange);
   instructionList inst(Assign);
 
+
+  // to get the value of an addr (normal, reference or with offset)
   CodeAttribs inst_load(const std::string& addr, const std::string& offset="");
 
   std::string newTemp();

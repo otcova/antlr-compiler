@@ -61,6 +61,101 @@ void CodeGenVisitor::setCurrentFunctionTy(TypesMgr::TypeId type) {
     currFunctionType = type;
 }
 
+std::string CodeGenVisitor::newTemp() {
+    return "%" + codeCounters.newTEMP();
+}
+
+instructionList CodeGenVisitor::inst(Assign assign) {
+    instructionList code;
+
+    std::string src = assign.src;
+    std::string dst = assign.dst;
+
+    // Handle array by reference
+    if (assign.dstOffset != "") {
+        if (Symbols.isParameterClass(dst)) {
+            std::string arrayAddr = newTemp();
+            code = code || instruction::LOAD(arrayAddr, dst);
+            dst = arrayAddr;
+        }
+    }
+
+    // Float -> Int conversion
+    if (Types.isIntegerTy(assign.srcType) && Types.isFloatTy(assign.dstType))
+    {
+        std::string temp = newTemp();
+        code = code || instruction::FLOAT(temp, src);
+        src = temp;
+    }
+
+    if (assign.dstOffset != "") // a[i] = x
+        code = code || instruction::XLOAD(dst, assign.dstOffset, src);
+    else  // x = y // x = a[i]
+        code = code || instruction::LOAD(dst, src);
+
+    return code;
+}
+
+instructionList CodeGenVisitor::inst(ForRange inst_for) {
+    // For loop condition: i < end
+    std::string condVar = newTemp();
+
+    // i < end
+    instructionList condCode = instruction::LT(condVar, inst_for.index, inst_for.end);
+    CodeAttribs cond(condVar, "", condCode);
+
+    While inst_while = { .cond = cond, .body = inst_for.body};
+
+    // For loop inc: ++i
+    inst_while.body = inst_while.body || instruction::ADD(inst_for.index, inst_for.index, "1");
+    
+    // i = start;
+    // while (i < end) { inst_for.body; ++i }
+    return instruction::ILOAD(inst_for.index, inst_for.start) ||
+        inst(inst_while);
+}
+
+instructionList CodeGenVisitor::inst(While inst_while) {
+    std::string label = codeCounters.newLabelWHILE();
+
+    std::string labelEndWhile = "endwhile" + label;
+    std::string labelStartWhile = "while" + label;
+
+    // while:
+    //      code...
+    //      if !cond jump endwhile 
+    //      jump while
+    // endwhile:
+    return instruction::LABEL(labelStartWhile) || inst_while.cond.code ||
+           instruction::FJUMP(inst_while.cond.addr, labelEndWhile) || inst_while.body ||
+           instruction::UJUMP(labelStartWhile) ||
+           instruction::LABEL(labelEndWhile);
+}
+
+CodeGenVisitor::CodeAttribs CodeGenVisitor::inst_load(const std::string& addr, const std::string& offset) {
+    CodeAttribs code(addr, "", {});
+
+    // Handle array by reference
+    if (Symbols.isParameterClass(addr) && Types.isArrayTy(Symbols.getType(addr))) {
+        std::string arrayAddr = newTemp();
+        // temp = addr
+        code.code = code.code || instruction::LOAD(arrayAddr, addr);
+        code.addr = arrayAddr;
+    }
+
+    if (offset == "") {
+        return code;
+    } else {
+        // Handle array with offset
+        std::string temp = newTemp();
+        // temp = code.addr[offset]
+        code.code = code.code || instruction::LOADX(temp, code.addr, offset);
+        code.addr = temp;
+        return code;
+    }
+}
+
+
 // Methods to visit each kind of node:
 //
 std::any CodeGenVisitor::visitProgram(AslParser::ProgramContext *ctx) {
@@ -196,37 +291,6 @@ std::any CodeGenVisitor::visitStatements(AslParser::StatementsContext *ctx) {
     return code;
 }
 
-instructionList CodeGenVisitor::inst(Assign assign) {
-    instructionList code;
-
-    std::string src = assign.src;
-    std::string dst = assign.dst;
-
-    // Handle array by reference
-    if (assign.dstOffset != "") {
-        if (Symbols.isParameterClass(dst)) {
-            std::string arrayAddr = newTemp();
-            code = code || instruction::LOAD(arrayAddr, dst);
-            dst = arrayAddr;
-        }
-    }
-
-    // Float -> Int conversion
-    if (Types.isIntegerTy(assign.srcType) && Types.isFloatTy(assign.dstType))
-    {
-        std::string temp = newTemp();
-        code = code || instruction::FLOAT(temp, src);
-        src = temp;
-    }
-
-    if (assign.dstOffset != "") // a[i] = x
-        code = code || instruction::XLOAD(dst, assign.dstOffset, src);
-    else  // x = y // x = a[i]
-        code = code || instruction::LOAD(dst, src);
-
-    return code;
-}
-
 std::any CodeGenVisitor::visitAssignStmt(AslParser::AssignStmtContext *ctx) {
     DEBUG_ENTER();
     instructionList code;
@@ -255,11 +319,11 @@ std::any CodeGenVisitor::visitAssignStmt(AslParser::AssignStmtContext *ctx) {
 
         std::string index = newTemp();
 
-        // Get array element
+        // value = src[i]
         CodeAttribs value = inst_load(addrRhs, index);
         instructionList body = value.code;
 
-        // Set array element
+        // dst[i] = value
         body = body || inst(Assign {
             .dstType = elemTypeLhs,
             .dst = addrLhs,
@@ -268,7 +332,7 @@ std::any CodeGenVisitor::visitAssignStmt(AslParser::AssignStmtContext *ctx) {
             .src = value.addr,
         });
         
-        // for i in 0..size { B[i] = A[i]; }
+        // for i in 0..size { dst[i] = src[i]; }
         code = code || inst(ForRange {
             .start = "0",
             .end = std::to_string(size),
@@ -287,27 +351,6 @@ std::any CodeGenVisitor::visitAssignStmt(AslParser::AssignStmtContext *ctx) {
 
     DEBUG_EXIT();
     return code;
-}
-
-std::string CodeGenVisitor::newTemp() {
-    return "%" + codeCounters.newTEMP();
-}
-
-instructionList CodeGenVisitor::inst(ForRange inst_for) {
-    // For loop condition: i < end
-    std::string condVar = newTemp();
-    instructionList condCode = instruction::LT(condVar, inst_for.index, inst_for.end);
-    CodeAttribs cond(condVar, "", condCode);
-
-    While inst_while = { .cond = cond, .body = inst_for.body};
-
-    // For loop inc: ++i
-    inst_while.body = inst_while.body || instruction::ADD(inst_for.index, inst_for.index, "1");
-    
-    // i = start;
-    // while (i < end) { inst_for.body; ++i }
-    return instruction::ILOAD(inst_for.index, inst_for.start) ||
-        inst(inst_while);
 }
 
 std::any CodeGenVisitor::visitIfStmt(AslParser::IfStmtContext *ctx) {
@@ -343,38 +386,6 @@ std::any CodeGenVisitor::visitIfStmt(AslParser::IfStmtContext *ctx) {
 
     DEBUG_EXIT();
     return code;
-}
-
-CodeGenVisitor::CodeAttribs CodeGenVisitor::inst_load(const std::string& addr, const std::string& offset) {
-    CodeAttribs code(addr, "", {});
-
-    // Handle array by reference
-    if (Symbols.isParameterClass(addr)) {
-        std::string arrayAddr = newTemp();
-        code.code = code.code || instruction::LOAD(arrayAddr, addr);
-        code.addr = arrayAddr;
-    }
-
-    if (offset == "") {
-        return code;
-    } else {
-        std::string temp = newTemp();
-        code.code = code.code || instruction::LOADX(temp, code.addr, offset);
-        code.addr = temp;
-        return code;
-    }
-}
-
-instructionList CodeGenVisitor::inst(While inst_while) {
-    std::string label = codeCounters.newLabelWHILE();
-
-    std::string labelEndWhile = "endwhile" + label;
-    std::string labelStartWhile = "while" + label;
-
-    return instruction::LABEL(labelStartWhile) || inst_while.cond.code ||
-           instruction::FJUMP(inst_while.cond.addr, labelEndWhile) || inst_while.body ||
-           instruction::UJUMP(labelStartWhile) ||
-           instruction::LABEL(labelEndWhile);
 }
 
 std::any CodeGenVisitor::visitWhileStmt(AslParser::WhileStmtContext *ctx) {
