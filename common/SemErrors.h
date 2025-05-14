@@ -105,6 +105,10 @@ public:
   //   ctx is the program node (grammar start symbol) 
   void noMainProperlyDeclared       (antlr4::ParserRuleContext *ctx);
 
+  //   ctx is the node of the swap instruction
+  void incompatibleArgumentsInSwap  (antlr4::ParserRuleContext *ctx);
+  //   ctx is the node of the case value expression
+  void incompatibleValueInSwitch    (antlr4::ParserRuleContext *ctx);
 
 private:
 

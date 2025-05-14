@@ -146,6 +146,16 @@ void SemErrors::noMainProperlyDeclared(antlr4::ParserRuleContext *ctx) {
   ErrorList.push_back(error);
 }
 
+void SemErrors::incompatibleArgumentsInSwap(antlr4::ParserRuleContext *ctx) {
+  ErrorInfo error(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), "Incompatible arguments in swap.");
+  ErrorList.push_back(error);
+}
+
+void SemErrors::incompatibleValueInSwitch(antlr4::ParserRuleContext *ctx) {
+  ErrorInfo error(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), "Incompatible value in switch in case '" + ctx->getStart()->getText() + "'.");
+  ErrorList.push_back(error);
+}
+
 SemErrors::ErrorInfo::ErrorInfo(std::size_t line, std::size_t coln, std::string message)
   : line{line}, coln{coln}, message{message} {
 }
