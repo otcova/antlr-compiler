@@ -641,9 +641,37 @@ std::any CodeGenVisitor::visitSwap(AslParser::SwapContext *ctx) {
 
 std::any CodeGenVisitor::visitSwitch(AslParser::SwitchContext *ctx) {
     DEBUG_ENTER();
-    instructionList &&inst = std::any_cast<instructionList>(visit(ctx->switch_case(0)->statements()));
+    instructionList code;
+    std::string exitLabel = "switch_exit_" + codeCounters.newLabelIF();
+
+    CodeAttribs &&value = std::any_cast<CodeAttribs>(visit(ctx->expr()));
+    code = code || value.code;
+
+    for (size_t i = 0; i < ctx->switch_case().size(); ++i) {
+
+        CodeAttribs &&case_value = std::any_cast<CodeAttribs>(visit(ctx->switch_case(i)->expr()));
+        code = code || case_value.code;
+
+        instructionList &&case_body = std::any_cast<instructionList>(visit(ctx->switch_case(i)->statements()));
+
+        std::string condition = newTemp();
+        code = code || instruction::EQ(condition, value.addr, case_value.addr);
+
+        code = code || inst(If {
+            .condition = condition,
+            .trueBody = case_body || instruction::UJUMP(exitLabel),
+            .falseBody = {},
+        });
+    }
+
+    if (ctx->statements())
+        code = code || std::any_cast<instructionList>(visit(ctx->statements()));
+
+    code = code || instruction::LABEL(exitLabel);
+
     DEBUG_EXIT();
-    return inst;
+
+    return code;
 }
 
 
