@@ -132,6 +132,23 @@ instructionList CodeGenVisitor::inst(While inst_while) {
            instruction::LABEL(labelEndWhile);
 }
 
+instructionList CodeGenVisitor::inst(If inst_if) {
+    std::string label_id = codeCounters.newLabelIF();
+    std::string exitLabel = "exit_if_" + label_id;
+    std::string falseLabel = "else_if_" + label_id;
+
+    //  ifFalse condition => jump false_label
+    //      true_body
+    //      jump exit_label
+    //  false_label:
+    //      else_body
+    //  exit_label:
+    return instruction::FJUMP(inst_if.condition, falseLabel)
+        || inst_if.trueBody || instruction::UJUMP(exitLabel) ||
+        instruction::LABEL(falseLabel) || inst_if.falseBody ||
+        instruction::LABEL(exitLabel);
+}
+
 CodeGenVisitor::CodeAttribs CodeGenVisitor::inst_load(const std::string& addr, const std::string& offset) {
     CodeAttribs code(addr, "", {});
 
@@ -355,35 +372,21 @@ std::any CodeGenVisitor::visitAssignStmt(AslParser::AssignStmtContext *ctx) {
 
 std::any CodeGenVisitor::visitIfStmt(AslParser::IfStmtContext *ctx) {
     DEBUG_ENTER();
-    instructionList code;
-    CodeAttribs &&codAtsE = std::any_cast<CodeAttribs>(visit(ctx->expr()));
-    std::string addr1 = codAtsE.addr;
-    instructionList &code1 = codAtsE.code;
-    instructionList &&code2 =
+    CodeAttribs &&condition = std::any_cast<CodeAttribs>(visit(ctx->expr()));
+
+    instructionList &&trueBody =
         std::any_cast<instructionList>(visit(ctx->statements(0))); 
 
-
-    std::string label = codeCounters.newLabelIF();
-    std::string labelEndIf = "endif" + label;
-
+    instructionList falseBody = {};
     if (ctx->statements(1))
-    {
-        instructionList &&code3 =
-            std::any_cast<instructionList>(visit(ctx->statements(1))); 
-        
-        std::string label = codeCounters.newLabelIF();
-        std::string labelElse = "else" + label;
+        falseBody = std::any_cast<instructionList>(visit(ctx->statements(1))); 
 
-        code = code1 || instruction::FJUMP(addr1, labelElse) || code2 || instruction::UJUMP(labelEndIf) ||
-            instruction::LABEL(labelElse) || code3 ||
-            instruction::LABEL(labelEndIf);
 
-    } else {
-        code = code1 || instruction::FJUMP(addr1, labelEndIf) || code2 ||
-                instruction::LABEL(labelEndIf);
-
-    }
-
+    instructionList code = condition.code || inst(If {
+        .condition = condition.addr,
+        .trueBody = trueBody,
+        .falseBody = falseBody,
+    });
     DEBUG_EXIT();
     return code;
 }

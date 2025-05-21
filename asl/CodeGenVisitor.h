@@ -169,9 +169,16 @@ private:
     const std::string& src;
   };
 
+  struct If {
+    const std::string& condition;
+    instructionList trueBody;
+    instructionList falseBody;
+  };
+
   instructionList inst(While);
   instructionList inst(ForRange);
   instructionList inst(Assign);
+  instructionList inst(If);
 
 
   // to get the value of an addr (normal, reference or with offset)
