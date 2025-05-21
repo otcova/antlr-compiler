@@ -57,7 +57,7 @@ for i in {10..14}; do
     delta <(cat "$out") <(../tvm/tvm $asm <"$in")
 done
 
-# This is for the examn test (may need to modify)
+# ########### Start of test for the examn test #############
 
 for i in 1 2 6 7; do
     asl="../jps/jp_chkt_0$i.asl"
