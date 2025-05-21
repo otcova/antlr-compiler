@@ -638,7 +638,7 @@ std::any CodeGenVisitor::visitSwap(AslParser::SwapContext *ctx) {
 
 std::any CodeGenVisitor::visitSwitch(AslParser::SwitchContext *ctx) {
     DEBUG_ENTER();
-    CodeAttribs codAts = CodeAttribs("", "", {});
+    CodeAttribs codAts = std::any_cast<CodeAttribs>(visit(ctx->switch_case(0)->statement(0)));
     DEBUG_EXIT();
     return codAts;
 }

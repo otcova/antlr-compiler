@@ -277,22 +277,20 @@ std::any TypeCheckVisitor::visitSwitch(AslParser::SwitchContext *ctx)
     DEBUG_ENTER();
     visitChildren(ctx);
 
-    TypesMgr::TypeId tE = getTypeDecor(ctx->expr(0));
+    TypesMgr::TypeId tE = getTypeDecor(ctx->expr());
     if (!Types.isErrorTy(tE))
     {
-        for (size_t i = 1; i < ctx->expr().size(); i++)
+        for (size_t i = 0; i < ctx->switch_case().size(); i++)
         {
-            TypesMgr::TypeId tV = getTypeDecor(ctx->expr(i));
+            TypesMgr::TypeId tV = getTypeDecor(ctx->switch_case(i)->expr());
             if (!Types.isErrorTy(tV) && !Types.comparableTypes(tE, tV, "="))
-                Errors.incompatibleValueInSwitch(ctx->expr(i));
+                Errors.incompatibleValueInSwitch(ctx->switch_case(i)->expr());
         }
     }
 
     DEBUG_EXIT();
     return 0;
 }
-
-
 
 
 

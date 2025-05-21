@@ -72,6 +72,8 @@ statements
         : (statement)*
         ;
 
+switch_case: CASE expr ':' statement+ ENDCASE;
+
 // The different types of instructions
 statement
           // Assignment
@@ -94,9 +96,7 @@ statement
 
         | SWAP '(' left_expr ',' left_expr ')' ';' # swap
 
-        | SWITCH expr ':'
-        (CASE expr ':' statement+ ENDCASE)+ 
-        (DEFAULT ':' statement+)? ENDSWITCH                   # switch
+        | SWITCH expr ':' switch_case+ (DEFAULT ':' statement+)? ENDSWITCH                   # switch
 
 
         ;
