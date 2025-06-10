@@ -164,6 +164,49 @@ instructionList CodeGenVisitor::inst(If inst_if) {
         instruction::LABEL(exitLabel);
 }
 
+instructionList CodeGenVisitor::inst(FuncCall inst_call) {
+    instructionList code;
+
+    code = code || instruction::PUSH(); // for saving the result
+
+    for (size_t i = 0; i < inst_call.arguments.size(); ++i) {
+        const CodeAttribs &param = inst_call.arguments[i];
+        TypesMgr::TypeId paramType = inst_call.argumentsTypes[i];
+
+        std::string value = newTemp();
+        
+        code = code || param.code;
+
+        if (Types.isArrayTy(paramType)) {
+            if (Symbols.isParameterClass(param.addr)) {
+                value = param.addr;
+            } else {
+                code = code || instruction::ALOAD(value, param.addr);
+            }
+        } else {
+            code = code || inst(Assign {
+                .dstType = Types.getParameterType(inst_call.functionType, i),
+                .dst = value,
+
+                .srcType = paramType,
+                .src = param.addr,
+                .srcOffset = param.offs,
+            });
+        }
+        code = code || instruction::PUSH(value);
+    }
+
+    code = code || instruction::CALL(inst_call.functionName);
+
+    for (size_t i = 0; i < inst_call.arguments.size(); ++i) {
+        code = code || instruction::POP();
+    }
+
+    code = code || instruction::POP(inst_call.result);
+
+    return code;
+}
+
 CodeGenVisitor::CodeAttribs CodeGenVisitor::inst_load(const std::string& addr, const std::string& offset) {
     CodeAttribs code(addr, "", {});
 
@@ -644,41 +687,24 @@ std::any CodeGenVisitor::visitGetArray(AslParser::GetArrayContext *ctx) {
 
 std::any CodeGenVisitor::visitFuncCall(AslParser::FuncCallContext *ctx) {
     DEBUG_ENTER();
-    instructionList code;
-    std::string name = ctx->ident()->getText();
 
-    code = code || instruction::PUSH(); // for saving the result
-
+    std::vector<CodeAttribs> arguments;
+    std::vector<TypesMgr::TypeId> argumentsTypes;
+    std::string result = newTemp();
+    
     for (size_t i = 0; i < ctx->expr().size(); ++i) {
-        CodeAttribs &&param = std::any_cast<CodeAttribs>(visit(ctx->expr(i)));
-
-        code = code || param.code;
-        TypesMgr::TypeId paramType = Types.getParameterType(getTypeDecor(ctx->ident()), i);
-        if (Types.isFloatTy(paramType) && Types.isIntegerTy(getTypeDecor(ctx->expr(i))))
-        {
-            std::string temp = newTemp();
-            code = code || instruction::FLOAT(temp, param.addr);
-            param.addr = temp;
-        }
-
-        if (Types.isArrayTy(paramType) && !Symbols.isParameterClass(param.addr)) {
-            std::string temp = newTemp();
-            code = code || instruction::ALOAD(temp, param.addr);
-            param.addr = temp;
-        }
-
-        code = code || instruction::PUSH(param.addr);
+        arguments.push_back(std::any_cast<CodeAttribs>(visit(ctx->expr(i))));
+        argumentsTypes.push_back(getTypeDecor(ctx->expr(i)));
     }
 
-    code = code || instruction::CALL(name);
+    CodeAttribs codAts(result, "", inst(FuncCall {
+        .functionType = getTypeDecor(ctx->ident()),
+        .functionName = ctx->ident()->getText(),
+        .arguments = arguments,
+        .argumentsTypes = argumentsTypes,
+        .result = result,
+    }));
 
-    for (size_t i = 0; i < ctx->expr().size(); ++i) {
-        code = code || instruction::POP();
-    }
-    std::string temp = newTemp();
-    code = code || instruction::POP(temp); // for the result
-
-    CodeAttribs codAts(temp, "", code);
 
     DEBUG_EXIT();
     return codAts;
