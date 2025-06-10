@@ -71,6 +71,12 @@ instructionList CodeGenVisitor::inst(Assign assign) {
     std::string src = assign.src;
     std::string dst = assign.dst;
 
+    if (assign.srcOffset != "") {
+        CodeAttribs&& srcElement = inst_load(assign.src, assign.srcOffset);
+        code = code || srcElement.code;
+        src = srcElement.addr;
+    }
+
     // Handle array by reference
     if (assign.dstOffset != "") {
         if (Symbols.isParameterClass(dst)) {
@@ -104,7 +110,7 @@ instructionList CodeGenVisitor::inst(ForRange inst_for) {
 
     // define start & end
     std::string increment = newTemp();
-    code = code || instruction::ILOAD(increment, "1");
+    code = code || instruction::ILOAD(increment, inst_for.increment);
     std::string end = newTemp();
     code = code || instruction::ILOAD(end, inst_for.end);
 
@@ -527,7 +533,6 @@ std::any CodeGenVisitor::visitReturn(AslParser::ReturnContext *ctx) {
         code = code || resultCode.code || inst(Assign {
             .dstType = Types.getFuncReturnType(getCurrentFunctionTy()),
             .dst = "_result",
-            .dstOffset = "",
             .srcType = getTypeDecor(ctx->expr()),
             .src = resultCode.addr,
         });

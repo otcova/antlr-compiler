@@ -153,9 +153,11 @@ private:
 
   struct ForRange {
     // Inclusive
-    const std::string& start;
+    const std::string& start = "0";
     // Exclusive
     const std::string& end;
+
+    const std::string& increment = "1";
 
     const std::string& index;
     instructionList body;
@@ -163,10 +165,11 @@ private:
   struct Assign {
     TypesMgr::TypeId dstType;
     const std::string& dst;
-    const std::string& dstOffset;
+    const std::string& dstOffset = "";
 
     TypesMgr::TypeId srcType;
     const std::string& src;
+    const std::string& srcOffset = "";
   };
 
   struct If {
