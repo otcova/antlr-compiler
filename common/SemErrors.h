@@ -2,7 +2,7 @@
 //
 //    SemErrors - Semantic errors for the Asl programming language
 //
-//    Copyright (C) 2020-2030  Universitat Politecnica de Catalunya
+//    Copyright (C) 2017-2022  Universitat Politecnica de Catalunya
 //
 //    This library is free software; you can redistribute it and/or
 //    modify it under the terms of the GNU General Public License
@@ -73,6 +73,10 @@ public:
   void nonArrayInArrayAccess        (antlr4::ParserRuleContext *ctx);
   //   ctx is the node corresponding to the index expression in an array access
   void nonIntegerIndexInArrayAccess (antlr4::ParserRuleContext *ctx);
+  //   ctx is the node corresponding to an matrix access
+  void nonMatrixInMatrixAccess      (antlr4::ParserRuleContext *ctx);
+  //   ctx is the node corresponding to the index expression in an matrix access
+  void nonIntegerIndexInMatrixAccess (antlr4::ParserRuleContext *ctx);
   //   ctx is the node corresponding to the expression
   void booleanRequired              (antlr4::ParserRuleContext *ctx);
   //   ctx is the node corresponding to the function identifier 

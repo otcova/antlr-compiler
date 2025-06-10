@@ -2,7 +2,7 @@
 //
 //    SemErrors - Semantic errors for the Asl programming language
 //
-//    Copyright (C) 2020-2030  Universitat Politecnica de Catalunya
+//    Copyright (C) 2017-2022  Universitat Politecnica de Catalunya
 //
 //    This library is free software; you can redistribute it and/or
 //    modify it under the terms of the GNU General Public License
@@ -84,6 +84,16 @@ void SemErrors::nonArrayInArrayAccess(antlr4::ParserRuleContext *ctx) {
 
 void SemErrors::nonIntegerIndexInArrayAccess(antlr4::ParserRuleContext *ctx) {
   ErrorInfo error(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), "Array access with non integer index.");
+  ErrorList.push_back(error);
+}
+
+void SemErrors::nonMatrixInMatrixAccess(antlr4::ParserRuleContext *ctx) {
+  ErrorInfo error(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), "Matrix access to a non matrix operand.");
+  ErrorList.push_back(error);
+}
+
+void SemErrors::nonIntegerIndexInMatrixAccess(antlr4::ParserRuleContext *ctx) {
+  ErrorInfo error(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), "Matrix access with non integer index.");
   ErrorList.push_back(error);
 }
 

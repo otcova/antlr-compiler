@@ -100,6 +100,7 @@ left_expr
 // Grammar for expressions with boolean, relational and aritmetic operators
 expr    
         : '(' expr ')'                                  # parent
+        | expr op='!'                                # factorial
         | ident '[' expr ']'                            # getArray
         | ident '(' (expr (',' expr)* )? ')'            # funcCall
         | op=(NOT|PLUS|MINUS) expr                      # unary

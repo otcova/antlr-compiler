@@ -558,6 +558,31 @@ std::any TypeCheckVisitor::visitParent(AslParser::ParentContext *ctx) {
     return 0;
 }
 
+std::any TypeCheckVisitor::visitFactorial(AslParser::FactorialContext *ctx)
+{
+    DEBUG_ENTER();
+    visitChildren(ctx);
+    TypesMgr::TypeId n = getTypeDecor(ctx->expr());
+
+    if (Types.isErrorTy(n))
+    {
+        DEBUG_EXIT();
+        return 0;
+    }
+    if (!Types.isIntegerTy(n))
+    {
+        Errors.incompatibleOperator(ctx->op);
+        DEBUG_EXIT();
+        return 0;
+    }
+
+    putTypeDecor(ctx, Types.createIntegerTy());
+    putIsLValueDecor(ctx, false);
+    DEBUG_EXIT();
+    return 0;
+}
+
+
 std::any TypeCheckVisitor::visitIdent(AslParser::IdentContext *ctx) {
     DEBUG_ENTER();
     std::string ident = ctx->getText();

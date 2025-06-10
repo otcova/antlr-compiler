@@ -75,6 +75,9 @@ class TypeCheckVisitor final : public AslBaseVisitor {
     // std::any visitLeft_expr(AslParser::Left_exprContext *ctx);
     std::any visitExprIdent(AslParser::ExprIdentContext *ctx);
     std::any visitParent(AslParser::ParentContext *ctx);
+
+    std::any visitFactorial(AslParser::FactorialContext *ctx);
+
     std::any visitUnary(AslParser::UnaryContext *ctx);
     std::any visitArithmetic(AslParser::ArithmeticContext *ctx);
     std::any visitRelational(AslParser::RelationalContext *ctx);

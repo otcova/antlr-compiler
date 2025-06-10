@@ -267,7 +267,7 @@ std::any CodeGenVisitor::visitFunction(AslParser::FunctionContext *ctx) {
     // Define Return Variable
     if (ctx->basic_type()) {
         returnType = getTypeDecor(ctx->basic_type());
-        subr.add_param("_result", Types.to_string(returnType));
+        subr.add_param("_result");
     }
 
     std::vector<TypesMgr::TypeId> paramsTypes;
@@ -280,9 +280,9 @@ std::any CodeGenVisitor::visitFunction(AslParser::FunctionContext *ctx) {
 
         if (Types.isArrayTy(type)) {
             TypesMgr::TypeId elementType = Types.getArrayElemType(type);
-            subr.add_param(name, Types.to_string(elementType), true);
+            subr.add_param(name);
         } else {
-            subr.add_param(name, Types.to_string(type));
+            subr.add_param(name);
         }
     }
 
@@ -335,7 +335,7 @@ CodeGenVisitor::visitVariable_decl(AslParser::Variable_declContext *ctx) {
     
     std::vector<var> ids;
     for (size_t i = 0; i < ctx->ID().size(); i++)
-        ids.push_back(var{ctx->ID(i)->getText(), Types.to_string(t1), size});
+        ids.push_back(var{ctx->ID(i)->getText(), size});
 
     return ids;
 }
