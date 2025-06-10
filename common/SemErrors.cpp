@@ -2,7 +2,7 @@
 //
 //    SemErrors - Semantic errors for the Asl programming language
 //
-//    Copyright (C) 2020-2030  Universitat Politecnica de Catalunya
+//    Copyright (C) 2017-2023  Universitat Politecnica de Catalunya
 //
 //    This library is free software; you can redistribute it and/or
 //    modify it under the terms of the GNU General Public License
@@ -145,6 +145,39 @@ void SemErrors::noMainProperlyDeclared(antlr4::ParserRuleContext *ctx) {
   ErrorInfo error(ctx->getStop()->getLine(), ctx->getStop()->getCharPositionInLine(), "There is no 'main' function properly declared.");
   ErrorList.push_back(error);
 }
+
+//////////////////////////////////////////////////////////////////////////
+// New semantic errors for this exam:
+// - For Reduce and Foreach:
+//   ctx is the node of:
+//   a) the reduce expression, or
+//   b) the foreach instruction
+void SemErrors::arrayIsRequired(antlr4::ParserRuleContext *ctx) {
+  ErrorInfo error(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), "'" + ctx->getStart()->getText() + "' requires an array parameter.");
+  ErrorList.push_back(error);
+}
+
+// - Only for Reduce:
+//   ctx is the node of the reduce expression
+void SemErrors::reduceInvalidFunction(antlr4::ParserRuleContext *ctx) {
+  ErrorInfo error(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), "Reduce requires a proper function (T x T -> T).");
+  ErrorList.push_back(error);
+}
+
+//   ctx is the node of the reduce expression
+void SemErrors::reduceIncompatibleArguments(antlr4::ParserRuleContext *ctx) {
+  ErrorInfo error(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), "Reduce with incompatible array elements and function especification.");
+  ErrorList.push_back(error);
+}
+
+// - Only for Foreach:
+//   ctx is the node of the foreach instruction
+void SemErrors::foreachIncompatibleArguments(antlr4::ParserRuleContext *ctx) {
+  ErrorInfo error(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), "Foreach with incompatible variable and array elements.");
+  ErrorList.push_back(error);
+}
+//////////////////////////////////////////////////////////////////////////
+
 
 SemErrors::ErrorInfo::ErrorInfo(std::size_t line, std::size_t coln, std::string message)
   : line{line}, coln{coln}, message{message} {

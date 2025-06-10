@@ -2,7 +2,7 @@
 //
 //    SemErrors - Semantic errors for the Asl programming language
 //
-//    Copyright (C) 2020-2030  Universitat Politecnica de Catalunya
+//    Copyright (C) 2017-2023  Universitat Politecnica de Catalunya
 //
 //    This library is free software; you can redistribute it and/or
 //    modify it under the terms of the GNU General Public License
@@ -105,7 +105,25 @@ public:
   //   ctx is the program node (grammar start symbol) 
   void noMainProperlyDeclared       (antlr4::ParserRuleContext *ctx);
 
+  //////////////////////////////////////////////////////////////////////////
+  // New semantic errors for this exam:
+  // - For Reduce and Foreach:
+  //   ctx is the node of:
+  //   a) the reduce expression, or
+  //   b) the foreach instruction
+  void arrayIsRequired              (antlr4::ParserRuleContext *ctx);
+  // - Only for Reduce:
+  //   ctx is the node of the reduce expression
+  void reduceInvalidFunction        (antlr4::ParserRuleContext *ctx);
+  //   ctx is the node of the reduce expression
+  void reduceIncompatibleArguments  (antlr4::ParserRuleContext *ctx);
+  //
+  // - Only for Foreach:
+  //   ctx is the node of the foreach instruction
+  void foreachIncompatibleArguments (antlr4::ParserRuleContext *ctx);
+  //////////////////////////////////////////////////////////////////////////
 
+  
 private:
 
   class ErrorInfo {

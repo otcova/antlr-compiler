@@ -2,7 +2,7 @@
 //
 //    TypesMgr - Type System for the Asl programming language
 //
-//    Copyright (C) 2020-2030  Universitat Politecnica de Catalunya
+//    Copyright (C) 2017-2023  Universitat Politecnica de Catalunya
 //
 //    This library is free software; you can redistribute it and/or
 //    modify it under the terms of the GNU General Public License
@@ -117,6 +117,12 @@ public:
   // useful for GenCode add_var and add_param
   std::string to_string_basic (TypeId tidm) const;
 
+  //////////////////////////////////////////////////////////////////////////////
+  // Method to be used only in this exam:
+  // - For Reduce:
+  bool reduceValidFunction(TypeId tFunc) const;
+  //////////////////////////////////////////////////////////////////////////////
+  
 private:
   // Forward declaration of class Type
   class Type;

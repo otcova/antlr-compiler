@@ -2,7 +2,7 @@
 //
 //    TypesMgr - Type System for the Asl programming language
 //
-//    Copyright (C) 2020-2030  Universitat Politecnica de Catalunya
+//    Copyright (C) 2017-2023  Universitat Politecnica de Catalunya
 //
 //    This library is free software; you can redistribute it and/or
 //    modify it under the terms of the GNU General Public License
@@ -254,7 +254,6 @@ bool TypesMgr::comparableTypes(TypeId tid1, TypeId tid2,
   return false;
 }
 
-// float tid1 = (int) tid2
 bool TypesMgr::copyableTypes(TypeId tid1, TypeId tid2) const {
   if (equalTypes(tid1, tid2))
     return true;
@@ -343,6 +342,21 @@ std::string TypesMgr::to_string_basic(TypeId tid) const {
     return "none";
   }
 }
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+// Method to be used only in this exam:
+// - For Reduce:
+bool TypesMgr::reduceValidFunction(TypeId tFunc) const {
+  if (not isFunctionTy(tFunc)) return false;
+  if (getNumOfParameters(tFunc) != 2) return false;
+  TypeId tArg1 = getParameterType(tFunc, 0);
+  TypeId tArg2 = getParameterType(tFunc, 1);
+  TypeId tRet  = getFuncReturnType(tFunc);
+  if ((not equalTypes(tArg1, tRet)) or (not equalTypes(tArg2, tRet))) return false;
+  return true;
+}
+/////////////////////////////////////////////////////////////////////////////////////
 
 
 // ======================================================================
