@@ -71,6 +71,12 @@ instructionList CodeGenVisitor::inst(Assign assign) {
     std::string src = assign.src;
     std::string dst = assign.dst;
 
+    std::string dstOffset = assign.dstOffset;
+    if (dstOffset != "")
+    {
+        dstOffset = newTemp();
+        code = code || instruction::LOAD(dstOffset, assign.dstOffset);
+    }
 
     if (assign.srcOffset != "") {
         CodeAttribs&& srcElement = inst_load(assign.src, assign.srcOffset);
@@ -79,7 +85,7 @@ instructionList CodeGenVisitor::inst(Assign assign) {
     }
 
     // Handle array by reference
-    if (assign.dstOffset != "") {
+    if (dstOffset != "") {
         if (Symbols.isParameterClass(dst)) {
             std::string arrayAddr = newTemp();
             code = code || instruction::LOAD(arrayAddr, dst);
@@ -95,8 +101,8 @@ instructionList CodeGenVisitor::inst(Assign assign) {
         src = temp;
     }
 
-    if (assign.dstOffset != "") // a[i] = x
-        code = code || instruction::XLOAD(dst, assign.dstOffset, src);
+    if (dstOffset != "") // a[i] = x
+        code = code || instruction::XLOAD(dst, dstOffset, src);
     else  // x = y // x = a[i]
         code = code || instruction::LOAD(dst, src);
 
@@ -209,25 +215,27 @@ instructionList CodeGenVisitor::inst(FuncCall inst_call) {
 }
 
 CodeGenVisitor::CodeAttribs CodeGenVisitor::inst_load(const std::string& addr, const std::string& offset) {
-    CodeAttribs code(addr, "", {});
+    CodeAttribs codAts(addr, "", {});
 
     // Handle array by reference
     if (Symbols.isParameterClass(addr) && Types.isArrayTy(Symbols.getType(addr))) {
         std::string arrayAddr = newTemp();
         // temp = addr
-        code.code = code.code || instruction::LOAD(arrayAddr, addr);
-        code.addr = arrayAddr;
+        codAts.code = codAts.code || instruction::LOAD(arrayAddr, addr);
+        codAts.addr = arrayAddr;
     }
 
     if (offset == "") {
-        return code;
+        return codAts;
     } else {
         // Handle array with offset
         std::string temp = newTemp();
-        // temp = code.addr[offset]
-        code.code = code.code || instruction::LOADX(temp, code.addr, offset);
-        code.addr = temp;
-        return code;
+        std::string offsetTemp = newTemp();
+        codAts.code = codAts.code || instruction::LOAD(offsetTemp, offset);
+        // temp = code.addr[offsetTemp]
+        codAts.code = codAts.code || instruction::LOADX(temp, codAts.addr, offsetTemp);
+        codAts.addr = temp;
+        return codAts;
     }
 }
 
