@@ -156,9 +156,11 @@ private:
 
   struct ForRange {
     // Inclusive
-    const std::string& start;
+    const std::string& start = "0";
     // Exclusive
     const std::string& end;
+
+    const std::string& increment = "1";
 
     const std::string& index;
     instructionList body;
@@ -166,10 +168,11 @@ private:
   struct Assign {
     TypesMgr::TypeId dstType;
     const std::string& dst;
-    const std::string& dstOffset;
+    const std::string& dstOffset = "";
 
     TypesMgr::TypeId srcType;
     const std::string& src;
+    const std::string& srcOffset = "";
   };
 
   struct If {
@@ -178,10 +181,19 @@ private:
     instructionList falseBody;
   };
 
+  struct FuncCall {
+    TypesMgr::TypeId functionType;
+    const std::string& functionName;
+    const std::vector<CodeAttribs>& arguments;
+    const std::vector<TypesMgr::TypeId>& argumentsTypes;
+    const std::string& result;
+  };
+
   instructionList inst(While);
   instructionList inst(ForRange);
   instructionList inst(Assign);
   instructionList inst(If);
+  instructionList inst(FuncCall);
 
 
   // to get the value of an addr (normal, reference or with offset)
