@@ -723,12 +723,12 @@ std::any CodeGenVisitor::visitReduce(AslParser::ReduceContext *ctx) {
 
     // result = array[0]
     // for (int i = 1; i < array.size; i++) {
-    //      acc = array[i]
-    //      result = f(result, acc)   
+    //      next = array[i]
+    //      result = f(result, next)   
     // }
 
     CodeAttribs result(newTemp(), "", instructionList());
-    CodeAttribs acc(newTemp(), "", instructionList());
+    CodeAttribs next(newTemp(), "", instructionList());
     std::string index = newTemp();
     size_t size = Types.getArraySize(arrayTy);
 
@@ -748,10 +748,10 @@ std::any CodeGenVisitor::visitReduce(AslParser::ReduceContext *ctx) {
         .start = "1",
         .end = std::to_string(size),
         .index=index,
-        // f (result, acc)
+        // f (result, next)
         .body = inst(Assign {
                 .dstType = arrayElemTy,
-                .dst = acc.addr,
+                .dst = next.addr,
 
                 .srcType = arrayElemTy,
                 .src = array.addr,
@@ -760,7 +760,7 @@ std::any CodeGenVisitor::visitReduce(AslParser::ReduceContext *ctx) {
             inst(FuncCall {
                 .functionType = functioTy,
                 .functionName = function.addr,
-                .arguments = {result, acc},
+                .arguments = {result, next},
                 .argumentsTypes = {arrayElemTy, arrayElemTy},
                 .result = result.addr,
             }),
