@@ -410,6 +410,44 @@ std::any CodeGenVisitor::visitWhileStmt(AslParser::WhileStmtContext *ctx) {
     return code;
 }
 
+std::any CodeGenVisitor::visitForeachStmt(AslParser::ForeachStmtContext *ctx) {
+    DEBUG_ENTER();
+    instructionList body;
+    std::string index = newTemp();
+
+    CodeAttribs &&element = std::any_cast<CodeAttribs>(visit(ctx->ident(0)));
+    CodeAttribs &&array = std::any_cast<CodeAttribs>(visit(ctx->ident(1)));
+    
+    TypesMgr::TypeId arrayTy = getTypeDecor(ctx->ident(1));
+    TypesMgr::TypeId arrayElementTy = Types.getArrayElemType(arrayTy);
+    size_t arraySize = Types.getArraySize(arrayTy);
+
+    // element = array[index]
+    CodeAttribs &&elementTmp = inst_load(array.addr, index);
+    body = body  || elementTmp.code || inst(Assign {
+        .dstType = getTypeDecor(ctx->ident(0)),
+        .dst = element.addr,
+        .dstOffset = "",
+
+        .srcType = arrayElementTy,
+        .src = elementTmp.addr,
+    });
+
+    // ForEach Body:
+    body = body || std::any_cast<instructionList>(visit(ctx->statements()));
+    
+
+    instructionList code = inst(ForRange {
+        .start = "0",
+        .end = std::to_string(arraySize),
+        .index = index,
+        .body = body,
+    });
+
+    DEBUG_EXIT();
+    return code;
+}
+
 std::any CodeGenVisitor::visitProcCall(AslParser::ProcCallContext *ctx) {
     DEBUG_ENTER();
     instructionList code;
