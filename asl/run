@@ -5,57 +5,57 @@ make antlr
 make
 
 # # Test for ../examples
-# for i in {1..4}; do
-#     asl="../examples/jpbasic_chkt_0$i.asl"
-#     err="../examples/jpbasic_chkt_0$i.err"
-#     echo "$asl"
-#     delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
-# done
+for i in {1..4}; do
+    asl="../examples/jpbasic_chkt_0$i.asl"
+    err="../examples/jpbasic_chkt_0$i.err"
+    echo "$asl"
+    delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
+done
 
-# for i in {1..9}; do
-#     asl="../examples/jp_chkt_0$i.asl"
-#     err="../examples/jp_chkt_0$i.err"
-#     echo "$asl"
-#     delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
-# done
+for i in {1..9}; do
+    asl="../examples/jp_chkt_0$i.asl"
+    err="../examples/jp_chkt_0$i.err"
+    echo "$asl"
+    delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
+done
 
-# for i in {10..20}; do
-#     asl="../examples/jp_chkt_$i.asl"
-#     err="../examples/jp_chkt_$i.err"
-#     echo "$asl"
-#     delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
-# done
-# # End of test for ../examples
+for i in {10..20}; do
+    asl="../examples/jp_chkt_$i.asl"
+    err="../examples/jp_chkt_$i.err"
+    echo "$asl"
+    delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
+done
+# End of test for ../examples
 
-# for i in {1..4}; do
-#     asl="../examples/jpbasic_genc_0$i.asl"
-#     in="../examples/jpbasic_genc_0$i.in"
-#     out="../examples/jpbasic_genc_0$i.out"
-#     asm="../examples/jpbasic_genc_0$i.asm"
-#     echo "$asl"
-#     ./asl "$asl" > $asm
-#     delta <(cat "$out") <(../tvm/tvm $asm <"$in")
-# done
+for i in {1..4}; do
+    asl="../examples/jpbasic_genc_0$i.asl"
+    in="../examples/jpbasic_genc_0$i.in"
+    out="../examples/jpbasic_genc_0$i.out"
+    asm="../examples/jpbasic_genc_0$i.asm"
+    echo "$asl"
+    ./asl "$asl" > $asm
+    delta <(cat "$out") <(../tvm/tvm $asm <"$in")
+done
 
-# for i in {1..9}; do
-#     asl="../examples/jp_genc_0$i.asl"
-#     in="../examples/jp_genc_0$i.in"
-#     out="../examples/jp_genc_0$i.out"
-#     asm="../examples/jp_genc_0$i.asm"
-#     echo "$asl"
-#     ./asl "$asl" > $asm
-#     delta <(cat "$out") <(../tvm/tvm $asm <"$in")
-# done
+for i in {1..9}; do
+    asl="../examples/jp_genc_0$i.asl"
+    in="../examples/jp_genc_0$i.in"
+    out="../examples/jp_genc_0$i.out"
+    asm="../examples/jp_genc_0$i.asm"
+    echo "$asl"
+    ./asl "$asl" > $asm
+    delta <(cat "$out") <(../tvm/tvm $asm <"$in")
+done
 
-# for i in {10..14}; do
-#     asl="../examples/jp_genc_$i.asl"
-#     in="../examples/jp_genc_$i.in"
-#     out="../examples/jp_genc_$i.out"
-#     asm="../examples/jp_genc_$i.asm"
-#     echo "$asl"
-#     ./asl "$asl" > $asm
-#     delta <(cat "$out") <(../tvm/tvm $asm <"$in")
-# done
+for i in {10..14}; do
+    asl="../examples/jp_genc_$i.asl"
+    in="../examples/jp_genc_$i.in"
+    out="../examples/jp_genc_$i.out"
+    asm="../examples/jp_genc_$i.asm"
+    echo "$asl"
+    ./asl "$asl" > $asm
+    delta <(cat "$out") <(../tvm/tvm $asm <"$in")
+done
 
 # ########### Start of test for the examn test #############
 

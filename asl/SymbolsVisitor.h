@@ -68,7 +68,7 @@ public:
   std::any visitVariable_decl(AslParser::Variable_declContext *ctx);
   std::any visitTypeBasicType(AslParser::TypeBasicTypeContext *ctx);
   std::any visitTypeArray(AslParser::TypeArrayContext *ctx);
-  std::any visitMatrix(AslParser::MatrixContext *ctx);
+  std::any visitTypeMatrix(AslParser::TypeMatrixContext *ctx);
 
   std::any visitBasic_type(AslParser::Basic_typeContext *ctx);
 

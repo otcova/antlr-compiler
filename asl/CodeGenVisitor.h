@@ -85,6 +85,8 @@ public:
 
   std::any visitSetIdent(AslParser::SetIdentContext *ctx);
   std::any visitSetArray(AslParser::SetArrayContext *ctx);
+  std::any visitSetMatrix(AslParser::SetMatrixContext *ctx);
+
   // std::any visitLeft_expr(AslParser::Left_exprContext *ctx);
 
   std::any visitParent(AslParser::ParentContext *ctx);
@@ -92,6 +94,10 @@ public:
   std::any visitFactorial(AslParser::FactorialContext *ctx);
 
   std::any visitGetArray(AslParser::GetArrayContext *ctx);
+
+  std::any visitGetMatrix(AslParser::GetMatrixContext *ctx);
+
+
   std::any visitFuncCall(AslParser::FuncCallContext *ctx);
   std::any visitArithmetic(AslParser::ArithmeticContext *ctx);
   std::any visitUnary(AslParser::UnaryContext *ctx);

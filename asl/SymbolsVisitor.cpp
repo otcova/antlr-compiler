@@ -198,7 +198,7 @@ std::any SymbolsVisitor::visitTypeArray(AslParser::TypeArrayContext* ctx) {
   return 0;
 }
 
-std::any SymbolsVisitor::visitMatrix(AslParser::MatrixContext* ctx) {
+std::any SymbolsVisitor::visitTypeMatrix(AslParser::TypeMatrixContext* ctx) {
   DEBUG_ENTER();
 
   visit(ctx->basic_type());
@@ -207,8 +207,8 @@ std::any SymbolsVisitor::visitMatrix(AslParser::MatrixContext* ctx) {
   unsigned int rows = stoi(ctx->INTVAL(0)->getText());
   unsigned int cols = stoi(ctx->INTVAL(1)->getText());
 
-  TypesMgr::TypeId arrayType = Types.createMatrixTy(rows, cols, elementType);
-  putTypeDecor(ctx, arrayType);
+  TypesMgr::TypeId matrixType = Types.createMatrixTy(rows, cols, elementType);
+  putTypeDecor(ctx, matrixType);
 
   DEBUG_EXIT();
   return 0;

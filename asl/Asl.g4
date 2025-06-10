@@ -66,7 +66,7 @@ basic_type
 
 type    : basic_type                                            # typeBasicType
         | ARRAY '[' INTVAL ']' 'of' basic_type                  # typeArray
-        | MATRIX '[' INTVAL ',' INTVAL ']' 'of' basic_type      # matrix
+        | MATRIX '[' INTVAL ',' INTVAL ']' 'of' basic_type      # typeMatrix
         ;
 
 statements

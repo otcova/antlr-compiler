@@ -271,7 +271,6 @@ std::any CodeGenVisitor::visitFunction(AslParser::FunctionContext *ctx) {
     }
 
     std::vector<TypesMgr::TypeId> paramsTypes;
-
     // Define Parameters
     for (auto *param : ctx->parameters()->parameter()) {
         std::string name = param->ID()->getText();
@@ -281,7 +280,8 @@ std::any CodeGenVisitor::visitFunction(AslParser::FunctionContext *ctx) {
         if (Types.isArrayTy(type)) {
             TypesMgr::TypeId elementType = Types.getArrayElemType(type);
             subr.add_param(name, Types.to_string(elementType), true);
-        } else {
+        } 
+        else {
             subr.add_param(name, Types.to_string(type));
         }
     }
@@ -332,6 +332,8 @@ CodeGenVisitor::visitVariable_decl(AslParser::Variable_declContext *ctx) {
 
     if (Types.isArrayTy(t1))
         t1 = Types.getArrayElemType(t1);
+    else if (Types.isMatrixTy(t1))
+        t1 = Types.getMatrixElemType(t1);
     
     std::vector<var> ids;
     for (size_t i = 0; i < ctx->ID().size(); i++)
@@ -422,7 +424,38 @@ std::any CodeGenVisitor::visitAssignStmt(AslParser::AssignStmtContext *ctx) {
             .index=index,
             .body = body,
         });
-    } else {
+    } else if (Types.isMatrixTy(typeLhs))
+    {
+          if (Types.isMatrixTy(typeLhs)) {
+        TypesMgr::TypeId elemTypeLhs = Types.getMatrixElemType(typeLhs);
+        TypesMgr::TypeId elemTypeRhs = Types.getMatrixElemType(typeRhs);
+        size_t size = Types.getMatrixSize(typeLhs);
+
+        std::string index = newTemp();
+
+        // value = src[i]
+        CodeAttribs value = inst_load(addrRhs, index);
+        instructionList body = value.code;
+
+        // dst[i] = value
+        body = body || inst(Assign {
+            .dstType = elemTypeLhs,
+            .dst = addrLhs,
+            .dstOffset = index,
+            .srcType = elemTypeRhs,
+            .src = value.addr,
+        });
+        
+        // for i in 0..size { dst[i] = src[i]; }
+        code = code || inst(ForRange {
+            .start = "0",
+            .end = std::to_string(size),
+            .index=index,
+            .body = body,
+        });
+    }
+    } 
+    else {
         code = code || inst(Assign {
             .dstType = typeLhs,
             .dst = addrLhs,
@@ -629,6 +662,47 @@ std::any CodeGenVisitor::visitSetArray(AslParser::SetArrayContext *ctx) {
     return codAts;
 }
 
+std::any CodeGenVisitor::visitSetMatrix(AslParser::SetMatrixContext *ctx)
+{
+    DEBUG_ENTER();
+    instructionList code;
+
+    CodeAttribs &&codAts1 = std::any_cast<CodeAttribs>(visit(ctx->left_expr()));
+    std::string matrix = codAts1.addr;
+    instructionList &code1 = codAts1.code;
+
+    // Handle matrix by reference
+    if (Symbols.isParameterClass(matrix)) {
+        std::string matrixAddr = newTemp();
+        code = code || instruction::LOAD(matrixAddr, matrix);
+        matrix = matrixAddr;
+    }
+    
+    CodeAttribs &&codAts2 = std::any_cast<CodeAttribs>(visit(ctx->expr(0)));
+    std::string i = codAts2.addr;
+    instructionList &code2 = codAts2.code;
+
+    CodeAttribs &&codAts3 = std::any_cast<CodeAttribs>(visit(ctx->expr(1)));
+    std::string j = codAts3.addr;
+    instructionList &code3 = codAts3.code;
+
+    code = code || code1 || code2 || code3;
+
+
+    // offset = i * M
+    // offset = offset + j
+    std::string offset = newTemp();
+    std::string M = std::to_string(Types.getMatrixCols(getTypeDecor(ctx->left_expr())));
+    code = code || instruction::MUL(offset, i, M) || instruction::ADD(offset, offset, j);
+
+
+    CodeAttribs codAts(matrix, offset, code);
+
+    DEBUG_EXIT();
+    return codAts;
+}
+
+
 // std::any CodeGenVisitor::visitLeft_expr(AslParser::Left_exprContext* ctx) {
 //   DEBUG_ENTER();
 //   CodeAttribs&& codAts = std::any_cast<CodeAttribs>(visit(ctx->ident()));
@@ -697,7 +771,6 @@ std::any CodeGenVisitor::visitGetArray(AslParser::GetArrayContext *ctx) {
     CodeAttribs &&arrayCode = std::any_cast<CodeAttribs>(visit(ctx->ident()));
     CodeAttribs &&indexCode = std::any_cast<CodeAttribs>(visit(ctx->expr()));
     
-    instructionList code = arrayCode.code || indexCode.code;
 
     CodeAttribs arrayAccess = inst_load(arrayCode.addr, indexCode.addr);
     arrayAccess.code = arrayCode.code || indexCode.code || arrayAccess.code;
@@ -705,6 +778,47 @@ std::any CodeGenVisitor::visitGetArray(AslParser::GetArrayContext *ctx) {
     DEBUG_EXIT();
     return arrayAccess;
 }
+
+std::any CodeGenVisitor::visitGetMatrix(AslParser::GetMatrixContext *ctx)
+{
+    DEBUG_ENTER();
+    CodeAttribs &&arrayCode = std::any_cast<CodeAttribs>(visit(ctx->ident()));
+    CodeAttribs &&rowIndexCode = std::any_cast<CodeAttribs>(visit(ctx->expr(0)));
+    CodeAttribs &&colIndexCode = std::any_cast<CodeAttribs>(visit(ctx->expr(1)));
+
+    instructionList code;
+    code = code || arrayCode.code || rowIndexCode.code || colIndexCode.code;
+
+    // offset = i * M
+    // offset = offset + j
+    std::string offset = newTemp();
+    std::string M = std::to_string(Types.getMatrixCols(getTypeDecor(ctx->ident())));
+
+    code = code || instruction::MUL(offset, rowIndexCode.addr, M) || instruction::ADD(offset, offset, colIndexCode.addr);
+    
+    // 0 <= col < M && 0 <= row < N
+    std::string cond = newTemp();
+    std::string t2 = newTemp();
+    std::string N = std::to_string(Types.getMatrixRows(getTypeDecor(ctx->ident())));
+
+    code = code || 
+    instruction::LT(cond, rowIndexCode.addr, N) || instruction::LE(t2, "0", rowIndexCode.addr) || instruction::AND(cond, cond, t2) ||
+    instruction::LT(t2, colIndexCode.addr, M) || instruction::AND(cond, cond, t2) || instruction::LE(t2, "0", colIndexCode.addr) || instruction::AND(cond, cond, t2);
+
+    code = code || inst(If {
+        .condition = cond,
+        .trueBody = instructionList(),
+        .falseBody = instructionList(instruction::HALT(code::INDEX_OUT_OF_RANGE)),
+    });
+
+    
+    CodeAttribs arrayAccess = inst_load(arrayCode.addr, offset);
+    arrayAccess.code = code || arrayAccess.code;
+    
+    DEBUG_EXIT();
+    return arrayAccess;
+}
+
 
 std::any CodeGenVisitor::visitFuncCall(AslParser::FuncCallContext *ctx) {
     DEBUG_ENTER();
