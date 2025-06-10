@@ -97,22 +97,31 @@ instructionList CodeGenVisitor::inst(Assign assign) {
 }
 
 instructionList CodeGenVisitor::inst(ForRange inst_for) {
+    instructionList code;
+
     // For loop condition: i < end
     std::string condVar = newTemp();
 
+    // define start & end
+    std::string increment = newTemp();
+    code = code || instruction::ILOAD(increment, "1");
+    std::string end = newTemp();
+    code = code || instruction::ILOAD(end, inst_for.end);
+
+    // i = start;
+    code = code || instruction::ILOAD(inst_for.index, inst_for.start);
+
     // i < end
-    instructionList condCode = instruction::LT(condVar, inst_for.index, inst_for.end);
+    instructionList condCode = instruction::LT(condVar, inst_for.index, end);
     CodeAttribs cond(condVar, "", condCode);
 
-    While inst_while = { .cond = cond, .body = inst_for.body};
-
-    // For loop inc: ++i
-    inst_while.body = inst_while.body || instruction::ADD(inst_for.index, inst_for.index, "1");
-    
-    // i = start;
     // while (i < end) { inst_for.body; ++i }
-    return instruction::ILOAD(inst_for.index, inst_for.start) ||
-        inst(inst_while);
+    code = code || inst(While {
+        .cond = cond,
+        .body = inst_for.body || instruction::ADD(inst_for.index, inst_for.index, increment)
+    });
+
+    return code;
 }
 
 instructionList CodeGenVisitor::inst(While inst_while) {
@@ -171,7 +180,6 @@ CodeGenVisitor::CodeAttribs CodeGenVisitor::inst_load(const std::string& addr, c
         return code;
     }
 }
-
 
 // Methods to visit each kind of node:
 //
