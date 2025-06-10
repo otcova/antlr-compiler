@@ -176,6 +176,40 @@ std::any TypeCheckVisitor::visitWhileStmt(AslParser::WhileStmtContext *ctx) {
     return 0;
 }
 
+std::any TypeCheckVisitor::visitForeachStmt(AslParser::ForeachStmtContext *ctx) {
+    DEBUG_ENTER();
+    visitChildren(ctx);
+
+    TypesMgr::TypeId elementTy = getTypeDecor(ctx->ident(0));
+    TypesMgr::TypeId arrayTy = getTypeDecor(ctx->ident(1));
+
+    if (Types.isErrorTy(elementTy) || Types.isErrorTy(arrayTy)) {
+        DEBUG_EXIT();
+        return 0;
+    }
+
+    if (!Types.isArrayTy(arrayTy)) {
+        Errors.arrayIsRequired(ctx);
+        DEBUG_EXIT();
+        return 0;
+    }
+
+    TypesMgr::TypeId arrayElementTy = Types.getArrayElemType(arrayTy);
+    if (Types.isErrorTy(arrayElementTy)) {
+        DEBUG_EXIT();
+        return 0;
+    }
+
+    if (!Types.copyableTypes(elementTy, arrayElementTy)) {
+        Errors.foreachIncompatibleArguments(ctx);
+        DEBUG_EXIT();
+        return 0;
+    }
+
+    DEBUG_EXIT();
+    return 0;
+}
+
 std::any TypeCheckVisitor::visitReturn(AslParser::ReturnContext *ctx) {
     DEBUG_ENTER();
 
