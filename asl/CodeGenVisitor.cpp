@@ -794,8 +794,6 @@ std::any CodeGenVisitor::visitGetArray(AslParser::GetArrayContext *ctx) {
     CodeAttribs &&arrayCode = std::any_cast<CodeAttribs>(visit(ctx->ident()));
     CodeAttribs &&indexCode = std::any_cast<CodeAttribs>(visit(ctx->expr()));
     
-    instructionList code = arrayCode.code || indexCode.code;
-
     CodeAttribs arrayAccess = inst_load(arrayCode.addr, indexCode.addr);
     arrayAccess.code = arrayCode.code || indexCode.code || arrayAccess.code;
 
