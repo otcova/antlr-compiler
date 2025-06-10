@@ -89,6 +89,8 @@ statement
         | WRITE STRING ';'                    # writeString
         
         | RETURN expr? ';'                      # return
+
+        | FOREACH ident IN ident DO statements ENDFOR # foreachStmt
         ;
 
 // Grammar for left expressions (l-values in C++)
@@ -122,6 +124,10 @@ ident   : ID
 //////////////////////////////////////////////////
 /// Lexer Rules
 //////////////////////////////////////////////////
+
+FOREACH   : 'foreach' ;
+IN        : 'in' ;
+ENDFOR    : 'endfor' ;
 
 ASSIGN    : '=' ;
 EQUAL     : '==' ;
