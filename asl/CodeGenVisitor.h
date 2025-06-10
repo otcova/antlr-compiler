@@ -178,10 +178,19 @@ private:
     instructionList falseBody;
   };
 
+  struct FuncCall {
+    TypesMgr::TypeId functionType;
+    const std::string& functionName;
+    const std::vector<CodeAttribs>& arguments;
+    const std::vector<TypesMgr::TypeId>& argumentsTypes;
+    const std::string& result;
+  };
+
   instructionList inst(While);
   instructionList inst(ForRange);
   instructionList inst(Assign);
   instructionList inst(If);
+  instructionList inst(FuncCall);
 
 
   // to get the value of an addr (normal, reference or with offset)
