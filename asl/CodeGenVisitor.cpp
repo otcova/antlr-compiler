@@ -710,44 +710,63 @@ std::any CodeGenVisitor::visitFuncCall(AslParser::FuncCallContext *ctx) {
     return codAts;
 }
 
-
 std::any CodeGenVisitor::visitReduce(AslParser::ReduceContext *ctx) {
     DEBUG_ENTER();
+
+    CodeAttribs&& array = std::any_cast<CodeAttribs>(visit(ctx->expr()));
+    TypesMgr::TypeId arrayTy = getTypeDecor(ctx->expr());
+    TypesMgr::TypeId arrayElemTy = Types.getArrayElemType(arrayTy);
+
+    CodeAttribs&& function = std::any_cast<CodeAttribs>(visit(ctx->ident()));
+    TypesMgr::TypeId functioTy = getTypeDecor(ctx->ident());
+
+
+    // result = array[0]
+    // for (int i = 1; i < array.size; i++) {
+    //      acc = array[i]
+    //      result = f(result, acc)   
+    // }
+
+    CodeAttribs result(newTemp(), "", instructionList());
+    CodeAttribs acc(newTemp(), "", instructionList());
+    std::string index = newTemp();
+    size_t size = Types.getArraySize(arrayTy);
+
     instructionList code;
-    std::string name = ctx->ident()->getText();
+    std::string zero = newTemp();
+    code = code || instruction::ILOAD(zero, "0");
+    code = code || inst(Assign {
+        .dstType = arrayElemTy,
+        .dst = result.addr,
 
-    code = code || instruction::PUSH(); // for saving the result
+        .srcType = arrayElemTy,
+        .src = array.addr,
+        .srcOffset = zero,
+    });
 
-    for (size_t i = 0; i < ctx->expr().size(); ++i) {
-        CodeAttribs &&param = std::any_cast<CodeAttribs>(visit(ctx->expr(i)));
+    code = code || inst(ForRange {
+        .start = "1",
+        .end = std::to_string(size),
+        .index=index,
+        // f (result, acc)
+        .body = inst(Assign {
+                .dstType = arrayElemTy,
+                .dst = acc.addr,
 
-        code = code || param.code;
-        TypesMgr::TypeId paramType = Types.getParameterType(getTypeDecor(ctx->ident()), i);
-        if (Types.isFloatTy(paramType) && Types.isIntegerTy(getTypeDecor(ctx->expr(i))))
-        {
-            std::string temp = newTemp();
-            code = code || instruction::FLOAT(temp, param.addr);
-            param.addr = temp;
-        }
+                .srcType = arrayElemTy,
+                .src = array.addr,
+                .srcOffset = index,
+            }) || 
+            inst(FuncCall {
+                .functionType = functioTy,
+                .functionName = function.addr,
+                .arguments = {result, acc},
+                .argumentsTypes = {arrayElemTy, arrayElemTy},
+                .result = result.addr,
+            }),
+    });
 
-        if (Types.isArrayTy(paramType) && !Symbols.isParameterClass(param.addr)) {
-            std::string temp = newTemp();
-            code = code || instruction::ALOAD(temp, param.addr);
-            param.addr = temp;
-        }
-
-        code = code || instruction::PUSH(param.addr);
-    }
-
-    code = code || instruction::CALL(name);
-
-    for (size_t i = 0; i < ctx->expr().size(); ++i) {
-        code = code || instruction::POP();
-    }
-    std::string temp = newTemp();
-    code = code || instruction::POP(temp); // for the result
-
-    CodeAttribs codAts(temp, "", code);
+    CodeAttribs codAts = CodeAttribs(result.addr, "", code);
 
     DEBUG_EXIT();
     return codAts;
