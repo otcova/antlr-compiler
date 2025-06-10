@@ -64,8 +64,9 @@ basic_type
         | CHAR
         ;
 
-type    : basic_type                            # typeBasicType
-        | ARRAY '[' INTVAL ']' 'of' basic_type  # typeArray
+type    : basic_type                                            # typeBasicType
+        | ARRAY '[' INTVAL ']' 'of' basic_type                  # typeArray
+        | MATRIX '[' INTVAL ',' INTVAL ']' 'of' basic_type      # matrix
         ;
 
 statements
@@ -93,15 +94,17 @@ statement
 
 // Grammar for left expressions (l-values in C++)
 left_expr
-        : ident                     # setIdent
-        | left_expr '[' expr ']'    # setArray
+        : ident                                 # setIdent
+        | left_expr '[' expr ']'                # setArray
+        | left_expr '[' expr ',' expr ']'       # setMatrix
         ;
 
 // Grammar for expressions with boolean, relational and aritmetic operators
 expr    
         : '(' expr ')'                                  # parent
-        | expr op='!'                                # factorial
+        | expr op='!'                                   # factorial
         | ident '[' expr ']'                            # getArray
+        | ident '[' expr ',' expr ']'                   # getMatrix
         | ident '(' (expr (',' expr)* )? ')'            # funcCall
         | op=(NOT|PLUS|MINUS) expr                      # unary
         | expr op=(MUL|DIV|MOD) expr                    # arithmetic
@@ -123,6 +126,8 @@ ident   : ID
 //////////////////////////////////////////////////
 /// Lexer Rules
 //////////////////////////////////////////////////
+
+MATRIX    : 'matrix' ;
 
 ASSIGN    : '=' ;
 EQUAL     : '==' ;

@@ -2,7 +2,7 @@
 //
 //    TVM - t-Code Virtual Machine
 //
-//    Copyright (C) 2017-2022  Universitat Politecnica de Catalunya
+//    Copyright (C) 2020-2030  Universitat Politecnica de Catalunya
 //
 //    This library is free software; you can redistribute it and/or
 //    modify it under the terms of the GNU General Public License
@@ -189,9 +189,10 @@ string instructionList::dump() const {
 /// Implementation for class 'var'
 
 /// constructor
-var::var(const std::string &n, size_t s) {
+var::var(const std::string &n, const std::string &t, size_t ne) {
   name = n;
-  size = s;
+  type = t;
+  nelem = ne;
 }
 
 /// destructor
@@ -199,9 +200,15 @@ var::~var() {}
 
 /// print (for debugging)
 string var::dump() const {
-  if (size != 0)
-    return name + " " + std::to_string(size);
-  return name;
+  
+  if (nelem == 0) // if it is a parameter, name and type (unless LLVM wants it differnt)
+    return name + " " + type;
+  else {
+    // local var: name + type (plus size for arrays)
+    string s = name + " " + type;
+    if (nelem > 1) s += " " + std::to_string(nelem);
+    return s;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -214,11 +221,14 @@ subroutine::~subroutine() {}
 /// get subroutine name
 string subroutine::get_name() const { return name; };
 /// add new variable
-void subroutine::add_var(const var v) { vars.push_back(v); }
+void subroutine::add_var(const var &v) { vars.push_back(v); }
 /// add new variable
-void subroutine::add_var(const std::string &name, size_t sz) { vars.push_back(var(name,sz)); }
+void subroutine::add_var(const std::string &name, const std::string &type, size_t sz) { vars.push_back(var(name,type,sz)); }
 /// add new parameter
-void subroutine::add_param(const std::string &name) { params.push_back(var(name,0)); }
+void subroutine::add_param(const std::string &name, const std::string &type, bool isarray) {
+  std::string t1 = (not isarray ? type : type+" array");
+  params.push_back(var(name,t1,0));
+}
 /// add new instruction
 void subroutine::add_instruction(const instruction &inst) {
   if (inst.oper == instruction::_LABEL) labels.insert(make_pair(inst.arg1,instructions.size()));

@@ -88,6 +88,9 @@ public:
   // std::any visitLeft_expr(AslParser::Left_exprContext *ctx);
 
   std::any visitParent(AslParser::ParentContext *ctx);
+
+  std::any visitFactorial(AslParser::FactorialContext *ctx);
+
   std::any visitGetArray(AslParser::GetArrayContext *ctx);
   std::any visitFuncCall(AslParser::FuncCallContext *ctx);
   std::any visitArithmetic(AslParser::ArithmeticContext *ctx);

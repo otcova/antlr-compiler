@@ -311,6 +311,50 @@ std::any TypeCheckVisitor::visitSetArray(AslParser::SetArrayContext *ctx) {
     return 0;
 }
 
+std::any TypeCheckVisitor::visitSetMatrix(AslParser::SetMatrixContext *ctx)
+{
+    DEBUG_ENTER();
+    
+    visitChildren(ctx);
+
+    TypesMgr::TypeId varType = getTypeDecor(ctx->left_expr());
+    putTypeDecor(ctx, varType);
+
+    bool b = getIsLValueDecor(ctx->left_expr());
+    putIsLValueDecor(ctx, b);
+
+    TypesMgr::TypeId rowIndexType = getTypeDecor(ctx->expr(0));
+
+    if (not Types.isErrorTy(rowIndexType) &&
+        not Types.isIntegerTy(rowIndexType)) {
+        Errors.nonIntegerIndexInMatrixAccess(ctx->expr(0));
+    }
+
+    TypesMgr::TypeId colIndexType = getTypeDecor(ctx->expr(1));
+
+    if (not Types.isErrorTy(colIndexType) &&
+        not Types.isIntegerTy(colIndexType)) {
+        Errors.nonIntegerIndexInMatrixAccess(ctx->expr(1));
+    }
+
+
+    if (Types.isErrorTy(varType)) {
+        putTypeDecor(ctx, Types.createErrorTy());
+    } else {
+        if (Types.isMatrixTy(varType)) {
+            TypesMgr::TypeId elementType = Types.getMatrixElemType(varType);
+            putTypeDecor(ctx, elementType);
+        } else {
+            Errors.nonMatrixInMatrixAccess(ctx->left_expr());
+            putTypeDecor(ctx, Types.createErrorTy());
+        }
+    }
+
+    DEBUG_EXIT();
+    return 0;
+}
+
+
 // std::any TypeCheckVisitor::visitLeft_expr(AslParser::Left_exprContext *ctx) {
 //     DEBUG_ENTER();
 
@@ -362,7 +406,7 @@ std::any TypeCheckVisitor::visitUnary(AslParser::UnaryContext *ctx) {
         else if (ctx->NOT() && not Types.isBooleanTy(t1))
         {
             Errors.incompatibleOperator(ctx->op);
-            t1 = Types.createErrorTy();
+            t1 = Types.createBooleanTy();
         }
     }
     putTypeDecor(ctx, t1);
@@ -486,6 +530,44 @@ std::any TypeCheckVisitor::visitGetArray(AslParser::GetArrayContext *ctx) {
     return 0;
 }
 
+std::any TypeCheckVisitor::visitGetMatrix(AslParser::GetMatrixContext *ctx)
+{
+    DEBUG_ENTER();
+
+    visitChildren(ctx);
+
+    TypesMgr::TypeId matrixType = getTypeDecor(ctx->ident());
+    TypesMgr::TypeId rowIndexType = getTypeDecor(ctx->expr(0));
+    TypesMgr::TypeId colIndexType = getTypeDecor(ctx->expr(1));
+
+
+    if (not Types.isErrorTy(matrixType) && not Types.isMatrixTy(matrixType)) {
+        Errors.nonMatrixInMatrixAccess(ctx->ident());
+        putTypeDecor(ctx, Types.createErrorTy());
+    }
+
+    if (not Types.isErrorTy(rowIndexType)
+    && not Types.isIntegerTy(rowIndexType)) {
+        Errors.nonIntegerIndexInMatrixAccess(ctx->expr(0));
+        putTypeDecor(ctx, Types.createErrorTy());
+    }
+
+    if (not Types.isErrorTy(colIndexType) 
+    && not Types.isIntegerTy(colIndexType)) {
+        Errors.nonIntegerIndexInMatrixAccess(ctx->expr(1));
+        putTypeDecor(ctx, Types.createErrorTy());
+    }
+
+    if (Types.isMatrixTy(matrixType))
+        putTypeDecor(ctx, Types.getMatrixElemType(matrixType));
+
+    bool b = getIsLValueDecor(ctx->ident());
+    putIsLValueDecor(ctx, b);
+    DEBUG_EXIT();
+    return 0;
+}
+
+
 std::any TypeCheckVisitor::visitFuncCall(AslParser::FuncCallContext *ctx) {
     DEBUG_ENTER();
 
@@ -563,6 +645,8 @@ std::any TypeCheckVisitor::visitFactorial(AslParser::FactorialContext *ctx)
     DEBUG_ENTER();
     visitChildren(ctx);
     TypesMgr::TypeId n = getTypeDecor(ctx->expr());
+    putTypeDecor(ctx, Types.createIntegerTy());
+    putIsLValueDecor(ctx, false);
 
     if (Types.isErrorTy(n))
     {
@@ -576,8 +660,6 @@ std::any TypeCheckVisitor::visitFactorial(AslParser::FactorialContext *ctx)
         return 0;
     }
 
-    putTypeDecor(ctx, Types.createIntegerTy());
-    putIsLValueDecor(ctx, false);
     DEBUG_EXIT();
     return 0;
 }

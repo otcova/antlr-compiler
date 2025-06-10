@@ -72,6 +72,9 @@ class TypeCheckVisitor final : public AslBaseVisitor {
     // std::any visitWriteString(AslParser::WriteStringContext *ctx);
     std::any visitSetIdent(AslParser::SetIdentContext *ctx);
     std::any visitSetArray(AslParser::SetArrayContext *ctx);
+    std::any visitSetMatrix(AslParser::SetMatrixContext *ctx);
+
+
     // std::any visitLeft_expr(AslParser::Left_exprContext *ctx);
     std::any visitExprIdent(AslParser::ExprIdentContext *ctx);
     std::any visitParent(AslParser::ParentContext *ctx);
@@ -84,6 +87,10 @@ class TypeCheckVisitor final : public AslBaseVisitor {
     std::any visitLogical(AslParser::LogicalContext *ctx);
     std::any visitValue(AslParser::ValueContext *ctx);
     std::any visitGetArray(AslParser::GetArrayContext *ctx);
+
+    std::any visitGetMatrix(AslParser::GetMatrixContext *ctx);
+
+
     std::any visitFuncCall(AslParser::FuncCallContext *ctx);
     std::any visitIdent(AslParser::IdentContext *ctx);
 

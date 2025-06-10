@@ -267,7 +267,7 @@ std::any CodeGenVisitor::visitFunction(AslParser::FunctionContext *ctx) {
     // Define Return Variable
     if (ctx->basic_type()) {
         returnType = getTypeDecor(ctx->basic_type());
-        subr.add_param("_result");
+        subr.add_param("_result", Types.to_string(returnType));
     }
 
     std::vector<TypesMgr::TypeId> paramsTypes;
@@ -280,9 +280,9 @@ std::any CodeGenVisitor::visitFunction(AslParser::FunctionContext *ctx) {
 
         if (Types.isArrayTy(type)) {
             TypesMgr::TypeId elementType = Types.getArrayElemType(type);
-            subr.add_param(name);
+            subr.add_param(name, Types.to_string(elementType), true);
         } else {
-            subr.add_param(name);
+            subr.add_param(name, Types.to_string(type));
         }
     }
 
@@ -335,7 +335,7 @@ CodeGenVisitor::visitVariable_decl(AslParser::Variable_declContext *ctx) {
     
     std::vector<var> ids;
     for (size_t i = 0; i < ctx->ID().size(); i++)
-        ids.push_back(var{ctx->ID(i)->getText(), size});
+        ids.push_back(var{ctx->ID(i)->getText(), Types.to_string(t1), size});
 
     return ids;
 }
@@ -642,6 +642,55 @@ std::any CodeGenVisitor::visitParent(AslParser::ParentContext *ctx) {
     DEBUG_EXIT();
     return codAts;
 }
+
+std::any CodeGenVisitor::visitFactorial(AslParser::FactorialContext *ctx)
+{
+    DEBUG_ENTER();
+    CodeAttribs &&n = std::any_cast<CodeAttribs>(visit(ctx->expr()));
+
+    instructionList code;
+    code = code || n.code;
+
+
+    // result = 1
+    // for (int i = 0; i < n;)
+    //      ++i
+    //      result *= i
+    instructionList falseBody;
+    std::string index = newTemp();
+    std::string result = newTemp();
+    std::string one = newTemp();
+    falseBody = falseBody || instruction::ILOAD(one, "1");
+
+    falseBody = falseBody || instruction::ILOAD(result, "1");
+    falseBody = falseBody || inst(ForRange {
+        .start = "0",
+        .end = n.addr,
+        .increment = "0",
+        .index = index,
+        .body = instruction::ADD(index, index, one) || instruction::MUL(result, result, index),
+    });
+
+    instructionList trueBody = instruction::HALT(code::INVALID_INTEGER_OPERAND);
+
+    // if (n < n)
+    //      halt
+    // else 
+    //  falseBody
+    std::string condition = newTemp();
+    code = code || instruction::LT(condition, n.addr, "0");
+    code = code || inst(If {
+        .condition = condition,
+        .trueBody = trueBody,
+        .falseBody = falseBody,
+    })
+
+
+
+    DEBUG_EXIT();
+    return CodeAttribs(result, "", code);
+}
+
 
 std::any CodeGenVisitor::visitGetArray(AslParser::GetArrayContext *ctx) {
     DEBUG_ENTER();

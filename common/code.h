@@ -2,7 +2,7 @@
 //
 //    TVM - t-Code Virtual Machine
 //
-//    Copyright (C) 2017-2022  Universitat Politecnica de Catalunya
+//    Copyright (C) 2020-2030  Universitat Politecnica de Catalunya
 //
 //    This library is free software; you can redistribute it and/or
 //    modify it under the terms of the GNU General Public License
@@ -192,9 +192,10 @@ public:
 class var {
 public:
   std::string name;
-  size_t size;
+  std::string type;
+  size_t nelem;
 
-  var(const std::string &n, size_t s);
+  var(const std::string &name, const std::string &type, size_t nelem=1);
   ~var();
 
   // print var
@@ -228,11 +229,11 @@ public:
   /// get subroutine name
   std::string get_name() const;
   /// add a local var to subroutine
-  void add_var(const var v);
+  void add_var(const var &v);
   /// add a local var to subroutine
-  void add_var(const std::string &name, size_t sz);
-  /// add a parameter (size is always 1)
-  void add_param(const std::string &name);
+  void add_var(const std::string &name, const std::string &type, size_t numelem=1);
+  /// add a parameter (size is always 1, since arrays are references)
+  void add_param(const std::string &name, const std::string &type, bool isarray=false);
   /// add an instruction
   void add_instruction(const instruction &inst);
   /// add instruction list to current instructions
@@ -285,7 +286,6 @@ public:
   static const std::string INDEX_OUT_OF_RANGE;
   static const std::string INVALID_INTEGER_OPERAND;
   static const std::string INVALID_FLOAT_OPERAND;
-
 };
 
 
