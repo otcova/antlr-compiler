@@ -566,6 +566,47 @@ std::any TypeCheckVisitor::visitFuncCall(AslParser::FuncCallContext *ctx) {
     return 0;
 }
 
+
+std::any TypeCheckVisitor::visitReduce(AslParser::ReduceContext *ctx) {
+    DEBUG_ENTER();
+    visitChildren(ctx);
+    
+    TypesMgr::TypeId arrayTy = getTypeDecor(ctx->expr());
+    TypesMgr::TypeId funcTy = getTypeDecor(ctx->ident());
+    putIsLValueDecor(ctx, false);
+
+    if (Types.isErrorTy(arrayTy) || Types.isErrorTy(funcTy)) {
+        DEBUG_EXIT();
+        return 0;
+    }
+
+    if (not Types.isArrayTy(arrayTy)) {
+        Errors.arrayIsRequired(ctx);
+        DEBUG_EXIT();
+        return 0;
+    }
+
+    if (!Types.reduceValidFunction(funcTy)) {
+        Errors.reduceInvalidFunction(ctx);
+        DEBUG_EXIT();
+        return 0;
+    }
+
+    TypesMgr::TypeId arrayElemTy =  Types.getArrayElemType(arrayTy);
+    TypesMgr::TypeId funcReturnTy = Types.getFuncReturnType(funcTy);
+
+    if (!Types.equalTypes(arrayElemTy, funcReturnTy)) {
+        Errors.reduceIncompatibleArguments(ctx);
+        DEBUG_EXIT();
+        return 0;
+    }
+
+    putTypeDecor(ctx, arrayElemTy);
+
+    DEBUG_EXIT();
+    return 0;
+}
+
 std::any TypeCheckVisitor::visitExprIdent(AslParser::ExprIdentContext *ctx) {
     DEBUG_ENTER();
     visit(ctx->ident());

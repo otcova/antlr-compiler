@@ -429,14 +429,13 @@ std::any CodeGenVisitor::visitForeachStmt(AslParser::ForeachStmtContext *ctx) {
     size_t arraySize = Types.getArraySize(arrayTy);
 
     // element = array[index]
-    CodeAttribs &&elementTmp = inst_load(array.addr, index);
-    body = body  || elementTmp.code || inst(Assign {
+    body = body || inst(Assign {
         .dstType = getTypeDecor(ctx->ident(0)),
         .dst = element.addr,
-        .dstOffset = "",
 
         .srcType = arrayElementTy,
-        .src = elementTmp.addr,
+        .src = array.addr,
+        .srcOffset = index,
     });
 
     // ForEach Body:
@@ -644,6 +643,49 @@ std::any CodeGenVisitor::visitGetArray(AslParser::GetArrayContext *ctx) {
 }
 
 std::any CodeGenVisitor::visitFuncCall(AslParser::FuncCallContext *ctx) {
+    DEBUG_ENTER();
+    instructionList code;
+    std::string name = ctx->ident()->getText();
+
+    code = code || instruction::PUSH(); // for saving the result
+
+    for (size_t i = 0; i < ctx->expr().size(); ++i) {
+        CodeAttribs &&param = std::any_cast<CodeAttribs>(visit(ctx->expr(i)));
+
+        code = code || param.code;
+        TypesMgr::TypeId paramType = Types.getParameterType(getTypeDecor(ctx->ident()), i);
+        if (Types.isFloatTy(paramType) && Types.isIntegerTy(getTypeDecor(ctx->expr(i))))
+        {
+            std::string temp = newTemp();
+            code = code || instruction::FLOAT(temp, param.addr);
+            param.addr = temp;
+        }
+
+        if (Types.isArrayTy(paramType) && !Symbols.isParameterClass(param.addr)) {
+            std::string temp = newTemp();
+            code = code || instruction::ALOAD(temp, param.addr);
+            param.addr = temp;
+        }
+
+        code = code || instruction::PUSH(param.addr);
+    }
+
+    code = code || instruction::CALL(name);
+
+    for (size_t i = 0; i < ctx->expr().size(); ++i) {
+        code = code || instruction::POP();
+    }
+    std::string temp = newTemp();
+    code = code || instruction::POP(temp); // for the result
+
+    CodeAttribs codAts(temp, "", code);
+
+    DEBUG_EXIT();
+    return codAts;
+}
+
+
+std::any CodeGenVisitor::visitReduce(AslParser::ReduceContext *ctx) {
     DEBUG_ENTER();
     instructionList code;
     std::string name = ctx->ident()->getText();

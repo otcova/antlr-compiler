@@ -83,6 +83,7 @@ public:
   std::any visitReturn(AslParser::ReturnContext *ctx);
 
   std::any visitForeachStmt(AslParser::ForeachStmtContext *ctx);
+  std::any visitReduce(AslParser::ReduceContext *ctx);
 
   std::any visitSetIdent(AslParser::SetIdentContext *ctx);
   std::any visitSetArray(AslParser::SetArrayContext *ctx);

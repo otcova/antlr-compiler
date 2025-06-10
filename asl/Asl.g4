@@ -104,6 +104,7 @@ expr
         : '(' expr ')'                                  # parent
         | ident '[' expr ']'                            # getArray
         | ident '(' (expr (',' expr)* )? ')'            # funcCall
+        | REDUCE '(' expr ',' ident ')'                 # reduce
         | op=(NOT|PLUS|MINUS) expr                      # unary
         | expr op=(MUL|DIV|MOD) expr                    # arithmetic
         | expr op=(PLUS|MINUS) expr                     # arithmetic
@@ -128,6 +129,8 @@ ident   : ID
 FOREACH   : 'foreach' ;
 IN        : 'in' ;
 ENDFOR    : 'endfor' ;
+
+REDUCE    : 'reduce' ;
 
 ASSIGN    : '=' ;
 EQUAL     : '==' ;
