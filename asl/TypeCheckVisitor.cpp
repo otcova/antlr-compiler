@@ -362,7 +362,7 @@ std::any TypeCheckVisitor::visitUnary(AslParser::UnaryContext *ctx) {
         else if (ctx->NOT() && not Types.isBooleanTy(t1))
         {
             Errors.incompatibleOperator(ctx->op);
-            t1 = Types.createErrorTy();
+            t1 = Types.createBooleanTy();
         }
     }
     putTypeDecor(ctx, t1);
