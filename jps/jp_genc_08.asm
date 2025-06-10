@@ -68,206 +68,194 @@ function main
      goto while1
   label endwhile1 :
      ;;; = 'r=reduce(A,catorze)/10.0;'
-     %11 = 0
-     %12 = A[%11]
-     %8 = %12
-     %17 = 1
-     %18 = 10
-     %10 = 1
+     %10 = 0
+     %8 = A
+     %15 = 1
+     %16 = 10
+     %9 = 1
   label while2 :
-     %16 = %10 < %18
-     ifFalse %16 goto endwhile2
-     %13 = A[%10]
-     %9 = %13
+     %14 = %9 < %16
+     ifFalse %14 goto endwhile2
      pushparam 
-     %14 = %8
-     pushparam %14
-     %15 = %9
-     pushparam %15
+     %11 = %8
+     pushparam %11
+     %13 = A[%9]
+     %12 = %13
+     pushparam %12
      call catorze
      popparam 
      popparam 
      popparam %8
-     %10 = %10 + %17
+     %9 = %9 + %15
      goto while2
   label endwhile2 :
-     %19 = 10.0
-     %21 = float %8
-     %20 = %21 /. %19
-     r = %20
+     %17 = 10.0
+     %19 = float %8
+     %18 = %19 /. %17
+     r = %18
      ;;; = 'writer;'
      writef r
      ;;; = 'write"\n";'
      writes "\n"
      ;;; = 'k=reduce(A,catorze);'
-     %25 = 0
-     %26 = A[%25]
-     %22 = %26
-     %31 = 1
-     %32 = 10
-     %24 = 1
+     %22 = 0
+     %20 = A
+     %27 = 1
+     %28 = 10
+     %21 = 1
   label while3 :
-     %30 = %24 < %32
-     ifFalse %30 goto endwhile3
-     %27 = A[%24]
-     %23 = %27
+     %26 = %21 < %28
+     ifFalse %26 goto endwhile3
      pushparam 
-     %28 = %22
-     pushparam %28
-     %29 = %23
-     pushparam %29
+     %23 = %20
+     pushparam %23
+     %25 = A[%21]
+     %24 = %25
+     pushparam %24
      call catorze
      popparam 
      popparam 
-     popparam %22
-     %24 = %24 + %31
+     popparam %20
+     %21 = %21 + %27
      goto while3
   label endwhile3 :
-     k = %22
+     k = %20
      ;;; = 'writek;'
      writei k
      ;;; = 'write"\n";'
      writes "\n"
      ;;; = 'B[0]=A[3];'
-     %33 = 0
-     %34 = 3
-     %35 = A[%34]
-     B[%33] = %35
+     %29 = 0
+     %30 = 3
+     %31 = A[%30]
+     B[%29] = %31
      ;;; = 'writereduce(B,catorze);'
-     %39 = 0
-     %40 = B[%39]
-     %36 = %40
-     %45 = 1
-     %46 = 1
-     %38 = 1
+     %34 = 0
+     %32 = B
+     %39 = 1
+     %40 = 1
+     %33 = 1
   label while4 :
-     %44 = %38 < %46
-     ifFalse %44 goto endwhile4
-     %41 = B[%38]
-     %37 = %41
+     %38 = %33 < %40
+     ifFalse %38 goto endwhile4
      pushparam 
-     %42 = %36
-     pushparam %42
-     %43 = %37
-     pushparam %43
+     %35 = %32
+     pushparam %35
+     %37 = B[%33]
+     %36 = %37
+     pushparam %36
      call catorze
      popparam 
      popparam 
-     popparam %36
-     %38 = %38 + %45
+     popparam %32
+     %33 = %33 + %39
      goto while4
   label endwhile4 :
-     writei %36
+     writei %32
      ;;; = 'write"\n";'
      writes "\n"
      ;;; = 'B[0]=A[6];'
-     %47 = 0
-     %48 = 6
-     %49 = A[%48]
-     B[%47] = %49
+     %41 = 0
+     %42 = 6
+     %43 = A[%42]
+     B[%41] = %43
      ;;; = 'writereduce(B,catorze);'
-     %53 = 0
-     %54 = B[%53]
-     %50 = %54
-     %59 = 1
-     %60 = 1
+     %46 = 0
+     %44 = B
+     %51 = 1
      %52 = 1
+     %45 = 1
   label while5 :
-     %58 = %52 < %60
-     ifFalse %58 goto endwhile5
-     %55 = B[%52]
-     %51 = %55
+     %50 = %45 < %52
+     ifFalse %50 goto endwhile5
      pushparam 
-     %56 = %50
-     pushparam %56
-     %57 = %51
-     pushparam %57
+     %47 = %44
+     pushparam %47
+     %49 = B[%45]
+     %48 = %49
+     pushparam %48
      call catorze
      popparam 
      popparam 
-     popparam %50
-     %52 = %52 + %59
+     popparam %44
+     %45 = %45 + %51
      goto while5
   label endwhile5 :
-     writei %50
+     writei %44
      ;;; = 'write"\n";'
      writes "\n"
      ;;; = 'i=0;'
-     %61 = 0
-     i = %61
+     %53 = 0
+     i = %53
      ;;; = 'whilei<12doreadAC[i];i=i+1;endwhile'
   label while6 :
-     %62 = 12
-     %63 = i < %62
-     ifFalse %63 goto endwhile6
+     %54 = 12
+     %55 = i < %54
+     ifFalse %55 goto endwhile6
      ;;; = 'readAC[i];'
-     readc %64
-     AC[i] = %64
+     readc %56
+     AC[i] = %56
      ;;; = 'i=i+1;'
-     %65 = 1
-     %66 = i + %65
-     i = %66
+     %57 = 1
+     %58 = i + %57
+     i = %58
      goto while6
   label endwhile6 :
      ;;; = 'c=reduce(AC,lletraF);'
-     %70 = 0
-     %71 = AC[%70]
-     %67 = %71
-     %76 = 1
-     %77 = 12
-     %69 = 1
+     %61 = 0
+     %59 = AC
+     %66 = 1
+     %67 = 12
+     %60 = 1
   label while7 :
-     %75 = %69 < %77
-     ifFalse %75 goto endwhile7
-     %72 = AC[%69]
-     %68 = %72
+     %65 = %60 < %67
+     ifFalse %65 goto endwhile7
      pushparam 
-     %73 = %67
-     pushparam %73
-     %74 = %68
-     pushparam %74
+     %62 = %59
+     pushparam %62
+     %64 = AC[%60]
+     %63 = %64
+     pushparam %63
      call lletraF
      popparam 
      popparam 
-     popparam %67
-     %69 = %69 + %76
+     popparam %59
+     %60 = %60 + %66
      goto while7
   label endwhile7 :
-     c = %67
+     c = %59
      ;;; = 'writec;'
      writec c
      ;;; = 'write"\n";'
      writes "\n"
      ;;; = 'BC[0]=AC[7];'
-     %78 = 0
-     %79 = 7
-     %80 = AC[%79]
-     BC[%78] = %80
+     %68 = 0
+     %69 = 7
+     %70 = AC[%69]
+     BC[%68] = %70
      ;;; = 'c=reduce(BC,lletraF);'
-     %84 = 0
-     %85 = BC[%84]
-     %81 = %85
-     %90 = 1
-     %91 = 1
-     %83 = 1
+     %73 = 0
+     %71 = BC
+     %78 = 1
+     %79 = 1
+     %72 = 1
   label while8 :
-     %89 = %83 < %91
-     ifFalse %89 goto endwhile8
-     %86 = BC[%83]
-     %82 = %86
+     %77 = %72 < %79
+     ifFalse %77 goto endwhile8
      pushparam 
-     %87 = %81
-     pushparam %87
-     %88 = %82
-     pushparam %88
+     %74 = %71
+     pushparam %74
+     %76 = BC[%72]
+     %75 = %76
+     pushparam %75
      call lletraF
      popparam 
      popparam 
-     popparam %81
-     %83 = %83 + %90
+     popparam %71
+     %72 = %72 + %78
      goto while8
   label endwhile8 :
-     c = %81
+     c = %71
      ;;; = 'writec;'
      writec c
      ;;; = 'write"\n";'

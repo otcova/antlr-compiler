@@ -71,6 +71,7 @@ instructionList CodeGenVisitor::inst(Assign assign) {
     std::string src = assign.src;
     std::string dst = assign.dst;
 
+
     if (assign.srcOffset != "") {
         CodeAttribs&& srcElement = inst_load(assign.src, assign.srcOffset);
         code = code || srcElement.code;
@@ -723,12 +724,10 @@ std::any CodeGenVisitor::visitReduce(AslParser::ReduceContext *ctx) {
 
     // result = array[0]
     // for (int i = 1; i < array.size; i++) {
-    //      next = array[i]
-    //      result = f(result, next)   
+    //      result = f(result, array[i])   
     // }
 
     CodeAttribs result(newTemp(), "", instructionList());
-    CodeAttribs next(newTemp(), "", instructionList());
     std::string index = newTemp();
     size_t size = Types.getArraySize(arrayTy);
 
@@ -748,19 +747,12 @@ std::any CodeGenVisitor::visitReduce(AslParser::ReduceContext *ctx) {
         .start = "1",
         .end = std::to_string(size),
         .index=index,
-        // f (result, next)
-        .body = inst(Assign {
-                .dstType = arrayElemTy,
-                .dst = next.addr,
-
-                .srcType = arrayElemTy,
-                .src = array.addr,
-                .srcOffset = index,
-            }) || 
+        // f (result, array[i])
+        .body =
             inst(FuncCall {
                 .functionType = functioTy,
                 .functionName = function.addr,
-                .arguments = {result, next},
+                .arguments = {result, CodeAttribs(array.addr, index, instructionList())},
                 .argumentsTypes = {arrayElemTy, arrayElemTy},
                 .result = result.addr,
             }),
