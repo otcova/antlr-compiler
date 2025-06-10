@@ -25,51 +25,55 @@ function main
      %7 = 2
      %9 = float %7
      %8 = x *. %9
-     b[%6] = %8
+     %10 = %6
+     b[%10] = %8
      ;;; = 'a[i]=i;'
-     a[i] = i
+     %11 = i
+     a[%11] = i
      ;;; = 'i=i+1;'
-     %10 = 1
-     %11 = i + %10
-     i = %11
+     %12 = 1
+     %13 = i + %12
+     i = %13
      goto while1
   label endwhile1 :
      ;;; = 'foreachelemfinadowriteelemf;write"\n";foreachxinbdowrite"  ";writeelemf-x/3.5;endforwrite"\n";endfor'
-     %24 = 1
-     %25 = 10
-     %12 = 0
+     %28 = 1
+     %29 = 10
+     %14 = 0
   label while3 :
-     %23 = %12 < %25
-     ifFalse %23 goto endwhile3
-     %13 = a[%12]
-     %14 = float %13
-     elemf = %14
+     %27 = %14 < %29
+     ifFalse %27 goto endwhile3
+     %16 = %14
+     %15 = a[%16]
+     %17 = float %15
+     elemf = %17
      ;;; = 'writeelemf;'
      writef elemf
      ;;; = 'write"\n";'
      writes "\n"
      ;;; = 'foreachxinbdowrite"  ";writeelemf-x/3.5;endfor'
-     %21 = 1
-     %22 = 5
-     %15 = 0
+     %25 = 1
+     %26 = 5
+     %18 = 0
   label while2 :
-     %20 = %15 < %22
-     ifFalse %20 goto endwhile2
-     %16 = b[%15]
-     x = %16
+     %24 = %18 < %26
+     ifFalse %24 goto endwhile2
+     %20 = %18
+     %19 = b[%20]
+     x = %19
      ;;; = 'write"  ";'
      writes "  "
      ;;; = 'writeelemf-x/3.5;'
-     %17 = 3.5
-     %18 = x /. %17
-     %19 = elemf -. %18
-     writef %19
-     %15 = %15 + %21
+     %21 = 3.5
+     %22 = x /. %21
+     %23 = elemf -. %22
+     writef %23
+     %18 = %18 + %25
      goto while2
   label endwhile2 :
      ;;; = 'write"\n";'
      writes "\n"
-     %12 = %12 + %24
+     %14 = %14 + %28
      goto while3
   label endwhile3 :
      return

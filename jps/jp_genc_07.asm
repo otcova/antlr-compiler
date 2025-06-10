@@ -93,130 +93,141 @@ function main
      ;;; = 'A[0]=231;'
      %1 = 0
      %2 = 231
-     A[%1] = %2
+     %3 = %1
+     A[%3] = %2
      ;;; = 'write"A[0]=";'
      writes "A[0]="
      ;;; = 'writeA[0];'
-     %3 = 0
-     %4 = A[%3]
-     writei %4
+     %4 = 0
+     %6 = %4
+     %5 = A[%6]
+     writei %5
      ;;; = 'write"\n";'
      writes "\n"
      ;;; = 'r=reduce(A,suma)/10.0;'
-     %7 = 0
-     %8 = A[0]
-     %5 = %8
-     %13 = 1
-     %14 = 1
-     %6 = 1
+     %9 = 0
+     %11 = %9
+     %10 = A[%11]
+     %7 = %10
+     %17 = 1
+     %18 = 1
+     %8 = 1
   label while1 :
-     %12 = %6 < %14
-     ifFalse %12 goto endwhile1
+     %16 = %8 < %18
+     ifFalse %16 goto endwhile1
      pushparam 
-     %9 = %5
-     pushparam %9
-     %11 = A[%6]
-     %10 = %11
-     pushparam %10
+     %12 = %7
+     pushparam %12
+     %15 = %8
+     %14 = A[%15]
+     %13 = %14
+     pushparam %13
      call suma
      popparam 
      popparam 
-     popparam %5
-     %6 = %6 + %13
+     popparam %7
+     %8 = %8 + %17
      goto while1
   label endwhile1 :
-     %15 = 10.0
-     %17 = float %5
-     %16 = %17 /. %15
-     r = %16
+     %19 = 10.0
+     %21 = float %7
+     %20 = %21 /. %19
+     r = %20
      ;;; = 'writer;'
      writef r
      ;;; = 'write"\n";'
      writes "\n"
      ;;; = 'k=reduce(A,minim);'
-     %20 = 0
-     %21 = A[0]
-     %18 = %21
-     %26 = 1
-     %27 = 1
-     %19 = 1
+     %24 = 0
+     %26 = %24
+     %25 = A[%26]
+     %22 = %25
+     %32 = 1
+     %33 = 1
+     %23 = 1
   label while2 :
-     %25 = %19 < %27
-     ifFalse %25 goto endwhile2
+     %31 = %23 < %33
+     ifFalse %31 goto endwhile2
      pushparam 
-     %22 = %18
-     pushparam %22
-     %24 = A[%19]
-     %23 = %24
-     pushparam %23
+     %27 = %22
+     pushparam %27
+     %30 = %23
+     %29 = A[%30]
+     %28 = %29
+     pushparam %28
      call minim
      popparam 
      popparam 
-     popparam %18
-     %19 = %19 + %26
+     popparam %22
+     %23 = %23 + %32
      goto while2
   label endwhile2 :
-     k = %18
+     k = %22
      ;;; = 'writek;'
      writei k
      ;;; = 'write"\n";'
      writes "\n"
      ;;; = 'k=reduce(A,maxim);'
-     %30 = 0
-     %31 = A[0]
-     %28 = %31
-     %36 = 1
-     %37 = 1
-     %29 = 1
+     %36 = 0
+     %38 = %36
+     %37 = A[%38]
+     %34 = %37
+     %44 = 1
+     %45 = 1
+     %35 = 1
   label while3 :
-     %35 = %29 < %37
-     ifFalse %35 goto endwhile3
+     %43 = %35 < %45
+     ifFalse %43 goto endwhile3
      pushparam 
-     %32 = %28
-     pushparam %32
-     %34 = A[%29]
-     %33 = %34
-     pushparam %33
+     %39 = %34
+     pushparam %39
+     %42 = %35
+     %41 = A[%42]
+     %40 = %41
+     pushparam %40
      call maxim
      popparam 
      popparam 
-     popparam %28
-     %29 = %29 + %36
+     popparam %34
+     %35 = %35 + %44
      goto while3
   label endwhile3 :
-     k = %28
+     k = %34
      ;;; = 'writek;'
      writei k
      ;;; = 'write"\n";'
      writes "\n"
      ;;; = 'AC[0]='h';'
-     %38 = 0
-     %39 = 'h'
-     AC[%38] = %39
+     %46 = 0
+     %47 = 'h'
+     %48 = %46
+     AC[%48] = %47
      ;;; = 'c=reduce(AC,maximC);'
-     %42 = 0
-     %43 = AC[0]
-     %40 = %43
-     %48 = 1
-     %49 = 1
-     %41 = 1
+     %51 = 0
+     %53 = %51
+     %52 = AC[%53]
+     %49 = %52
+     %59 = 1
+     %60 = 1
+     %50 = 1
   label while4 :
-     %47 = %41 < %49
-     ifFalse %47 goto endwhile4
+     %58 = %50 < %60
+     ifFalse %58 goto endwhile4
      pushparam 
-     %44 = %40
-     pushparam %44
-     %46 = AC[%41]
-     %45 = %46
-     pushparam %45
+     %54 = %49
+     pushparam %54
+     %57 = %50
+     %56 = AC[%57]
+     %55 = %56
+     pushparam %55
      call maximC
      popparam 
      popparam 
-     popparam %40
-     %41 = %41 + %48
+     popparam %49
+     %50 = %50 + %59
      goto while4
   label endwhile4 :
-     c = %40
+     c = %49
      ;;; = 'writec;'
      writec c
      ;;; = 'write"\n";'
