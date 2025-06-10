@@ -26,26 +26,29 @@ function main
      %4 = i * i
      %5 = 1
      %6 = %4 + %5
-     Ai[i] = %6
+     %7 = i
+     Ai[%7] = %6
      ;;; = 'i=i+1;'
-     %7 = 1
-     %8 = i + %7
-     i = %8
+     %8 = 1
+     %9 = i + %8
+     i = %9
      goto while1
   label endwhile1 :
      ;;; = 'readk;'
-     readi %9
-     k = %9
+     readi %10
+     k = %10
      ;;; = 'j=5;'
-     %10 = 5
-     j = %10
+     %11 = 5
+     j = %11
      ;;; = 'swap(k,Ai[j+1]);'
-     %11 = 1
-     %12 = j + %11
-     %13 = Ai[%12]
+     %12 = 1
+     %13 = j + %12
      %14 = k
-     k = %13
-     Ai[%12] = %14
+     %16 = %13
+     %15 = Ai[%16]
+     k = %15
+     %17 = %13
+     Ai[%17] = %14
      ;;; = 'write"A. ";'
      writes "A. "
      ;;; = 'writek;'
@@ -53,48 +56,58 @@ function main
      ;;; = 'write" ";'
      writes " "
      ;;; = 'writeAi[j+1];'
-     %15 = 1
-     %16 = j + %15
-     %17 = Ai[%16]
-     writei %17
+     %18 = 1
+     %19 = j + %18
+     %21 = %19
+     %20 = Ai[%21]
+     writei %20
      ;;; = 'write"\n";'
      writes "\n"
      ;;; = 'swap(Ai[0],Ai[n-1]);'
-     %18 = 0
-     %19 = 1
-     %20 = n - %19
-     %21 = Ai[%18]
-     %22 = Ai[%20]
-     %23 = %21
-     Ai[%18] = %22
-     Ai[%20] = %23
+     %22 = 0
+     %23 = 1
+     %24 = n - %23
+     %27 = %22
+     %26 = Ai[%27]
+     %25 = %26
+     %28 = %22
+     %30 = %24
+     %29 = Ai[%30]
+     Ai[%28] = %29
+     %31 = %24
+     Ai[%31] = %25
      ;;; = 'write"B. ";'
      writes "B. "
      ;;; = 'writeAi[0];'
-     %24 = 0
-     %25 = Ai[%24]
-     writei %25
+     %32 = 0
+     %34 = %32
+     %33 = Ai[%34]
+     writei %33
      ;;; = 'write" ";'
      writes " "
      ;;; = 'writeAi[n-1];'
-     %26 = 1
-     %27 = n - %26
-     %28 = Ai[%27]
-     writei %28
+     %35 = 1
+     %36 = n - %35
+     %38 = %36
+     %37 = Ai[%38]
+     writei %37
      ;;; = 'write"\n";'
      writes "\n"
      ;;; = 'swap(Ai[0],k);'
-     %29 = 0
-     %30 = Ai[%29]
-     %31 = %30
-     Ai[%29] = k
-     k = %31
+     %39 = 0
+     %42 = %39
+     %41 = Ai[%42]
+     %40 = %41
+     %43 = %39
+     Ai[%43] = k
+     k = %40
      ;;; = 'write"C. ";'
      writes "C. "
      ;;; = 'writeAi[0];'
-     %32 = 0
-     %33 = Ai[%32]
-     writei %33
+     %44 = 0
+     %46 = %44
+     %45 = Ai[%46]
+     writei %45
      ;;; = 'write" ";'
      writes " "
      ;;; = 'writek;'
@@ -102,12 +115,12 @@ function main
      ;;; = 'write"\n";'
      writes "\n"
      ;;; = 'i=0;'
-     %34 = 0
-     i = %34
+     %47 = 0
+     i = %47
      ;;; = 'whilei<ndowrite"Ai[";writei;write"] = ";writeAi[i];write"\n";i=i+1;endwhile'
   label while2 :
-     %35 = i < n
-     ifFalse %35 goto endwhile2
+     %48 = i < n
+     ifFalse %48 goto endwhile2
      ;;; = 'write"Ai[";'
      writes "Ai["
      ;;; = 'writei;'
@@ -115,14 +128,15 @@ function main
      ;;; = 'write"] = ";'
      writes "] = "
      ;;; = 'writeAi[i];'
-     %36 = Ai[i]
-     writei %36
+     %50 = i
+     %49 = Ai[%50]
+     writei %49
      ;;; = 'write"\n";'
      writes "\n"
      ;;; = 'i=i+1;'
-     %37 = 1
-     %38 = i + %37
-     i = %38
+     %51 = 1
+     %52 = i + %51
+     i = %52
      goto while2
   label endwhile2 :
      return

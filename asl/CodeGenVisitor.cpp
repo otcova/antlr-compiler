@@ -615,15 +615,10 @@ std::any CodeGenVisitor::visitSwap(AslParser::SwapContext *ctx) {
         TypesMgr::TypeId elemTypeArg0 = Types.getArrayElemType(arg0Ty);
         TypesMgr::TypeId elemTypeArg1 = Types.getArrayElemType(arg1Ty);
 
-        size_t size = Types.getArraySize(arg0Ty);
         std::string index = newTemp();
 
-
-        CodeAttribs arg0_src = inst_load(arg0.addr, index);
-        CodeAttribs arg1_src = inst_load(arg1.addr, index);
-        instructionList body = arg0_src.code || arg1_src.code;
-
-        // temp = arg0
+        instructionList body;
+        // temp = arg0[i]
         std::string temp = newTemp();
         body = body || inst(Assign {
             .dstType = elemTypeArg0,
@@ -631,20 +626,22 @@ std::any CodeGenVisitor::visitSwap(AslParser::SwapContext *ctx) {
             .dstOffset = "",
 
             .srcType = elemTypeArg0,
-            .src = arg0_src.addr,
+            .src = arg0.addr,
+            .srcOffset = index
         });
         
-        // arg0 = arg1
+        // arg0[i] = arg1[i]
         body = body || inst(Assign {
             .dstType = elemTypeArg0,
             .dst = arg0.addr,
             .dstOffset = index,
 
             .srcType = elemTypeArg1,
-            .src = arg1_src.addr,
+            .src = arg1.addr,
+            .srcOffset = index,
         });
 
-        // arg1 = temp
+        // arg1[i] = temp
         body = body || inst(Assign {
             .dstType = elemTypeArg1,
             .dst = arg1.addr,
@@ -652,9 +649,11 @@ std::any CodeGenVisitor::visitSwap(AslParser::SwapContext *ctx) {
 
             .srcType = elemTypeArg0,
             .src = temp,
+            .srcOffset = "",
         });
         
         // for i in 0..size { dst[i] = src[i]; }
+        size_t size = Types.getArraySize(arg0Ty);
         code = code || inst(ForRange {
             .start = "0",
             .end = std::to_string(size),
@@ -664,10 +663,6 @@ std::any CodeGenVisitor::visitSwap(AslParser::SwapContext *ctx) {
 
 
     } else {
-        CodeAttribs arg0_src = inst_load(arg0.addr, arg0.offs);
-        CodeAttribs arg1_src = inst_load(arg1.addr, arg1.offs);
-        code = code || arg0_src.code || arg1_src.code;
-
         // temp = arg0
         std::string temp = newTemp();
         code = code || inst(Assign {
@@ -676,7 +671,8 @@ std::any CodeGenVisitor::visitSwap(AslParser::SwapContext *ctx) {
             .dstOffset = "",
 
             .srcType = arg0Ty,
-            .src = arg0_src.addr,
+            .src = arg0.addr,
+            .srcOffset = arg0.offs,
         });
         
         // arg0 = arg1
@@ -686,7 +682,8 @@ std::any CodeGenVisitor::visitSwap(AslParser::SwapContext *ctx) {
             .dstOffset = arg0.offs,
 
             .srcType = arg1Ty,
-            .src = arg1_src.addr,
+            .src = arg1.addr,
+            .srcOffset = arg1.offs,
         });
 
         // arg1 = temp
