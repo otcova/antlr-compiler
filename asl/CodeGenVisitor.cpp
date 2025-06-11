@@ -194,7 +194,7 @@ instructionList CodeGenVisitor::inst(FuncCall inst_call) {
             code = code || inst(Assign {
                 .dstType = Types.getParameterType(inst_call.functionType, i),
                 .dst = value,
-
+.dstOffset = "",
                 .srcType = paramType,
                 .src = param.addr,
                 .srcOffset = param.offs,
@@ -413,12 +413,14 @@ std::any CodeGenVisitor::visitAssignStmt(AslParser::AssignStmtContext *ctx) {
             .dstOffset = index,
             .srcType = elemTypeRhs,
             .src = value.addr,
+            .srcOffset = "",
         });
         
         // for i in 0..size { dst[i] = src[i]; }
         code = code || inst(ForRange {
             .start = "0",
             .end = std::to_string(size),
+            .increment = "1",
             .index=index,
             .body = body,
         });
@@ -428,7 +430,8 @@ std::any CodeGenVisitor::visitAssignStmt(AslParser::AssignStmtContext *ctx) {
             .dst = addrLhs,
             .dstOffset = offsLhs,
             .srcType = typeRhs,
-            .src = addrRhs
+            .src = addrRhs,
+            .srcOffset = "",
         });
     }
 
@@ -539,7 +542,8 @@ std::any CodeGenVisitor::visitReadStmt(AslParser::ReadStmtContext *ctx) {
         .dst = addr1,
         .dstOffset = offs1,
         .srcType = type,
-        .src = input
+        .src = input,
+        .srcOffset = "",
     });
 
     DEBUG_EXIT();
@@ -585,8 +589,10 @@ std::any CodeGenVisitor::visitReturn(AslParser::ReturnContext *ctx) {
         code = code || resultCode.code || inst(Assign {
             .dstType = Types.getFuncReturnType(getCurrentFunctionTy()),
             .dst = "_result",
+            .dstOffset = "",
             .srcType = getTypeDecor(ctx->expr()),
             .src = resultCode.addr,
+            .srcOffset = "",
         });
     }
 

@@ -1,0 +1,9 @@
+CompileFlags:
+  Add:
+    - "-std=c++17"
+    #- "-I/assig/otger.comas/cl/runtime/include/antlr4-runtime"
+    #- "-I/assig/xiangfeng.yepan/cl/runtime/include/antlr4-runtime"
+    - "-I../antlr4_runtime/include/antlr4-runtime"
+    - "-I../asl"
+    - "-I../common"
+    

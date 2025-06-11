@@ -59,21 +59,38 @@ done
 
 # ########### Start of test for the examn test #############
 
-# for i in 1 2 6 7; do
-#     asl="../jps/jp_chkt_0$i.asl"
-#     err="../jps/jp_chkt_0$i.err"
+# for i in 01 02; do
+#     asl="../jps/jp_chkt_$i.asl"
+#     err="../jps/jp_chkt_$i.err"
 #     echo "$asl"
 #     delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
 # done
 
-# for i in 03 04 05 08 09 10; do
+# for i in 03 04; do
 #     asl="../jps/jp_genc_$i.asl"
 #     in="../jps/jp_genc_$i.in"
 #     out="../jps/jp_genc_$i.out"
 #     asm="../jps/jp_genc_$i.asm"
 #     echo "$asl"
 #     ./asl "$asl" > $asm
-#     delta <(cat "$out") <(../tvm/tvm $asm <"$in")
+#     delta <(cat "$out") <(../tvm/tvm $asm <"$in" 2>&1)
+# done
+
+# for i in 06 07; do
+#     asl="../jps/jp_chkt_$i.asl"
+#     err="../jps/jp_chkt_$i.err"
+#     echo "$asl"
+#     delta <(cat "$err") <(./asl "$asl" 2>&1 | sed '/There are semantic errors: no code generated./d')
+# done
+
+# for i in 08 09 10; do
+#     asl="../jps/jp_genc_$i.asl"
+#     in="../jps/jp_genc_$i.in"
+#     out="../jps/jp_genc_$i.out"
+#     asm="../jps/jp_genc_$i.asm"
+#     echo "$asl"
+#     ./asl "$asl" > $asm
+#     delta <(cat "$out") <(../tvm/tvm $asm <"$in" 2>&1)
 # done
 
 # ########### End of test for the examn test #############
