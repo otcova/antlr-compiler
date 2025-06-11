@@ -196,6 +196,7 @@ instructionList CodeGenVisitor::inst(FuncCall inst_call) {
             code = code || inst(Assign {
                 .dstType = Types.getParameterType(inst_call.functionType, i),
                 .dst = value,
+                .dstOffset = "",
 
                 .srcType = paramType,
                 .src = param.addr,
@@ -421,6 +422,7 @@ std::any CodeGenVisitor::visitAssignStmt(AslParser::AssignStmtContext *ctx) {
         code = code || inst(ForRange {
             .start = "0",
             .end = std::to_string(size),
+            .increment = "1",
             .index=index,
             .body = body,
         });
@@ -587,8 +589,10 @@ std::any CodeGenVisitor::visitReturn(AslParser::ReturnContext *ctx) {
         code = code || resultCode.code || inst(Assign {
             .dstType = Types.getFuncReturnType(getCurrentFunctionTy()),
             .dst = "_result",
+            .dstOffset = "",
             .srcType = getTypeDecor(ctx->expr()),
             .src = resultCode.addr,
+            .srcOffset = "",
         });
     }
 
@@ -657,6 +661,7 @@ std::any CodeGenVisitor::visitSwap(AslParser::SwapContext *ctx) {
         code = code || inst(ForRange {
             .start = "0",
             .end = std::to_string(size),
+            .increment = "1",
             .index=index,
             .body = body,
         });
